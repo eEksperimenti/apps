@@ -4,9 +4,9 @@ $( document ).ready(function() {
     var translations=
     [
 		{'sl':'Samodejna prilagoditev napetostnega merilnega območja','en':'Autoscale'},
-        {'sl':'Kanal','en':'Channel'},
-        {'sl':'Povprečenje signalov','en':'Averaging'},
-        {'sl':'Privzeti merilni območji','en':'Reset zoom'},
+		{'sl':'Kanal','en':'Channel'},
+        	{'sl':'Povprečenje signalov','en':'Averaging'},
+        	{'sl':'Privzeti merilni območji','en':'Reset zoom'},
 		{'sl':'Zunanji izvor','en':'External'},
 		{'sl':'Izvor prožilnega signala','en':'Source'},
 		{'sl':'Način proženja','en':'Mode'},
