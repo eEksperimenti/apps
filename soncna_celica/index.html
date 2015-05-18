@@ -27,6 +27,26 @@
   <script src="../assets/flot/jquery.flot.resize.min.js"></script>
   <script src="../assets/flot/jquery.flot.touch.js?2"></script>
   <style type="text/css">
+  .xtitle {
+      text-align: center;  
+      margin: 5px 30px 0;
+      min-height: 20px;
+    }
+    .ytitle {
+      position: absolute;
+      top: 50%;
+      left: 7px;
+      transform: rotate(-90deg);
+      -o-transform: rotate(-90deg);
+      -ms-transform: rotate(-90deg);
+      -moz-transform: rotate(-90deg);
+      -webkit-transform:  rotate(-90deg);
+      transform-origin: 0 0;
+      -o-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+      -moz-transform-origin: 0 0;
+      -webkit-transform-origin: 0 0;
+    }
     .y2title {
         position: absolute;
         top: 50%;
@@ -42,6 +62,11 @@
         -moz-transform-origin: 0 0;
         -webkit-transform-origin: 0 0;
       }
+   .plot_holder {
+        height: 460px; 
+        margin: 0 30px 0 10px; 
+        padding: 0;
+    }
   </style>
   <script type="text/javascript">
   
