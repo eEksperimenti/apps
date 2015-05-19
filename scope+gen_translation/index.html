@@ -620,6 +620,9 @@
   }   
   
   function updateGraphData() {
+  
+	//***
+	
     if(downloading) {
       return;
     }
@@ -1799,10 +1802,20 @@
       <h2 class="page-title">Generator & Oscilloscope</h2>
     </div>
   </div>
+	<!-- <a href='#sl' class='translate' style ="float: right"">sl</a>
+	<a href='#en' class='translate' style ="float: right">en</a> -->
+	<div class="dropdown" style="float: right; margin: 15px;">
+	  <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Language
+	  <span class="caret" ></span></button>
+	  <ul class="dropdown-menu">
+		<li><a href="#en" class='translate' >en</a></li>
+		<li><a href="#sl" class='translate' >sl</a></li>
+	  </ul>
+	</div>
+  
   <div class="container">
     <div class="row">
-	<a href='#sl' class='translate' >sl</a>
-	<a href='#en' class='translate' >en</a>
+	
       <div id="btn_toolbar" class="col-xs-12">
         
         
@@ -1849,22 +1862,22 @@
               </a>
             </h4>
           </div>
-          <div  id="autoscale"  class="panel-collapse collapse"> 
-            <div class="panel-body">
-				<div class="row">
-					<button id="btn_autoscale_y" class="btn btn-primary btn-lg" data-autozoom="false" onclick="autoscaleY()">
-						<span class="glyphicon glyphicon-resize-vertical"></span> Autoscale
+          <div  id="autoscale"  class="panel-collapse collapse in"> 
+            <div class="container">
+				<div class="form-group">
+					<button id="btn_autoscale_y" class="btn btn-primary btn-block" data-autozoom="false" onclick="autoscaleY()">
+						<span class="glyphicon glyphicon-resize-vertical"></span> AUTOSCALE
 					</button>
 				</div>
 				
-				 <div class="row"> 
-					<button class="btn btn-primary btn-lg" onclick="resetZoom()">
+				<div class="form-group">
+					<button class="btn btn-primary btn-block" onclick="resetZoom()">
 						<span class="glyphicon glyphicon-retweet"></span> Reset zoom
 					</button>  
 				 </div> 
 				 
-				  <div class="row"> 
-					<button id="btn_auto" class="btn btn-primary btn-lg" align="left" onclick="serverAutoScale()">AUTO</button>
+				  <div class="form-group">
+					<button id="btn_auto" class="btn btn-primary btn-block" class="glyphicon glyphicon-retweet" onclick="serverAutoScale()">AUTO</button>
 				  </div>
 			</div>
           </div>
@@ -1877,7 +1890,7 @@
               </a>
             </h4>
           </div>
-          <div id="trigger" class="panel-collapse collapse in">
+          <div id="trigger" class="panel-collapse collapse">
             <div class="panel-body">
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
