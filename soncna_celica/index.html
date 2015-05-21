@@ -407,7 +407,6 @@
     
     $('#range_x_minus, #range_x_plus').on('click', function() {
       var nearest = $(this).data('nearest');
-      
       if(nearest && plot) {
         var options = plot.getOptions();
         var axes = plot.getAxes();
@@ -433,7 +432,6 @@
         
         params.local.xmin = min;
         params.local.xmax = max;       
-        
         updateRanges();
         $(this).tooltip($(this).prop('disabled') === true ? 'hide' : 'show');
         sendParams(true);
@@ -700,7 +698,8 @@
         }
         
         if(! plot1) {
-          //initPlot(dresult.datasets.params);
+          initPlot(dresult.datasets.params);
+          updateRanges();
           $('.y2title').hide();
           plot1=$.plot($("#plot1 .plot_holder:first"),[ {data:[[0, 0]]},{label:'moč',color:0,data:[[0,0]],ido:'p',yaxis:2} ], plot1_options2);
           var data=plot1.getData();
@@ -933,55 +932,6 @@
       filtered_data,
       plot_options
     );
-    
-    // Selection
-    plot_holder.on('plotselected', function(event, ranges) {
-    
-      // Clamp the zooming to prevent eternal zoom
-      if(ranges.xaxis.to - ranges.xaxis.from < 0.00001) {
-        ranges.xaxis.to = ranges.xaxis.from + 0.00001;
-      }
-      if(ranges.yaxis.to - ranges.yaxis.from < 0.00001) {
-        ranges.yaxis.to = ranges.yaxis.from + 0.00001;
-      }
-  
-      // Do the zooming
-      plot = $.plot(
-        plot_holder, 
-        getData(ranges.xaxis.from, ranges.xaxis.to),
-        $.extend(true, plot_options, {
-          xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
-          yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
-        })
-      );
-      
-      params.local.xmin = parseFloat(ranges.xaxis.from.toFixed(xdecimal_places));
-      params.local.xmax = parseFloat(ranges.xaxis.to.toFixed(xdecimal_places));
-      
-      updateTriggerSlider();
-      sendParams(true);
-    });
-    
-    // Zoom / Pan
-    plot_holder.on('plotzoom plotpan touchmove touchend', function(event) {
-      
-      if(zoompan_timer) {
-        clearTimeout(zoompan_timer);
-        zoompan_timer = null;
-      }
-      
-      zoompan_timer = setTimeout(function() {
-        zoompan_timer = null;
-        
-        var xaxis = plot.getAxes().xaxis;
-        params.local.xmin = parseFloat(xaxis.min.toFixed(xdecimal_places));
-        params.local.xmax = parseFloat(xaxis.max.toFixed(xdecimal_places));
-        
-        updateTriggerSlider();
-        sendParams(true);
-                
-      }, 250);
-    });
   }
   
   function onDropdownChange(that, param_name, do_get) {
@@ -1137,10 +1087,10 @@
         }      
       
         loadParams(dresult.datasets.params);
-        updateTriggerSlider();
+        //updateTriggerSlider();
         
         if(refresh_data && !downloading) {
-          updateGraphData();
+          //updateGraphData();
         } 
       }
       else if(dresult.status == 'ERROR') {
@@ -1628,12 +1578,8 @@
   
   function updateRanges() {
     var xunit = (params.local.time_units == 0 ? 'μs' : (params.local.time_units == 1 ? 'ms' : 's'));
-    var yunit = 'V';
     var axes = plot.getAxes();
     var xrange = axes.xaxis.max - axes.xaxis.min;
-    var yrange = axes.yaxis.max - axes.yaxis.min;
-    var yminrange = 5e-3;  // Volts
-    var ymaxrange = params.original.gui_reset_y_range;
     var xmaxrange = 10.0;  // seconds
     var xminrange = 20e-9; // seconds
     var decimals = 0;
@@ -1647,18 +1593,9 @@
     }
     var seconds = (xunit == 'ns' ? 1e-9 : ( xunit == 'μs' ? 1e-6 : (xunit == 'ms' ? 1e-3 : 1)));
     
-    if(yrange < 1) {
-      yunit = 'mV';
-      yrange *= 1000;
-      ymaxrange *= 1000;
-      yminrange *= 1000;
-    }
-
     $('#range_x').html(+(Math.round(xrange + "e+" + decimals) + "e-" + decimals) + ' ' + xunit);
-    $('#range_y').html(Math.floor(yrange) + ' ' + yunit);
     
     var nearest_x = getNearestRanges(xrange);
-    var nearest_y = getNearestRanges(yrange);
         
     // X limitations 
     if(nearest_x.next * seconds > xmaxrange) {
@@ -1678,25 +1615,6 @@
     
     $('#range_x_minus').data({ nearest: nearest_x.prev, unit: xunit }).data('bs.tooltip').options.title = nearest_x.prev;
     $('#range_x_plus').data({ nearest: nearest_x.next, unit: xunit }).data('bs.tooltip').options.title = nearest_x.next;
-    
-    // Y limitations
-    if(nearest_y.next - nearest_y.prev >= ymaxrange) {
-      nearest_y.next = null;
-      $('#range_y_plus').prop('disabled', true);
-    }
-    else {
-      $('#range_y_plus').prop('disabled', false);
-    }
-    if(nearest_y.prev < yminrange) {
-      nearest_y.prev = null;
-      $('#range_y_minus').prop('disabled', true);
-    }
-    else {
-      $('#range_y_minus').prop('disabled', false);
-    }
-    
-    $('#range_y_minus').data({ nearest: nearest_y.prev, unit: yunit }).data('bs.tooltip').options.title = nearest_y.prev;
-    $('#range_y_plus').data({ nearest: nearest_y.next, unit: yunit }).data('bs.tooltip').options.title = nearest_y.next;
   }
   
   function getNearestRanges(number) {
@@ -2139,6 +2057,21 @@
                 <input type="text" id="ymax2" class="form-control" value="100" aria-describedby="sizing-addon3">
               </div>
             </div>
+            <hr>
+              <div class="text-center">
+                <div style="padding-bottom: 10px;" class="group-label">X axis</div>
+                <div style="margin-bottom: -3px;" class="btn-group">
+                  <button class="btn btn-primary range-btn-left btn-sm" type="button" id="range_x_minus" data-original-title="" title="">
+                    <span class="glyphicon glyphicon-minus"></span>
+                  </button>
+                  <button class="btn btn-primary range-btn-right btn-sm" type="button" id="range_x_plus" data-original-title="" title="">
+                    <span class="glyphicon glyphicon-plus"></span>
+                  </button>
+                </div>
+                <div>
+                  <span class="badge range-badge" id="range_x">20 μs</span>
+                </div>
+              </div>
           </div>
         </div>
     </div>
@@ -2180,6 +2113,7 @@
   <div id="navodila"></div>
   </div>
   <!--templates-->
+  <div id="plot_holder" style='width:600px; display: none'></div>
   <span id='karakteristika_trans' style='display: none'>karakteristika</span>
 </body>
 </html>
