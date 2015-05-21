@@ -3,7 +3,7 @@ $( document ).ready(function() {
     var baseLanguage='en'; //jezik, v katerem so originalni napisi
     var translations=
     [
-		{'sl':'Samodejna prilagoditev merilnih območij','en':'Autoscale'},
+		{'sl':'Samodejna nastavitev merilnih območij','en':'Autoscale'},
 		{'sl':'Napetostnega in časovnega','en':'AUTOSCALE'},
         {'sl':'Kanal','en':'Channel'},
         {'sl':'Povprečenje signalov','en':'Averaging'},
@@ -21,7 +21,7 @@ $( document ).ready(function() {
 		{'sl':'Prag proženja','en':'Level'},
 		{'sl':'Enkratno proženje','en':'Single '},
 		{'sl':'Širina','en':'Range '},
-		{'sl':'Nastavitev merilnih območij','en':'Range'},
+		{'sl':'Ročna nastavitev merilnih območij','en':'Range'},
 		//{'sl':'','en':'Range'},
 		{'sl':'Časovno merilno območje','en':'X axis'},
 		{'sl':'Napetostno merilno območje','en':'Y axis'},
@@ -53,7 +53,7 @@ $( document ).ready(function() {
 		{'sl':'Vršna napetost','en':'Amp'},
 		{'sl':'Napetostnega','en':'AUTO'},
 		{'sl':'Napetost','en':'Voltage'},
-		{'sl':'','en':''},
+		{'sl':'Jezik','en':'Language'},
 		{'sl':'','en':''},
 		{'sl':'','en':''},
 		{'sl':'','en':''},
