@@ -37,7 +37,7 @@ $( document ).ready(function() {
 		{'sl':'Merilni sondi','en':'Gain settings'},	
 		{'sl':'Signalni generator in osciloskop','en':'Generator & Oscilloscope'},
 		{'sl':'Signalni generator','en':'Signal generator'},
-		{'sl':'Nastavitve ojačanja','en':'Gain setting'},
+		{'sl':'Nastavitev ojačanja','en':'Gain setting'},
 		{'sl':'Faktor slabljenja','en':'Probe attenuation'},
 		{'sl':'Oblika izhodnega signala','en':'Signal type'},
 		{'sl':'Sinusna','en':'Sine'},
