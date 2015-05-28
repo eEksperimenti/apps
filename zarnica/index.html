@@ -97,10 +97,10 @@
   var data2=null;
   var params = {
     original: null,
-    local: null
+    local:null
   };	
-  $.extend(params.local,{gain_ch1:1,gain_ch2:1});
-  $.extend(params.original,{gain_ch1:1,gain_ch2:1});
+$.extend(params.original,{gain_ch1:1,gain_ch2:1});
+ $.extend(params.local,{gain_ch1:1,gain_ch2:1});
   
   // Default parameters - posted after server side app is started 
   var def_params = {
@@ -605,10 +605,12 @@
       else {
         $.post(
           post_url, 
-          JSON.stringify({ datasets: { params: {gain_ch1:1,gain_ch2:1}}})
+           JSON.stringify({ datasets: { params: def_params } })
         )
         .done(function(dresult) {
           app_started = true;
+         // params.local:{gain_ch1:1,gain_ch2:1};
+         //resetValues();
 
           updateGraphData();      
         })
@@ -822,6 +824,7 @@
     var filtered_data = filterData(datasets, plot_holder.width());
   
     // Plot first creation and drawing
+
     updateGraphData();
    /* plot = $.plot(
       plot_holder, 
@@ -999,7 +1002,7 @@
     params.local.single_btn = (single_btn === true ? 1 : 0);
     use_long_timeout = !!auto_flag;
   
-
+    params.local = {gain_ch1:1,gain_ch2:1};
     $.ajax({
       type: 'POST',
       url: post_url,
