@@ -1857,6 +1857,55 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
  function showSettings(){
  	$("#settings").toggle();
  }
+   function izvoz()
+  {
+    //http://blog.eliacontini.info/post/79860720828/export-to-csv-using-javascript-the-download
+    // some data to export
+    // prepare CSV data
+    var csvData = [];
+    csvData.push('"id","T","U","I"');
+ 
+     
+      for (var j=0;j<data1.data.length;++j)
+      {
+        csvData.push('"'+(j+1)+'","'+data1.data[j][0]+'","'+data1.data[j][1]+'","'+data2.data[j][1]+'"');
+      }
+    
+    
+    // download stuff
+    var fileName = "data.csv";
+    var buffer = csvData.join("\n");
+    var blob = new Blob([buffer], {
+      "type": "text/csv;charset=utf8;"			
+    });
+  
+    var link = document.createElement("a");
+    
+    var a;
+    if(link.download !== undefined)
+    { // feature detection
+      a = $('<a id="export"><span>export</span></a>');
+      a.attr('href',window.URL.createObjectURL(blob));
+      a.attr('download',fileName);
+    }
+    else if(navigator.msSaveBlob)
+    { // IE 10+
+      a = $('<a id="export" href="#"><span>export</span></a>');
+      a.click(function()
+              {
+                navigator.msSaveBlob(blob, fileName);
+                return false;
+              });
+    }
+    
+    a.hide();
+    $('body').append(a);
+    a.find('span').trigger('click');
+    a.remove();
+  }
+
+
+
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
 </head>
@@ -1964,7 +2013,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
        <div id="buttons">
 	       <button id="settingsBtn" class="btn btn-primary" onclick="showSettings()" >Settings</button>
 	       <button id="resetValues" class="btn btn-primary btn-lg" onclick="resetValues()" data-checked="true">Ponastavi</button>
-	       <button id="export"  class="btn btn-primary btn-lg" data-checked="true" >Izvozi meritev</button>
+	       <button id="export"  class="btn btn-primary btn-lg" data-checked="true" onclick="izvoz()">Izvozi meritev</button>
        </div>
 
        <div id="settings" style="display:none">
