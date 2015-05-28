@@ -49,6 +49,7 @@
 #accordion{
   width:30%;
   margin-left:30px;
+  margin-top:30px;
 }
 #rightPanel,#rightPanel-body,#leftPanel-body{
 
@@ -59,4 +60,10 @@
 }
 .podatki{
   width:60%;
+}
+#settings{
+  margin-top:10px;
+}
+#buttons > button{
+  margin-left:10px;
 }
