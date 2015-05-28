@@ -101,6 +101,8 @@
   };	
 $.extend(params.original,{gain_ch1:1,gain_ch2:1});
  $.extend(params.local,{gain_ch1:1,gain_ch2:1});
+ $.extend(params.local,{trig_mode:1});
+ //$.extend(params.original,{trig_mode:1});
   
   // Default parameters - posted after server side app is started 
   var def_params = {
@@ -706,6 +708,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           $.extend(datasets[1],{label:'Svetilnost',color:1,yaxis:2});
        
        	  $.extend(dresult.datasets.params,{gain_ch1:1,gain_ch2:1});
+       	  $.extend(params.local,{trig_mode:1});
         
         if(! plot) {
           initPlot(dresult.datasets.params);
@@ -1002,7 +1005,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     params.local.single_btn = (single_btn === true ? 1 : 0);
     use_long_timeout = !!auto_flag;
   
-    params.local = {gain_ch1:1,gain_ch2:1};
+    //params.local = {gain_ch1:1,gain_ch2:1};
+     //$.extend(params.local,{trig_mode:1});
     $.ajax({
       type: 'POST',
       url: post_url,
@@ -1857,7 +1861,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
   <div class="header">
     <div class="container">
       <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-      <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
+      <img class="logo pull-left" src="../assets/images/logo_white.png">
       <h2 class="page-title">Žarnica</h2>
     </div>
   </div>
