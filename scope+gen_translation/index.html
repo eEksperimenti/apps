@@ -12,7 +12,7 @@
  * for more details on the languages used herein.
 -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1797,14 +1797,14 @@
     <div class="container">
       <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/logo_white.png">
-      <h2 class="page-title">Generator & Oscilloscope</h2>
+      <h2 class="page-title">Signalni generator in osciloskop</h2>
     </div>
   </div>
 	<!-- <a href='#sl' class='translate' style ="float: right"">sl</a>
 	<a href='#en' class='translate' style ="float: right">en</a> -->
 	
 	<div class="dropdown dropdown-menu-right" style="float: right; margin-top: 15px; margin-right: 70px;">
-	  <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Language
+	  <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
 		<span class="caret" ></span></button>
 	  </button>
 	  <ul class="dropdown-menu">
@@ -1833,24 +1833,24 @@
             <span class="glyphicon glyphicon-search"></span><span class="glyphicon glyphicon-move"></span>
           </button>
         </div>
-        <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 1</button>
-        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 2</button>
+        <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 1</button>
+        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 2</button>
         
-        <!-- <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Averaging</button>
+        <!-- <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Povprečenje signalov</button>
 		-->
       </div>
     </div>
     <div class="row">
       <div class="col-xs-12 col-sm-12 col-md-8">
         <div class="graph-holder well well-small">
-          <div id="ytitle">Voltage [ V ]</div>
+          <div id="ytitle">Napetost [ V ]</div>
           <div id="trigger_cnv_holder">
             <canvas id="trigger_canvas" width="25" height="460"></canvas>
             <div id="trigger_tooltip"></div>
           </div>
           <div id="plot_holder"></div>
           <div id="xtitle"></div>
-		  <span id='t-channel' style='display: none'>Channel</span>
+		  <span id='t-channel' style='display: none'>Kanal</span>
         </div>
       </div>
       <div class="panel-group col-xs-12 col-sm-12 col-md-4" id="accordion">
@@ -1858,7 +1858,7 @@
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#autoscale">
-                Autoscale
+                Samodejna nastavitev merilnih območij
               </a>
             </h4>
           </div>
@@ -1867,19 +1867,19 @@
 			
 				<div class="row" style="margin: 4px">
 					<button id="btn_autoscale_y" class="btn btn-primary btn-block"  onclick="autoscaleY()">
-						<span class="glyphicon glyphicon-move"></span> AUTOSCALE
+						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
 					</button>
 				</div>
 				
 				<div class="row" style="margin: 4px">
 					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
-						<span class="glyphicon glyphicon-resize-vertical"></span> AUTO
+						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
 					</button>
 				</div>
 				
 				<div class="row" style="margin: 4px">
 					<button id="btn_resetZoom" class="btn btn-primary btn-block" onclick="resetZoom()">
-						<span class="glyphicon glyphicon-retweet"></span> Reset zoom
+						<span class="glyphicon glyphicon-retweet"></span> Ponastavi
 					</button>  
 				</div>
 				
@@ -1893,7 +1893,7 @@
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#range">
-                Range
+                Ročna nastavitev merilnih območij
               </a>
             </h4>
           </div>
@@ -1901,11 +1901,11 @@
             <div class="panel-body">
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Range :</label>
+                  <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Širina:</label>
                   <div class="col-xs-8 col-sm-9">
                     <div class="row">
                       <div class="col-xs-6 text-center">
-                        <div class="group-label" style="padding-bottom: 10px;">X axis</div>
+                        <div class="group-label" style="padding-bottom: 10px;">Časovno merilno območje</div>
                         <div class="btn-group" style="margin-bottom: -3px;">
                           <button id="range_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
                             <span class="glyphicon glyphicon-minus"></span>
@@ -1919,7 +1919,7 @@
                         </div>
                       </div>
                       <div class="col-xs-6 text-center">
-                        <div class="group-label" style="padding-bottom: 10px;">Y axis</div>
+                        <div class="group-label" style="padding-bottom: 10px;">Napetostno merilno območje</div>
                         <div class="btn-group" style="margin-bottom: -3px;">
                           <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
                             <span class="glyphicon glyphicon-minus"></span>
@@ -1936,7 +1936,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-xs-4 col-sm-3 control-label">Offset:</label>
+                  <label class="col-xs-4 col-sm-3 control-label">Premik:</label>
                   <div class="col-xs-8 col-sm-9">
                     <div class="row">
                       <div class="col-xs-6 text-center">
@@ -1970,50 +1970,50 @@
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#measure">
-                Measure
+                Prikaz signalnih parametrov
               </a>
             </h4>
           </div>
           <div id="measure" class="panel-collapse collapse">
             <div class="panel-body">
               <div class="row group-label">
-                <div class="col-xs-6" style="text-align: center">Channel 1</div>
-                <div class="col-xs-6" style="text-align: center">Channel 2</div>
+                <div class="col-xs-6" style="text-align: center">Kanal 1</div>
+                <div class="col-xs-6" style="text-align: center">Kanal 2</div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Min:</div>
+                <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
                 <div class="col-xs-3"><span id="info_ch1_min">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Min:</div>
+                <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
                 <div class="col-xs-3"><span id="info_ch2_min">-</span><span class="unit">V</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Max:</div>
+                <div class="col-xs-3 txt-right">Največja napetost:</div>
                 <div class="col-xs-3"><span id="info_ch1_max">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Max:</div>
+                <div class="col-xs-3 txt-right">Največja napetost:</div>
                 <div class="col-xs-3"><span id="info_ch2_max">-</span><span class="unit">V</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Amp:</div>
+                <div class="col-xs-3 txt-right">Vršna napetost:</div>
                 <div class="col-xs-3"><span id="info_ch1_amp">-</span><span class="unit">Vpp</span></div>
-                <div class="col-xs-3 txt-right">Amp:</div>
+                <div class="col-xs-3 txt-right">Vršna napetost:</div>
                 <div class="col-xs-3"><span id="info_ch2_amp">-</span><span class="unit">Vpp</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Avg:</div>
+                <div class="col-xs-3 txt-right">Povprečna napetost:</div>
                 <div class="col-xs-3"><span id="info_ch1_avg">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Avg:</div>
+                <div class="col-xs-3 txt-right">Povprečna napetost:</div>
                 <div class="col-xs-3"><span id="info_ch2_avg">-</span><span class="unit">V</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Freq:</div>
+                <div class="col-xs-3 txt-right">Frekvenca:</div>
                 <div class="col-xs-3" id="info_ch1_freq">-<span class="unit">Hz</span></div>
-                <div class="col-xs-3 txt-right">Freq:</div>
+                <div class="col-xs-3 txt-right">Frekvenca:</div>
                 <div class="col-xs-3" id="info_ch2_freq">-<span class="unit">Hz</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Period:</div>
+                <div class="col-xs-3 txt-right">Perioda:</div>
                 <div class="col-xs-3" id="info_ch1_period">-<span class="unit">s</span></div>
-                <div class="col-xs-3 txt-right">Period:</div>
+                <div class="col-xs-3 txt-right">Perioda:</div>
                 <div class="col-xs-3" id="info_ch2_period">-<span class="unit">s</span></div>
               </div>
             </div>
@@ -2024,7 +2024,7 @@
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#trigger">
-                Trigger
+                Proženje
               </a>
             </h4>
           </div>
@@ -2032,36 +2032,36 @@
             <div class="panel-body">
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="trig_source" class="col-xs-4 control-label">Source:</label>
+                  <label for="trig_source" class="col-xs-4 control-label">Izvor prožilnega signala:</label>
                   <div class="col-xs-8">
                     <select id="trig_source" class="form-control">
-                      <option value="0">Channel 1</option>
-                      <option value="1">Channel 2</option>
-                      <option value="2">External</option>
+                      <option value="0">Kanal 1</option>
+                      <option value="1">Kanal 2</option>
+                      <option value="2">Zunanji izvor</option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="trig_mode" class="col-xs-4 control-label">Mode:</label>
+                  <label for="trig_mode" class="col-xs-4 control-label">Način proženja:</label>
                   <div class="col-xs-8">
                     <select id="trig_mode" class="form-control">
-                      <option value="0">Auto</option>
+                      <option value="0">Samodejno</option>
                       <option value="1">Normal</option>
-                      <option value="2">Single</option>
+                      <option value="2">Enkratno</option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="trig_edge" class="col-xs-4 control-label">Edge:</label>
+                  <label for="trig_edge" class="col-xs-4 control-label">Prehod signala za proženje:</label>
                   <div class="col-xs-8">
                     <select id="trig_edge" class="form-control">
-                      <option value="0">Rising</option>
-                      <option value="1">Falling</option>
+                      <option value="0">Pozitiven prehod</option>
+                      <option value="1">Negativen prehod</option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="trig_level" class="col-xs-4 control-label">Level:</label>
+                  <label for="trig_level" class="col-xs-4 control-label">Prag proženja:</label>
                   <div class="col-xs-5">
                     <input type="text" id="trig_level" value="0" class="form-control" autocomplete="off">
                     <span id="apply_trig_level" class="input-group-btn" style="display: none;">
@@ -2075,7 +2075,7 @@
                 <div class="col-xs-4"> </div>
                 <div class="col-xs-5">
                   <button id="btn_single" class="btn btn-primary" onclick="singleUpdate()" disabled>
-                    <span class="glyphicon glyphicon-step-forward"></span> Single
+                    <span class="glyphicon glyphicon-step-forward"></span> Enkratno proženje
                   </button>
                 </div>
               </div>
@@ -2087,16 +2087,16 @@
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#gain">
-                Gain settings
+                Merilni sondi
               </a>
             </h4>
           </div>
           <div id="gain" class="panel-collapse collapse">
             <div class="panel-body">
               <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="group-label" style="padding-bottom: 10px;">Channel 1</div>
+                <div class="group-label" style="padding-bottom: 10px;">Kanal 1</div>
                 <div class="form-group">
-                  <label for="gain_ch1_att" class="col-xs-4 col-sm-6 control-label">Probe attenuation:</label>
+                  <label for="gain_ch1_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch1_att">
                       <option value="0">1x</option>
@@ -2105,7 +2105,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="gain_ch1_sett" class="col-xs-4 col-sm-6 control-label">Gain setting:</label>
+                  <label for="gain_ch1_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch1_sett">
                       <option value="0">LV</option>
@@ -2113,9 +2113,9 @@
                     </select>
                   </div>
                 </div>
-                <div class="group-label" style="padding: 10px 0;">Channel 2</div>
+                <div class="group-label" style="padding: 10px 0;">Kanal 2</div>
                 <div class="form-group">
-                  <label for="gain_ch2_att" class="col-xs-4 col-sm-6 control-label">Probe attenuation:</label>
+                  <label for="gain_ch2_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch2_att">
                       <option value="0">1x</option>
@@ -2124,7 +2124,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="gain_ch2_sett" class="col-xs-4 col-sm-6 control-label">Gain setting:</label>
+                  <label for="gain_ch2_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch2_sett">
                       <option value="0">LV</option>
@@ -2140,7 +2140,7 @@
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#generator">
-                Signal generator
+                Signalni generator
               </a>
             </h4>
           </div>
@@ -2149,26 +2149,26 @@
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="checkbox" style="padding-bottom: 12px;">
                   <label class="group-label">
-                    <input type="checkbox" id="gen_enable_ch1" checked> Channel 1
+                    <input type="checkbox" id="gen_enable_ch1" checked> Kanal 1
                   </label>
                 </div>
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch1_sigtype" class="col-xs-4 control-label">Signal type:</label>
+                  <label for="gen_ch1_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
                   <div class="col-xs-4 col-sm-7">
                     <select class="form-control" id="gen_ch1_sigtype">
-                      <option value="0">Sine</option>
-                      <option value="1">Square</option>
-                      <option value="2">Triangle</option>
-                      <option value="3">From file</option>
+                      <option value="0">Sinusna</option>
+                      <option value="1">Pravokotna</option>
+                      <option value="2">Trikotna</option>
+                      <option value="3">Iz datoteke</option>
                     </select>
                   </div>
                 </div>
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch1_ampl" class="col-xs-4 control-label">Amplitude:</label>
+                  <label for="gen_ch1_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
                   <div class="col-xs-4 col-sm-5">
                     <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_ampl">
                     <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_ampl">
@@ -2180,7 +2180,7 @@
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch1_freq" class="col-xs-4 control-label">Frequency:</label>
+                  <label for="gen_ch1_freq" class="col-xs-4 control-label"> Frekvenca:</label>
                   <div class="col-xs-4 col-sm-5">
                     <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_freq">
                     <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_freq">
@@ -2192,7 +2192,7 @@
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch1_dc" class="col-xs-4 control-label">DC offset:</label>
+                  <label for="gen_ch1_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
                   <div class="col-xs-4 col-sm-5">
                     <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_dc">
                     <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_dc">
@@ -2204,12 +2204,12 @@
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch1_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Trigger mode:</label>
+                  <label for="gen_ch1_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
                   <div class="col-xs-4 col-sm-7">
                     <select class="form-control" id="gen_ch1_trigmode">
-                      <option value="0">Continuous</option>
-                      <option value="1">Single</option>
-                      <option value="2">External</option>
+                      <option value="0">Ponavljajoče</option>
+                      <option value="1">Enkratno</option>
+                      <option value="2">Zunanji izvor</option>
                     </select>
                   </div>
                 </div>
@@ -2218,10 +2218,10 @@
                 <div class="row">
                   <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
                     <button id="gen_ch1_single" class="btn btn-primary" onclick="return postGenSingle(1)">
-                      <span class="glyphicon glyphicon-step-forward"></span> Single
+                      <span class="glyphicon glyphicon-step-forward"></span> Enkratno
                     </button>
                     <button id="gen_ch1_upload" class="btn btn-primary" onclick="return showUploadForm(1)">
-                      <span class="glyphicon glyphicon-upload"></span> File upload
+                      <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
                     </button>
                   </div>
                 </div>
@@ -2229,26 +2229,26 @@
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="checkbox" style="padding-top: 15px; padding-bottom: 12px;">
                   <label class="group-label">
-                    <input type="checkbox" id="gen_enable_ch2" checked> Channel 2
+                    <input type="checkbox" id="gen_enable_ch2" checked> Kanal 2
                   </label>
                 </div>
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch2_sigtype" class="col-xs-4 control-label">Signal type:</label>
+                  <label for="gen_ch2_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
                   <div class="col-xs-4 col-sm-7">
                     <select class="form-control" id="gen_ch2_sigtype">
-                      <option value="0">Sine</option>
-                      <option value="1">Square</option>
-                      <option value="2">Triangle</option>
-                      <option value="3">From file</option>
+                      <option value="0">Sinusna</option>
+                      <option value="1">Pravokotna</option>
+                      <option value="2">Trikotna</option>
+                      <option value="3">Iz datoteke</option>
                     </select>
                   </div>
                 </div>
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch2_ampl" class="col-xs-4 control-label">Amplitude:</label>
+                  <label for="gen_ch2_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
                   <div class="col-xs-4 col-sm-5">
                     <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_ampl">
                     <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_ampl">
@@ -2260,7 +2260,7 @@
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch2_freq" class="col-xs-4 control-label">Frequency:</label>
+                  <label for="gen_ch2_freq" class="col-xs-4 control-label"> Frekvenca:</label>
                   <div class="col-xs-4 col-sm-5">
                     <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_freq">
                     <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_freq">
@@ -2272,7 +2272,7 @@
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch2_dc" class="col-xs-4 control-label">DC offset:</label>
+                  <label for="gen_ch2_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
                   <div class="col-xs-4 col-sm-5">
                     <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_dc">
                     <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_dc">
@@ -2284,12 +2284,12 @@
               </form>
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label for="gen_ch2_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Trigger mode:</label>
+                  <label for="gen_ch2_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
                   <div class="col-xs-4 col-sm-7">
                     <select class="form-control" id="gen_ch2_trigmode">
-                      <option value="0">Continuous</option>
-                      <option value="1">Single</option>
-                      <option value="2">External</option>
+                      <option value="0">Ponavljajoče</option>
+                      <option value="1">Enkratno</option>
+                      <option value="2">Zunanji izvor</option>
                     </select>
                   </div>
                 </div>
@@ -2298,10 +2298,10 @@
                 <div class="row">
                   <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
                     <button id="gen_ch2_single" class="btn btn-primary" onclick="return postGenSingle(2)">
-                      <span class="glyphicon glyphicon-step-forward"></span> Single
+                      <span class="glyphicon glyphicon-step-forward"></span> Enkratno
                     </button>
                     <button id="gen_ch2_upload" class="btn btn-primary" onclick="return showUploadForm(2)">
-                      <span class="glyphicon glyphicon-upload"></span> File upload
+                      <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
                     </button>
                   </div>
                 </div>

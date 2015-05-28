@@ -1,6 +1,6 @@
 $( document ).ready(function() {
     //CHANGE HERE: //////////////////////////////////////////////////
-    var baseLanguage='en'; //jezik, v katerem so originalni napisi
+    var baseLanguage='sl'; //jezik, v katerem so originalni napisi
     var translations=
     [
 		{'sl':'Samodejna nastavitev merilnih območij','en':'Autoscale'},
@@ -11,15 +11,15 @@ $( document ).ready(function() {
 		{'sl':'Zunanji izvor','en':'External'},
 		{'sl':'Izvor prožilnega signala','en':'Source'},
 		{'sl':'Način proženja','en':'Mode'},
+		{'sl':'Enkratno proženje','en':'Single '},
 		{'sl':'Enkratno','en':'Single'},
 		{'sl':'Običajno','en':'Normal'},
 		{'sl':'Ponavljajoče','en':'Continuous'},
 		{'sl':'Samodejno','en':'Auto'},
 		{'sl':'Prehod signala za proženje','en':'Edge'},
 		{'sl':'Pozitiven prehod','en':'Rising'},
-		{'sl':'Negativen prehod ','en':'Falling'},
+		{'sl':'Negativen prehod','en':'Falling'},
 		{'sl':'Prag proženja','en':'Level'},
-		{'sl':'Enkratno proženje','en':'Single '},
 		{'sl':'Širina','en':'Range '},
 		{'sl':'Ročna nastavitev merilnih območij','en':'Range'},
 		//{'sl':'','en':'Range'},
@@ -40,6 +40,7 @@ $( document ).ready(function() {
 		{'sl':'Nastavitev ojačanja','en':'Gain setting'},
 		{'sl':'Faktor slabljenja','en':'Probe attenuation'},
 		{'sl':'Oblika izhodnega signala','en':'Signal type'},
+		{'sl':'Vzorčni signali','en':'Example signals'},
 		{'sl':'Sinusna','en':'Sine'},
 		{'sl':'Pravokotna','en':'Square'},
 		{'sl':'Trikotna','en':'Triangle'},
@@ -54,12 +55,6 @@ $( document ).ready(function() {
 		{'sl':'Napetostnega','en':'AUTO'},
 		{'sl':'Napetost','en':'Voltage'},
 		{'sl':'Jezik','en':'Language'},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
 		{'sl':'','en':''},
 		{'sl':'','en':''},
     ];
@@ -85,7 +80,7 @@ $( document ).ready(function() {
             }
         });
     }
-    translator(baseLanguage,location.hash.substr(1));
-    $('.translate').click(function(){translator(location.hash.substr(1),$(this).attr('href').substr(1))});
-    $('body *').on("translate",function(){translator(baseLanguage,location.hash.substr(1),this)});
+   translator(baseLanguage,location.hash.substr(1, 2));
+    $('.translate').click(function(){translator(location.hash.substr(1, 2),$(this).attr('href').substr(1, 2))});
+    $('body *').on("translate",function(){translator(baseLanguage,location.hash.substr(1, 2),this)});
 });
