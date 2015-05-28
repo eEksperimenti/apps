@@ -1789,6 +1789,7 @@
     return value + unit;
   }
   
+  
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
 </head>
@@ -1796,7 +1797,7 @@
   <div class="header">
     <div class="container">
       <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-      <img class="logo pull-left" src="../assets/images/logo_white.png">
+      <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
       <h2 class="page-title">Signalni generator in osciloskop</h2>
     </div>
   </div>
@@ -1850,7 +1851,7 @@
           </div>
           <div id="plot_holder"></div>
           <div id="xtitle"></div>
-		  <span id='t-channel' style='display: none'>Kanal</span>
+		  <span id='t-channel' style='display: none'>Kanal </span>
         </div>
       </div>
       <div class="panel-group col-xs-12 col-sm-12 col-md-4" id="accordion">
@@ -1864,31 +1865,25 @@
           </div>
           <div  id="autoscale"  class="panel-collapse collapse in"> 
             <div class="container">
-			
 				<div class="row" style="margin: 4px">
 					<button id="btn_autoscale_y" class="btn btn-primary btn-block"  onclick="autoscaleY()">
 						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
 					</button>
 				</div>
-				
 				<div class="row" style="margin: 4px">
 					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
 						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
 					</button>
 				</div>
-				
 				<div class="row" style="margin: 4px">
 					<button id="btn_resetZoom" class="btn btn-primary btn-block" onclick="resetZoom()">
 						<span class="glyphicon glyphicon-retweet"></span> Ponastavi
 					</button>  
-				</div>
-				
-				
-				  
+				</div>  
 			</div>
           </div>
         </div>
-        
+		
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">

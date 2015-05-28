@@ -1584,6 +1584,11 @@
     var xminrange = 20e-9; // seconds
     var decimals = 0;
 
+	/**********************************************/
+	/**/ $.extend(params.local, {gain_ch1: 1}); /**/
+	/**********************************************/
+  
+	
     if(xunit == 'μs' && xrange < 1) {
       xrange *= 1000;
       xunit = 'ns';
@@ -1941,7 +1946,7 @@
   <div class="header">
     <div class="container">
       <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-      <img class="logo pull-left" src="../assets/images/logo_white.png">
+      <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
       <h2 class="page-title">UI karakteristike</h2>
     </div>
   </div>
