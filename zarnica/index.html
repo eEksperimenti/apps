@@ -1854,6 +1854,9 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
       
    
   });
+ function showSettings(){
+ 	$("#settings").toggle();
+ }
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
 </head>
@@ -1958,8 +1961,13 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           </div>
       </div>
        <!-- ************ DESNA STRAN ***************  -->
+       <div id="buttons">
+	       <button id="settingsBtn" class="btn btn-primary" onclick="showSettings()" >Settings</button>
+	       <button id="resetValues" class="btn btn-primary btn-lg" onclick="resetValues()" data-checked="true">Ponastavi</button>
+	       <button id="export"  class="btn btn-primary btn-lg" data-checked="true" >Izvozi meritev</button>
+       </div>
 
-
+       <div id="settings" style="display:none">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
@@ -2207,17 +2215,11 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         </div>
       </div>
     </div>
+    </div>
 
 
     <!-- ************ TOOLBAR BOTTOM *************-->
-    <div id="toolbar-bottom"class="row">
-      <div id="toolbarPanel" class="panel-default">
-        <div id="toolbarPanel-group" class="panel-group">
-           <button id="resetValues" style="margin-right:20px" class="btn btn-primary btn-lg" onclick="resetValues()" data-checked="true">Ponastavi</button>
-           <button id="export"  class="btn btn-primary btn-lg" data-checked="true" >Izvozi meritev</button>
-        </div>
-      </div>
-    </div>
+   
      <!-- ************ TOOLBAR BOTTOM *************-->
  
     <div class="footer clearfix">
