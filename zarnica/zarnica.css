@@ -1,0 +1,69 @@
+#ytitle {
+  
+  position: absolute;
+  top: 5%;
+  left: 7px;
+  transform-origin: 0 0;
+  -o-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  -moz-transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+}
+
+.zoomPadding{
+  padding:0px 80px 0px 80px;
+}
+.y2title {
+    position: absolute;
+    top: 1%;
+    right: 1%;
+   
+    transform-origin: 0 0;
+    -o-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    -moz-transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+  }
+
+.ytitle {
+  position: absolute;
+  top: 1%;
+  left: 7px;
+}
+
+
+  .zoomYaxis{
+     -ms-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+  }
+  .leftZoom{
+    left: -70px;
+    top: 300px;
+  }
+   .rightZoom{
+    left: 70px;
+    float: right;
+    top: 300px;
+  }
+#accordion{
+  width:30%;
+  margin-left:30px;
+  margin-top:30px;
+}
+#rightPanel,#rightPanel-body,#leftPanel-body{
+
+  padding:0px 0px 15px 0px;
+}
+#toolbarPanel-group{
+  margin-left:25%;
+}
+.podatki{
+  width:60%;
+}
+#settings{
+  margin-top:10px;
+}
+#buttons > button{
+  margin-left:10px;
+}

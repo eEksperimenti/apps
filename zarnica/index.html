@@ -1,5 +1,5 @@
 <!-- $Id$
- *
+ * *
  * Red Pitaya Generator & Oscilloscope client.
  *
  * Author: Dakus <info@eskala.eu>
@@ -12,13 +12,14 @@
  * for more details on the languages used herein.
 -->
 <!DOCTYPE html>
-<html lang="sl">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generator & Oscilloscope</title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
+  <link href="zarnica.css" rel="stylesheet" type="text/css">
   <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
   <script src="../assets/bootstrap-3.0.0/js/bootstrap.min.js"></script>
   <script src="../assets/flot/jquery.flot.min.js"></script>
@@ -31,7 +32,7 @@
   
   // Settings which can be modified
    
-  var app_id = 'scope+gen_translation';  
+  var app_id = 'zarnica';  
   var root_url = '';
   //var root_url = 'http://10.0.1.221';      // Test local
   //var root_url = 'http://192.168.53.133';  // Test remote and local
@@ -63,6 +64,9 @@
     colors: ['#3276B1', '#D2322D', '#009900'],    // channel1, channel2, trigger line
     lines: { lineWidth: 1 },
     selection: { mode: 'xy' },
+    yaxes:[
+    {position:"left"},
+    {position:"right",alignTicksWithAxis: 1,label:"Svetilnost",alignWithTicke:1}],
     zoom: { interactive: true, trigger: null },
     xaxis: { min: xmin, max: xmax },
     grid: { borderWidth: 0 },
@@ -87,10 +91,18 @@
   var autorun = 1;
   var datasets = [];
   var plot = null;
+  var upor=1;
+  var koeficinet=1;
+  var data1=null;
+  var data2=null;
   var params = {
     original: null,
-    local: null
-  };
+    local:null
+  };	
+$.extend(params.original,{gain_ch1:1,gain_ch2:1});
+ $.extend(params.local,{gain_ch1:1,gain_ch2:1});
+ $.extend(params.local,{trig_mode:1});
+ //$.extend(params.original,{trig_mode:1});
   
   // Default parameters - posted after server side app is started 
   var def_params = {
@@ -100,6 +112,8 @@
   // On page loaded
   
   $(function() {
+  	$("uproField").val(1);
+  	$("koeficientField").val(1);
     
     // Show different buttons on touch screens    
     if(window.ontouchstart === undefined) {
@@ -119,7 +133,7 @@
     $('.app-id').text(app_id);
     
     // Disable all controls until the params state is loaded for the first time 
-    $('input, select, button', '.container').prop('disabled', true);
+    //$('input, select, button', '.container').prop('disabled', true);
     
     // Events binding for trigger controls
     
@@ -156,7 +170,7 @@
       onDropdownChange($(this), 'trig_mode', true);
       
       // Autorun if trigger mode is Auto(0) or Normal(1), stop if it is Single(2).
-      autorun = (params.local.trig_mode == 2 ? 0 : 1); 
+      autorun =  (params.local.trig_mode == 2 ? 0 : 1); 
       runStop();
     });
     
@@ -206,7 +220,7 @@
         var min = (options.xaxes[0].min !== null ? options.xaxes[0].min : axes.xaxis.min);
         var max = (options.xaxes[0].max !== null ? options.xaxes[0].max : axes.xaxis.max);
         var unit = $(this).data('unit');
-		
+        
         // Convert nanoseconds to milliseconds.
         if(unit == 'ns') {
           nearest /= 1000;
@@ -593,10 +607,13 @@
       else {
         $.post(
           post_url, 
-          JSON.stringify({ datasets: { params: def_params } })
+           JSON.stringify({ datasets: { params: def_params } })
         )
         .done(function(dresult) {
           app_started = true;
+         // params.local:{gain_ch1:1,gain_ch2:1};
+         //resetValues();
+
           updateGraphData();      
         })
         .fail(function() {
@@ -620,7 +637,6 @@
   }   
   
   function updateGraphData() {
-  
     if(downloading) {
       return;
     }
@@ -631,6 +647,7 @@
     downloading = true;
     
     // Send params if there are any unsent changes
+   
     sendParams();
     
     var arun_before_ajax = autorun;
@@ -671,15 +688,33 @@
         var arun_after_ajax = autorun;
         
         datasets = [];
-		var t_channel=$('#t-channel').text();
-        for(var i=0; i<dresult.datasets.g1.length; i++) {
-          dresult.datasets.g1[i].color = i;
-          dresult.datasets.g1[i].label = t_channel + (i+1);          
-          datasets.push(dresult.datasets.g1[i]);
-        }
+       	upor = $("#uporField").val();
+       	Koeficient = $("#koeficientField").val();
+
+		 data1 = dresult.datasets.g1[0];
+		 data2 = dresult.datasets.g1[1];
+			data1.color=0;
+			data1.label="Tok";
+			data2.color=1;
+			data2.label="Svetilnost";
+
+           for(var j=0; j<data1.data.length; j++) {
+            data1.data[j][1] = (0.3-25*dresult.datasets.g1[0].data[j][1])/upor;
+            data2.data[j][1] = (0.3-25*dresult.datasets.g1[1].data[j][1])*Koeficient;
+           }
+          
+          datasets.push(data1);
+          datasets.push(data2);
+          $.extend(datasets[1],{label:'Svetilnost',color:1,yaxis:2});
+       
+       	  $.extend(dresult.datasets.params,{gain_ch1:1,gain_ch2:1});
+       	  $.extend(params.local,{trig_mode:1});
         
         if(! plot) {
           initPlot(dresult.datasets.params);
+           plot=$.plot(plot_holder,datasets, plot_options);
+          updateRanges();
+         
         }
         else {
           // Apply the params state received from server if not in edit mode
@@ -776,8 +811,11 @@
     var ymax = init_params.gui_reset_y_range / 2;
     var ymin = ymax * -1;
     
+    //$.extend(params.local,{gain_ch1:1,gain_ch2:1});
     // Load received params
     loadParams(init_params);
+    sendParams(true,true);
+
     
     // When xmin/xmax are null, the min/max values of received data will be used. For ymin/ymax use the gui_reset_y_range param.
     $.extend(true, plot_options, {
@@ -789,11 +827,13 @@
     var filtered_data = filterData(datasets, plot_holder.width());
   
     // Plot first creation and drawing
-    plot = $.plot(
+
+    updateGraphData();
+   /* plot = $.plot(
       plot_holder, 
       filtered_data,
       plot_options
-    );
+    );*/
     
     // Selection
     plot_holder.on('plotselected', function(event, ranges) {
@@ -900,9 +940,9 @@
     }
     
     $('#gain_ch1_att').val(params.original.prb_att_ch1);
-    $('#gain_ch1_sett').val(params.original.gain_ch1);
+    $('#gain_ch1_sett').val(1);
     $('#gain_ch2_att').val(params.original.prb_att_ch2);
-    $('#gain_ch2_sett').val(params.original.gain_ch2);
+    $('#gain_ch2_sett').val(1);
     
     $('#gen_enable_ch1').prop('checked', (params.original.gen_enable_ch1 ? true : false));
     $('#gen_enable_ch2').prop('checked', (params.original.gen_enable_ch2 ? true : false));
@@ -965,6 +1005,8 @@
     params.local.single_btn = (single_btn === true ? 1 : 0);
     use_long_timeout = !!auto_flag;
   
+    //params.local = {gain_ch1:1,gain_ch2:1};
+     //$.extend(params.local,{trig_mode:1});
     $.ajax({
       type: 'POST',
       url: post_url,
@@ -1041,6 +1083,7 @@
   
   function getData(from, to) {
     var rangedata = new Array();
+    
     for(var i=0; i<datasets.length; i++) {
       if(! $('#btn_ch' + (i+1)).data('checked')) {
         continue;
@@ -1050,8 +1093,10 @@
         if(datasets[i].data[j][0] > to) {
           break;
         }
+      
         if(datasets[i].data[j][0] >= from) {
-          rangedata[rangedata.length - 1].data.push(datasets[i].data[j]);
+        
+         rangedata[rangedata.length - 1].data.push(datasets[i].data[j]);         
         }
       }
     }
@@ -1180,6 +1225,7 @@
   }
   
   function redrawPlot() {
+    
     if(! downloading) {
       if(! plot) {
         updateGraphData();
@@ -1788,8 +1834,78 @@
     value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
     return value + unit;
   }
+  function  resetValues(){
+      $("#uporField").val("1");
+      $("#koeficientField").val("1");
+      plot=false;
+      downloading=false;
+      initPlot(params.local);
+      redrawPlot();
+  };
+ $("#uporField").on("keyup",function(){
+
+   
+      plot=false;
+      downloading=false;
+      plot=false;
+      downloading=false;
+      initPlot(params.local);
+      redrawPlot();
+      
+   
+  });
+ function showSettings(){
+ 	$("#settings").toggle();
+ }
+   function izvoz()
+  {
+    //http://blog.eliacontini.info/post/79860720828/export-to-csv-using-javascript-the-download
+    // some data to export
+    // prepare CSV data
+    var csvData = [];
+    csvData.push('"id","T","U","I"');
+ 
+     
+      for (var j=0;j<data1.data.length;++j)
+      {
+        csvData.push('"'+(j+1)+'","'+data1.data[j][0]+'","'+data1.data[j][1]+'","'+data2.data[j][1]+'"');
+      }
+    
+    
+    // download stuff
+    var fileName = "data.csv";
+    var buffer = csvData.join("\n");
+    var blob = new Blob([buffer], {
+      "type": "text/csv;charset=utf8;"			
+    });
   
-  
+    var link = document.createElement("a");
+    
+    var a;
+    if(link.download !== undefined)
+    { // feature detection
+      a = $('<a id="export"><span>export</span></a>');
+      a.attr('href',window.URL.createObjectURL(blob));
+      a.attr('download',fileName);
+    }
+    else if(navigator.msSaveBlob)
+    { // IE 10+
+      a = $('<a id="export" href="#"><span>export</span></a>');
+      a.click(function()
+              {
+                navigator.msSaveBlob(blob, fileName);
+                return false;
+              });
+    }
+    
+    a.hide();
+    $('body').append(a);
+    a.find('span').trigger('click');
+    a.remove();
+  }
+
+
+
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
 </head>
@@ -1797,26 +1913,14 @@
   <div class="header">
     <div class="container">
       <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-      <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
-      <h2 class="page-title">Signalni generator in osciloskop</h2>
+      <img class="logo pull-left" src="../assets/images/logo_white.png">
+      <h2 class="page-title">Žarnica</h2>
     </div>
   </div>
-	<!-- <a href='#sl' class='translate' style ="float: right"">sl</a>
-	<a href='#en' class='translate' style ="float: right">en</a> -->
-	
-	<div class="dropdown dropdown-menu-right" style="float: right; margin-top: 15px; margin-right: 70px;">
-	  <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
-		<span class="caret" ></span></button>
-	  </button>
-	  <ul class="dropdown-menu">
-		<li><a href="#en" class='translate' >en</a></li>
-		<li><a href="#sl" class='translate' >sl</a></li>
-	  </ul>
-	</div>
-  
   <div class="container">
     <div class="row">
-	
+	<a href='#sl' class='translate' >sl</a>
+	<a href='#en' class='translate' >en</a>
       <div id="btn_toolbar" class="col-xs-12">
         
         
@@ -1833,62 +1937,153 @@
           <button id="btn_zoompan" class="btn btn-primary btn-lg" onclick="selectTool.call(this, 'zoompan')" style="display: none">
             <span class="glyphicon glyphicon-search"></span><span class="glyphicon glyphicon-move"></span>
           </button>
+              <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 1</button>
+        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 2</button>
         </div>
-        <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 1</button>
-        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 2</button>
-        
-        <!-- <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Povprečenje signalov</button>
-		-->
       </div>
     </div>
+    
+ 
+
     <div class="row">
-      <div class="col-xs-12 col-sm-12 col-md-8">
+
+      <div class="col-xs-12 col-sm-12 col-md-8 graph">
+      
+        <div class="btn-group zoomYaxis leftZoom">
+            <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+            <button id="range_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+             <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            </div>
+        <div class="btn-group zoomYaxis rightZoom">
+          <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+          <button id="range_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+        </div>
+
         <div class="graph-holder well well-small">
-          <div id="ytitle">Napetost [ V ]</div>
+          <div id="ytitle">I[A]</div>
+           <div class="y2title">Iv[candela] </div>
           <div id="trigger_cnv_holder">
             <canvas id="trigger_canvas" width="25" height="460"></canvas>
             <div id="trigger_tooltip"></div>
           </div>
-          <div id="plot_holder"></div>
-          <div id="xtitle"></div>
-		  <span id='t-channel' style='display: none'>Kanal </span>
+          <div id="plot_holder" class="zoomPadding"></div>
+          <div id="xtitle">t[s]</div>
+		  <span id='t-channel' style='display: none'>Channel</span>
         </div>
+
       </div>
-      <div class="panel-group col-xs-12 col-sm-12 col-md-4" id="accordion">
-		<div class="panel panel-default">
+
+    <div class="panel-group col-xs-12 col-sm-12 col-md-2" id="accordion">
+
+
+      <!-- ************ DESNA STRAN *************** -->
+
+      <div id="leftPanel-group" class="panel-group">
+          <div id="leftPanel" class="panel-default">
+            <div id="leftPanel-body" class="panel-body">
+             <label class="control-label">Uporabljen upor za meritev toka:</label>
+              <div id="leftPanel-inputGroup" class="input-group">
+                   <input type="text"  id="uporField" class="form-control" aria-describedby="basic-addon1">
+                    <span class="input-group-addon">Ohm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+      <div id="rightPanel" class="panel-default">
+          <div id="rightPanel-body" class="panel-body">
+          <label class="control-label">Koeficient senzorja za meritev intenzitet:</label> 
+          <div class="input-group">
+            <input id="koeficientField" type="text" class="form-control" aria-describedby="basic-addon1">
+              <span class="input-group-addon">V/Cd</span>
+          </div>
+          </div>
+      </div>
+       <!-- ************ DESNA STRAN ***************  -->
+       <div id="buttons">
+	       <button id="settingsBtn" class="btn btn-primary" onclick="showSettings()" >Settings</button>
+	       <button id="resetValues" class="btn btn-primary btn-lg" onclick="resetValues()" data-checked="true">Ponastavi</button>
+	       <button id="export"  class="btn btn-primary btn-lg" data-checked="true" onclick="izvoz()">Izvozi meritev</button>
+       </div>
+
+       <div id="settings" style="display:none">
+        <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a data-toggle="collapse" href="#autoscale">
-                Samodejna nastavitev merilnih območij
+              <a data-toggle="collapse" href="#trigger">
+                Trigger
               </a>
             </h4>
           </div>
-          <div  id="autoscale"  class="panel-collapse collapse in"> 
-            <div class="container">
-				<div class="row" style="margin: 4px">
-					<button id="btn_autoscale_y" class="btn btn-primary btn-block"  onclick="autoscaleY()">
-						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
-					</button>
-				</div>
-				<div class="row" style="margin: 4px">
-					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
-						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
-					</button>
-				</div>
-				<div class="row" style="margin: 4px">
-					<button id="btn_resetZoom" class="btn btn-primary btn-block" onclick="resetZoom()">
-						<span class="glyphicon glyphicon-retweet"></span> Ponastavi
-					</button>  
-				</div>  
-			</div>
+          <div id="trigger" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="trig_source" class="col-xs-4 control-label">Source:</label>
+                  <div class="col-xs-8">
+                    <select id="trig_source" class="form-control">
+                      <option value="0">Channel 1</option>
+                      <option value="1">Channel 2</option>
+                      <option value="2">External</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="trig_mode" class="col-xs-4 control-label">Mode:</label>
+                  <div class="col-xs-8">
+                    <select id="trig_mode" class="form-control">
+                      <option value="0">Auto</option>
+                      <option value="1">Normal</option>
+                      <option value="2">Single</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="trig_edge" class="col-xs-4 control-label">Edge:</label>
+                  <div class="col-xs-8">
+                    <select id="trig_edge" class="form-control">
+                      <option value="0">Rising</option>
+                      <option value="1">Falling</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="trig_level" class="col-xs-4 control-label">Level:</label>
+                  <div class="col-xs-5">
+                    <input type="text" id="trig_level" value="0" class="form-control" autocomplete="off">
+                    <span id="apply_trig_level" class="input-group-btn" style="display: none;">
+                      <button class="btn btn-primary btn-lg" type="button"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div id="trig_lev_units" class="col-xs-3" style="padding: 7px 0 0;">V</div>
+                </div>
+              </form>
+              <div class="row">
+                <div class="col-xs-4"> </div>
+                <div class="col-xs-5">
+                  <button id="btn_single" class="btn btn-primary" onclick="singleUpdate()" disabled>
+                    <span class="glyphicon glyphicon-step-forward"></span> Single
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-		
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#range">
-                Ročna nastavitev merilnih območij
+                Range
               </a>
             </h4>
           </div>
@@ -1896,11 +2091,11 @@
             <div class="panel-body">
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Širina:</label>
+                  <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Range:</label>
                   <div class="col-xs-8 col-sm-9">
                     <div class="row">
                       <div class="col-xs-6 text-center">
-                        <div class="group-label" style="padding-bottom: 10px;">Časovno merilno območje</div>
+                        <div class="group-label" style="padding-bottom: 10px;">X axis</div>
                         <div class="btn-group" style="margin-bottom: -3px;">
                           <button id="range_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
                             <span class="glyphicon glyphicon-minus"></span>
@@ -1914,7 +2109,7 @@
                         </div>
                       </div>
                       <div class="col-xs-6 text-center">
-                        <div class="group-label" style="padding-bottom: 10px;">Napetostno merilno območje</div>
+                        <div class="group-label" style="padding-bottom: 10px;">Y axis</div>
                         <div class="btn-group" style="margin-bottom: -3px;">
                           <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
                             <span class="glyphicon glyphicon-minus"></span>
@@ -1931,7 +2126,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-xs-4 col-sm-3 control-label">Premik:</label>
+                  <label class="col-xs-4 col-sm-3 control-label">Offset:</label>
                   <div class="col-xs-8 col-sm-9">
                     <div class="row">
                       <div class="col-xs-6 text-center">
@@ -1965,133 +2160,69 @@
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#measure">
-                Prikaz signalnih parametrov
+                Measure
               </a>
             </h4>
           </div>
           <div id="measure" class="panel-collapse collapse">
             <div class="panel-body">
               <div class="row group-label">
-                <div class="col-xs-6" style="text-align: center">Kanal 1</div>
-                <div class="col-xs-6" style="text-align: center">Kanal 2</div>
+                <div class="col-xs-6" style="text-align: center">Channel 1</div>
+                <div class="col-xs-6" style="text-align: center">Channel 2</div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
+                <div class="col-xs-3 txt-right">Min:</div>
                 <div class="col-xs-3"><span id="info_ch1_min">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
+                <div class="col-xs-3 txt-right">Min:</div>
                 <div class="col-xs-3"><span id="info_ch2_min">-</span><span class="unit">V</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Največja napetost:</div>
+                <div class="col-xs-3 txt-right">Max:</div>
                 <div class="col-xs-3"><span id="info_ch1_max">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Največja napetost:</div>
+                <div class="col-xs-3 txt-right">Max:</div>
                 <div class="col-xs-3"><span id="info_ch2_max">-</span><span class="unit">V</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Vršna napetost:</div>
+                <div class="col-xs-3 txt-right">Amp:</div>
                 <div class="col-xs-3"><span id="info_ch1_amp">-</span><span class="unit">Vpp</span></div>
-                <div class="col-xs-3 txt-right">Vršna napetost:</div>
+                <div class="col-xs-3 txt-right">Amp:</div>
                 <div class="col-xs-3"><span id="info_ch2_amp">-</span><span class="unit">Vpp</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Povprečna napetost:</div>
+                <div class="col-xs-3 txt-right">Avg:</div>
                 <div class="col-xs-3"><span id="info_ch1_avg">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Povprečna napetost:</div>
+                <div class="col-xs-3 txt-right">Avg:</div>
                 <div class="col-xs-3"><span id="info_ch2_avg">-</span><span class="unit">V</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Frekvenca:</div>
+                <div class="col-xs-3 txt-right">Freq:</div>
                 <div class="col-xs-3" id="info_ch1_freq">-<span class="unit">Hz</span></div>
-                <div class="col-xs-3 txt-right">Frekvenca:</div>
+                <div class="col-xs-3 txt-right">Freq:</div>
                 <div class="col-xs-3" id="info_ch2_freq">-<span class="unit">Hz</span></div>
               </div>
               <div class="row">
-                <div class="col-xs-3 txt-right">Perioda:</div>
+                <div class="col-xs-3 txt-right">Period:</div>
                 <div class="col-xs-3" id="info_ch1_period">-<span class="unit">s</span></div>
-                <div class="col-xs-3 txt-right">Perioda:</div>
+                <div class="col-xs-3 txt-right">Period:</div>
                 <div class="col-xs-3" id="info_ch2_period">-<span class="unit">s</span></div>
               </div>
             </div>
           </div>
         </div>
-		
-		<div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#trigger">
-                Proženje
-              </a>
-            </h4>
-          </div>
-          <div id="trigger" class="panel-collapse collapse">
-            <div class="panel-body">
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="trig_source" class="col-xs-4 control-label">Izvor prožilnega signala:</label>
-                  <div class="col-xs-8">
-                    <select id="trig_source" class="form-control">
-                      <option value="0">Kanal 1</option>
-                      <option value="1">Kanal 2</option>
-                      <option value="2">Zunanji izvor</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="trig_mode" class="col-xs-4 control-label">Način proženja:</label>
-                  <div class="col-xs-8">
-                    <select id="trig_mode" class="form-control">
-                      <option value="0">Samodejno</option>
-                      <option value="1">Normal</option>
-                      <option value="2">Enkratno</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="trig_edge" class="col-xs-4 control-label">Prehod signala za proženje:</label>
-                  <div class="col-xs-8">
-                    <select id="trig_edge" class="form-control">
-                      <option value="0">Pozitiven prehod</option>
-                      <option value="1">Negativen prehod</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="trig_level" class="col-xs-4 control-label">Prag proženja:</label>
-                  <div class="col-xs-5">
-                    <input type="text" id="trig_level" value="0" class="form-control" autocomplete="off">
-                    <span id="apply_trig_level" class="input-group-btn" style="display: none;">
-                      <button class="btn btn-primary btn-lg" type="button"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
-                  </div>
-                  <div id="trig_lev_units" class="col-xs-3" style="padding: 7px 0 0;">V</div>
-                </div>
-              </form>
-              <div class="row">
-                <div class="col-xs-4"> </div>
-                <div class="col-xs-5">
-                  <button id="btn_single" class="btn btn-primary" onclick="singleUpdate()" disabled>
-                    <span class="glyphicon glyphicon-step-forward"></span> Enkratno proženje
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-		
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#gain">
-                Merilni sondi
+                Gain settings
               </a>
             </h4>
           </div>
           <div id="gain" class="panel-collapse collapse">
             <div class="panel-body">
               <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="group-label" style="padding-bottom: 10px;">Kanal 1</div>
+                <div class="group-label" style="padding-bottom: 10px;">Channel 1</div>
                 <div class="form-group">
-                  <label for="gain_ch1_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
+                  <label for="gain_ch1_att" class="col-xs-4 col-sm-6 control-label">Probe attenuation:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch1_att">
                       <option value="0">1x</option>
@@ -2100,7 +2231,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="gain_ch1_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
+                  <label for="gain_ch1_sett" class="col-xs-4 col-sm-6 control-label">Gain setting:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch1_sett">
                       <option value="0">LV</option>
@@ -2108,9 +2239,9 @@
                     </select>
                   </div>
                 </div>
-                <div class="group-label" style="padding: 10px 0;">Kanal 2</div>
+                <div class="group-label" style="padding: 10px 0;">Channel 2</div>
                 <div class="form-group">
-                  <label for="gain_ch2_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
+                  <label for="gain_ch2_att" class="col-xs-4 col-sm-6 control-label">Probe attenuation:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch2_att">
                       <option value="0">1x</option>
@@ -2119,7 +2250,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="gain_ch2_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
+                  <label for="gain_ch2_sett" class="col-xs-4 col-sm-6 control-label">Gain setting:</label>
                   <div class="col-xs-4 col-sm-5">
                     <select class="form-control" id="gain_ch2_sett">
                       <option value="0">LV</option>
@@ -2131,181 +2262,15 @@
             </div>
           </div>
         </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#generator">
-                Signalni generator
-              </a>
-            </h4>
-          </div>
-          <div id="generator" class="panel-collapse collapse">
-            <div class="panel-body">
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="checkbox" style="padding-bottom: 12px;">
-                  <label class="group-label">
-                    <input type="checkbox" id="gen_enable_ch1" checked> Kanal 1
-                  </label>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch1_sigtype">
-                      <option value="0">Sinusna</option>
-                      <option value="1">Pravokotna</option>
-                      <option value="2">Trikotna</option>
-                      <option value="3">Iz datoteke</option>
-                    </select>
-                  </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_ampl">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_ampl">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
-                  </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_ampl_units">Vpp</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_freq" class="col-xs-4 control-label"> Frekvenca:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_freq">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_freq">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
-                  </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_freq_units">Hz</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_dc">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_dc">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
-                  </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_dc_units">V</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch1_trigmode">
-                      <option value="0">Ponavljajoče</option>
-                      <option value="1">Enkratno</option>
-                      <option value="2">Zunanji izvor</option>
-                    </select>
-                  </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="row">
-                  <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
-                    <button id="gen_ch1_single" class="btn btn-primary" onclick="return postGenSingle(1)">
-                      <span class="glyphicon glyphicon-step-forward"></span> Enkratno
-                    </button>
-                    <button id="gen_ch1_upload" class="btn btn-primary" onclick="return showUploadForm(1)">
-                      <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
-                    </button>
-                  </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="checkbox" style="padding-top: 15px; padding-bottom: 12px;">
-                  <label class="group-label">
-                    <input type="checkbox" id="gen_enable_ch2" checked> Kanal 2
-                  </label>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch2_sigtype">
-                      <option value="0">Sinusna</option>
-                      <option value="1">Pravokotna</option>
-                      <option value="2">Trikotna</option>
-                      <option value="3">Iz datoteke</option>
-                    </select>
-                  </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_ampl">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_ampl">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
-                  </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_ampl_units">Vpp</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_freq" class="col-xs-4 control-label"> Frekvenca:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_freq">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_freq">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
-                  </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_freq_units">Hz</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_dc">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_dc">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
-                  </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_dc_units">V</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch2_trigmode">
-                      <option value="0">Ponavljajoče</option>
-                      <option value="1">Enkratno</option>
-                      <option value="2">Zunanji izvor</option>
-                    </select>
-                  </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="row">
-                  <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
-                    <button id="gen_ch2_single" class="btn btn-primary" onclick="return postGenSingle(2)">
-                      <span class="glyphicon glyphicon-step-forward"></span> Enkratno
-                    </button>
-                    <button id="gen_ch2_upload" class="btn btn-primary" onclick="return showUploadForm(2)">
-                      <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
+    </div>
+
+
+    <!-- ************ TOOLBAR BOTTOM *************-->
+   
+     <!-- ************ TOOLBAR BOTTOM *************-->
+ 
     <div class="footer clearfix">
       <p class="pull-right" style="margin: 4px 0 0">&copy; 2014 - Red Pitaya</p>
     </div>

@@ -2,13 +2,13 @@
   padding: 10px 30px;
 }
 .header {
-  background-color: #D5273A;
+  background-color: #A5D3D8;
   color: #FFFFFF;
 }
 .logo {
-  height: 50px;
-  width: 159px;
-  margin: 0 25px 5px;
+  height: 60px;
+  width: 250px;
+  margin: 0 25px;
 }
 #btn_exit {
   margin-top: 8px;

@@ -1,26 +1,27 @@
 $( document ).ready(function() {
     //CHANGE HERE: //////////////////////////////////////////////////
-    var baseLanguage='en'; //jezik, v katerem so originalni napisi
+    var baseLanguage='sl'; //jezik, v katerem so originalni napisi
     var translations=
     [
-		{'sl':'Samodejna prilagoditev napetostnega merilnega območja','en':'Autoscale'},
-		{'sl':'Kanal','en':'Channel'},
-        	{'sl':'Povprečenje signalov','en':'Averaging'},
-        	{'sl':'Privzeti merilni območji','en':'Reset zoom'},
+		{'sl':'Samodejna nastavitev merilnih območij','en':'Autoscale'},
+		{'sl':'Napetostnega in časovnega','en':'AUTOSCALE'},
+        {'sl':'Kanal','en':'Channel'},
+        {'sl':'Povprečenje signalov','en':'Averaging'},
+        {'sl':'Ponastavi','en':'Reset zoom'},
 		{'sl':'Zunanji izvor','en':'External'},
 		{'sl':'Izvor prožilnega signala','en':'Source'},
 		{'sl':'Način proženja','en':'Mode'},
+		{'sl':'Enkratno proženje','en':'Single '},
 		{'sl':'Enkratno','en':'Single'},
 		{'sl':'Običajno','en':'Normal'},
 		{'sl':'Ponavljajoče','en':'Continuous'},
 		{'sl':'Samodejno','en':'Auto'},
 		{'sl':'Prehod signala za proženje','en':'Edge'},
 		{'sl':'Pozitiven prehod','en':'Rising'},
-		{'sl':'Negativen prehod ','en':'Falling'},
+		{'sl':'Negativen prehod','en':'Falling'},
 		{'sl':'Prag proženja','en':'Level'},
-		{'sl':'Enkratno proženje','en':'Single '},
 		{'sl':'Širina','en':'Range '},
-		{'sl':'Nastavitev merilnih območij','en':'Range'},
+		{'sl':'Ročna nastavitev merilnih območij','en':'Range'},
 		//{'sl':'','en':'Range'},
 		{'sl':'Časovno merilno območje','en':'X axis'},
 		{'sl':'Napetostno merilno območje','en':'Y axis'},
@@ -36,10 +37,10 @@ $( document ).ready(function() {
 		{'sl':'Merilni sondi','en':'Gain settings'},	
 		{'sl':'Signalni generator in osciloskop','en':'Generator & Oscilloscope'},
 		{'sl':'Signalni generator','en':'Signal generator'},
-		{'sl':'Samodejna prilagoditev merilnih območij','en':'AUTO'},
-		{'sl':'Nastavitve ojačanja','en':'Gain setting'},
+		{'sl':'Nastavitev ojačanja','en':'Gain setting'},
 		{'sl':'Faktor slabljenja','en':'Probe attenuation'},
 		{'sl':'Oblika izhodnega signala','en':'Signal type'},
+		{'sl':'Vzorčni signali','en':'Example signals'},
 		{'sl':'Sinusna','en':'Sine'},
 		{'sl':'Pravokotna','en':'Square'},
 		{'sl':'Trikotna','en':'Triangle'},
@@ -47,18 +48,13 @@ $( document ).ready(function() {
 		{'sl':' Vršna napetost','en':'Amplitude'},
 		{'sl':'Enosmerna komponenta','en':'DC offset'},
 		{'sl':'Način proženja','en':'Trigger mode'},
-		{'sl':'Napetost','en':'Voltage'},
 		{'sl':'Naloži datoteko','en':'File upload'},
 		{'sl':'Proženje','en':'Trigger'},
 		{'sl':'Čas','en':'Time'},
 		{'sl':'Vršna napetost','en':'Amp'},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
-		{'sl':'','en':''},
+		{'sl':'Napetostnega','en':'AUTO'},
+		{'sl':'Napetost','en':'Voltage'},
+		{'sl':'Jezik','en':'Language'},
 		{'sl':'','en':''},
 		{'sl':'','en':''},
     ];
@@ -84,7 +80,7 @@ $( document ).ready(function() {
             }
         });
     }
-    translator(baseLanguage,location.hash.substr(1));
-    $('.translate').click(function(){translator(location.hash.substr(1),$(this).attr('href').substr(1))});
-    $('body *').on("translate",function(){translator(baseLanguage,location.hash.substr(1),this)});
+   translator(baseLanguage,location.hash.substr(1, 2));
+    $('.translate').click(function(){translator(location.hash.substr(1, 2),$(this).attr('href').substr(1, 2))});
+    $('body *').on("translate",function(){translator(baseLanguage,location.hash.substr(1, 2),this)});
 });
