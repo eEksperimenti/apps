@@ -16,7 +16,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generator & Oscilloscope</title>
+  <title>Žarnica</title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
   <link href="zarnica.css" rel="stylesheet" type="text/css">
@@ -699,8 +699,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
 			data2.label="Svetilnost";
 
            for(var j=0; j<data1.data.length; j++) {
-            data1.data[j][1] = (0.3-25*dresult.datasets.g1[0].data[j][1])/upor;
-            data2.data[j][1] = (0.3-25*dresult.datasets.g1[1].data[j][1])*Koeficient;
+            data1.data[j][1] = (25*dresult.datasets.g1[0].data[j][1]-0.3)/upor;
+            data2.data[j][1] = (25*dresult.datasets.g1[1].data[j][1]-0.3)*Koeficient;
            }
           
           datasets.push(data1);
