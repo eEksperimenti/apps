@@ -95,6 +95,7 @@
   var koeficinet=1;
   var data1=null;
   var data2=null;
+  var dataReset=false;
   var params = {
     original: null,
     local:null
@@ -110,9 +111,18 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
   }; 
     
   // On page loaded
+  $(document).ready(function(){ 
+  
+  		//document.getElementById("resetValues").click();
+ 		$("uproField").val(10);
+  		$("koeficientField").val(1);
+  	
+  });
+
   
   $(function() {
-  	$("uproField").val(1);
+  	//$("#resetValues").click();
+  	$("uproField").val(10);
   	$("koeficientField").val(1);
     
     // Show different buttons on touch screens    
@@ -272,6 +282,37 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         plot.setupGrid();
         plot.draw();
                
+        updateRanges();
+        $(this).tooltip($(this).prop('disabled') === true ? 'hide' : 'show');
+        updateTriggerSlider();
+      }
+    });
+       $('#range_y2_minus, #range_y2_plus').on('click', function() {
+      var nearest = $(this).data('nearest');
+
+      if(nearest && plot) {
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+        var min = (options.yaxes[1].min !== null ? options.yaxes[1].min : axes.yaxis.min);
+        var max = (options.yaxes[1].max !== null ? options.yaxes[1].max : axes.yaxis.max);
+        var unit = $(this).data('unit');
+        alert("axes: "+axes+" min: "+min+" max: "+max+" unit: "+unit);
+
+        // Convert millivolts to volts.
+        if(unit == 'mV') {
+          nearest /= 1000;
+        }
+        
+        var center = (min + max) / 2;
+        var half = nearest / 2;
+        min = center - half;
+        max = center + half;
+        
+        options.yaxes[1].min = min;
+        options.yaxes[1].max = max;
+
+        plot.setupGrid();
+        plot.draw();
         updateRanges();
         $(this).tooltip($(this).prop('disabled') === true ? 'hide' : 'show');
         updateTriggerSlider();
@@ -578,7 +619,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     });
     
     // Tooltips for range buttons
-    $('#range_x_minus, #range_x_plus, #range_y_minus, #range_y_plus').tooltip({
+    $('#range_x_minus, #range_x_plus, #range_y_minus,#range_y2_minus,#range_y2_plus, #range_y_plus').tooltip({
       container: 'body'
     });
     
@@ -691,24 +732,23 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
        	upor = $("#uporField").val();
        	Koeficient = $("#koeficientField").val();
 
-		 data1 = dresult.datasets.g1[0];
-		 data2 = dresult.datasets.g1[1];
-			data1.color=0;
-			data1.label="Tok";
-			data2.color=1;
-			data2.label="Svetilnost";
+    		data1 = dresult.datasets.g1[0];
+    		data2 = dresult.datasets.g1[1];
+    		data1.color=0;
+    		data1.label="Tok";
+    		data2.color=1;
+    		data2.label="Svetilnost";
 
-           for(var j=0; j<data1.data.length; j++) {
-            data1.data[j][1] = (25*dresult.datasets.g1[0].data[j][1]-0.3)/upor;
-            data2.data[j][1] = (25*dresult.datasets.g1[1].data[j][1]-0.3)*Koeficient;
-           }
+         for(var j=0; j<data1.data.length; j++) {
+          data1.data[j][1] = (25*dresult.datasets.g1[0].data[j][1]-0.3)/upor;
+          data2.data[j][1] = (25*dresult.datasets.g1[1].data[j][1]-0.3)*Koeficient;
+         }
           
           datasets.push(data1);
           datasets.push(data2);
           $.extend(datasets[1],{label:'Svetilnost',color:1,yaxis:2});
        
        	  $.extend(dresult.datasets.params,{gain_ch1:1,gain_ch2:1});
-       	  $.extend(params.local,{trig_mode:1});
         
         if(! plot) {
           initPlot(dresult.datasets.params);
@@ -744,7 +784,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           plot.draw();
         }
         
-        if(! trig_dragging) {
+        if(!trig_dragging) {
           updateTriggerSlider();
         }
         
@@ -796,7 +836,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           
           // Manage the state of other components
           $('#accordion').find('input,select').not('#trig_level').prop('disabled', false);
-          $('.btn').not('#btn_single, #range_y_plus, #range_y_minus, #range_x_plus, #range_x_minus, #gen_ch1_single, #gen_ch2_single').prop('disabled', false);
+          $('.btn').not('#btn_single, #range_y_plus, #range_y_minus,#range_y2_plus, #range_y2_minus, #range_x_plus, #range_x_minus, #gen_ch1_single, #gen_ch2_single').prop('disabled', false);
         }
       }
       
@@ -845,6 +885,9 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
       if(ranges.yaxis.to - ranges.yaxis.from < 0.00001) {
         ranges.yaxis.to = ranges.yaxis.from + 0.00001;
       }
+       if(ranges.y2axis.to - ranges.y2axis.from < 0.00001) {
+        ranges.y2axis.to = ranges.y2axis.from + 0.00001;
+      }
   
       // Do the zooming
       plot = $.plot(
@@ -852,7 +895,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         getData(ranges.xaxis.from, ranges.xaxis.to),
         $.extend(true, plot_options, {
           xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
-          yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
+          yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to },
+          y2axis: { min: ranges.y2axis.from, max: ranges.y2axis.to }
         })
       );
       
@@ -1340,6 +1384,9 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     options.xaxes[0].max = params.local.xmax;
     options.yaxes[0].min = axes.yaxis.min;
     options.yaxes[0].max = axes.yaxis.max;
+    options.yaxes[1].min= axes.y2axis.min;
+    options.yaxes[1].min= axes.y2axis.max;
+   
     
     plot.setupGrid();
     plot.draw();
@@ -1548,6 +1595,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     var xunit = (params.local.time_units == 0 ? 'µs' : (params.local.time_units == 1 ? 'ms' : 's'));
     var yunit = 'V';
     var axes = plot.getAxes();
+   
     var xrange = axes.xaxis.max - axes.xaxis.min;
     var yrange = axes.yaxis.max - axes.yaxis.min;
     var yminrange = 5e-3;  // Volts
@@ -1574,9 +1622,11 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
 
     $('#range_x').html(+(Math.round(xrange + "e+" + decimals) + "e-" + decimals) + ' ' + xunit);
     $('#range_y').html(Math.floor(yrange) + ' ' + yunit);
+
     
     var nearest_x = getNearestRanges(xrange);
     var nearest_y = getNearestRanges(yrange);
+
         
     // X limitations 
     if(nearest_x.next * seconds > xmaxrange) {
@@ -1615,6 +1665,41 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     
     $('#range_y_minus').data({ nearest: nearest_y.prev, unit: yunit }).data('bs.tooltip').options.title = nearest_y.prev;
     $('#range_y_plus').data({ nearest: nearest_y.next, unit: yunit }).data('bs.tooltip').options.title = nearest_y.next;
+
+
+    var yrange2 = axes.y2axis.max - axes.y2axis.min;
+    var yminrange2 = 5e-3;  // Volts
+   
+
+ //f  alert("range: "+yrange2+" yminrange2: "+yminrange2+" dec: "+decimals);
+
+     if(yrange2 < 1) {
+          yunit = 'mV';
+          yrange2 *= 1000;
+          ymaxrange *= 1000;
+          yminrange *= 1000;
+      }
+
+      var nearest_y2 = getNearestRanges(yrange2);
+
+  if(nearest_y2.next - nearest_y2.prev >= ymaxrange) {
+      nearest_y2.next = null;
+      $('#range_y2_plus').prop('disabled', true);
+    }
+    else {
+      $('#range_y2_plus').prop('disabled', false);
+    }
+    if(nearest_y2.prev < yminrange2) {
+      nearest_y2.prev = null;
+      $('#range_y2_minus').prop('disabled', true);
+    }
+    else {
+      $('#range_y2_minus').prop('disabled', false);
+    }
+    
+    $('#range_y2_minus').data({ nearest: nearest_y2.prev, unit: yunit }).data('bs.tooltip').options.title = nearest_y2.prev;
+    $('#range_y2_plus').data({ nearest: nearest_y2.next, unit: yunit }).data('bs.tooltip').options.title = nearest_y2.next;
+
   }
   
   function getNearestRanges(number) {
@@ -1835,12 +1920,13 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     return value + unit;
   }
   function  resetValues(){
-      $("#uporField").val("1");
+  	resetValues=true;
+      $("#uporField").val("10");
       $("#koeficientField").val("1");
       plot=false;
       downloading=false;
       initPlot(params.local);
-      redrawPlot();
+      //redrawPlot();
   };
  $("#uporField").on("keyup",function(){
 
@@ -1958,10 +2044,10 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
             </button>
             </div>
         <div class="btn-group zoomYaxis rightZoom">
-          <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+          <button id="range_y2_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
             <span class="glyphicon glyphicon-minus"></span>
           </button>
-          <button id="range_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+          <button id="range_y2_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
             <span class="glyphicon glyphicon-plus"></span>
           </button>
         </div>
