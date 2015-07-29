@@ -1,0 +1,85 @@
+
+Div-u z id="accordion" spremeni class col-md-4 v col-md-12 in pred njega dodaj:
+
+	<div class="col-md-4 col-xs-12 col-sm-12">
+          <ul class="nav nav-tabs">
+              <li class="active"><a data-toggle="tab" href="#meritve" > MERITVE </a></li>
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href=""> NAVODILA
+                <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a data-toggle="tab" href="#navodila1"> LEKCIJA 1 </a></li>
+                  <li><a data-toggle="tab" href="#navodila2"> LEKCIJA 2 </a></li>
+                </ul>
+              </li>
+          </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade in active" id="meritve">
+
+in vso kodo, ki predstavlja meritve "zapri" v div z id="meritve".
+
+Za njim dodaj še kodo
+	
+	<div class="tab-pane fade" id="navodila1">
+        <div class="col-md-12">
+               //vstavi besedilo  
+        </div>
+    </div>
+    <div class="tab-pane fade" id="navodila2">
+        <div class="col-lg-12 col-sm-12">
+                //vstavi besedilo
+        </div>
+    </div>
+
+.
+
+V style.css dodaj:
+
+	.navodila{
+  font: 6px;
+}
+
+.tab-content{
+  padding: 2em 0;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  border-radius: 0px 0px 5px 5px;
+}
+
+.nav-tabs li{
+  width: 50%;
+}
+
+.nav-tabs a{
+  color: black;
+}
+
+.nav-tabs li a .caret{
+  border-top-color: black;
+  border-bottom-color: black;
+}
+
+ul li .dropdown-toggle{
+  margin-right: 0;
+}
+
+.dropdown-menu li{
+  width: 100%;
+  margin: 0;
+}
+
+.dropdown-menu li > a:hover, .dropdown-menu li > a:focus, .dropdown-submenu:hover > a{
+  background-color: rgb(238, 238, 238);
+  color: black;
+}
+
+.dropdown-menu > .active > a:hover{
+  background-color: rgb(238, 238, 238);
+  color: black;
+}
+
+.dropdown-menu > .active > a{
+  background-color: white;
+  color: black;
+}.
