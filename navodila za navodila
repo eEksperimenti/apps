@@ -1,4 +1,3 @@
-
 Div-u z id="accordion" spremeni class col-md-4 v col-md-12 in pred njega dodaj:
 
 	<div class="col-md-4 col-xs-12 col-sm-12">
