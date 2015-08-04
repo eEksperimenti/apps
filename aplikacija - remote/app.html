@@ -2083,11 +2083,15 @@
         document.write("tuljava </input></div><div class='radio-inline'>");
         document.write("<input type='radio' name='odgovor' value='kondenzator'");
         document.write("id='rad3'> kondenzator </input></div>");
-        document.write("</form></div></div><div class='col-xs-4 odziv'></div>");
+        document.write("</form></div></div><div class='col-xs-4'></div>");
 
       }
       else if(location.hash.substr(5)==="lahko"){
-        document.write("<div class='col-xs-6' style=\"margin-top: 10px;\"> Povezani element je tuljava. </div><div class='col-xs-6 odziv'></div>");
+        document.write("<div class='col-xs-4' style=\"margin-top: 10px; text-align: center;\"> Povezani element je tuljava. </div>");
+
+        document.write("<div class='col-xs-4' style=\"margin-top: 10px;\"> <a id='naslednji' href='");
+        document.write(location);
+        document.write("'> NASLEDNJI ELEMENT </a></div>");
       }
 
       </script>
@@ -2096,13 +2100,47 @@
       $('#myForm input').on('change',function() {
 
         if($('input[name=odgovor]:checked', '#myForm').val() == 'tuljava'){
-          alert('Odgovor je pravilen!');}
+          $("#napacno").css("display", "none");
+          $("#pravilno").css("display", "block");
+        }
         else{
-          alert('Odgovor je žal napačen. Poskusi znova.');
+          $("#pravilno").css("display", "none");
+          $("#napacno").css("display", "block");
         }
       });
     
     </script>
+      <div class="col-xs-12" style="margin-top: 3em; text-align: center;">
+        <div class="col-xs-2"></div>
+        <div class="col-xs-8">
+          <div class="alert alert-success" id="pravilno" style="display:none; margin-bottom: 1.5em; padding-bottom: 2.5em;" role="alert"> 
+            <div class="col-xs-1"></div>
+            <div class="col-xs-4">
+              Bravo ! Odgovor je pravilen !
+            </div>
+            <div class="col-xs-2"></div>
+            <div class="col-xs-4">
+              <script type="text/javascript">
+
+                document.write("<a id='naslednji' href=");
+                document.write(location);
+                document.write("> NASLEDNJI ELEMENT </a>");
+
+                $("#naslednji").on('click', function(){
+
+                  location.reload(true);
+                });
+
+              </script>
+            </div>
+            <div class="col-xs-1"></div>
+          </div>
+          <div class="alert alert-danger" id="napacno" style="display:none;" role="alert">
+            Odgovor je žal napačen. Poskusi znova.
+          </div>
+        </div>
+        <div class="col-xs-2"></div>
+      </div>
     </div>
     <div class="row">
       <div class="col-xs-12 col-sm-12 col-md-8">
