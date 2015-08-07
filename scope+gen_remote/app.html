@@ -1,4 +1,5 @@
-<html lang="si"><head>
+<html lang="si">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generator &amp; Oscilloscope</title>
@@ -311,6 +312,86 @@
         updateTriggerSlider();
       }
     });
+
+    var x;
+
+  for(var i = 1; i < 13; i++){
+    if(getCookie(i) == "" && i == 12){
+      var arr = [1,2,3,4,5,6,7,8,9,10,11,12];
+      shuffle(arr);
+      for(var i = 1; i < 13; i++){
+        setCookie(i, arr[i-1], 2);
+      }
+      x = arr[0]
+      eraseCookie(x);
+    }
+  }
+  //alert("cookies:" + document.cookie);
+
+  if(x == undefined){
+    for(var i = 1; i < 13; i++){
+      if(getCookie(i) != ""){
+        x = getCookie(i);
+        eraseCookie(i);
+        break;
+      } 
+    }
+  }
+
+  if(location.hash.substr(5)==="pametno"){
+
+    switch(x){
+      case "1":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "2":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "3":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "4":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "5":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "6":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "7":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "8":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "9":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "10":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "11":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+      case "12":
+          $('#gen_ch1_ampl').val('2');
+          //$('#gen_ch1_freq')[0].value = 10000;
+          break;
+    }
+    //signal();
+  }
       
     // Events binding for gain controls
     
@@ -558,6 +639,8 @@
     
     // Load first data
     updateGraphData();
+
+
     
     // Stop the application when page is unloaded
     window.onbeforeunload = function() { 
@@ -879,7 +962,7 @@
           osc.type = type;
       }
     
-    $('#samo').on('click', function(){
+    /*$('#samo').on('click', function(){
 
           var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -935,7 +1018,7 @@
         for(var i = 0; i < datasets[0].data.length; i++){
           console.log(datasets[0].data[i][1]);
         }
-      });
+      });*/
 
     // Enable the Single button when not in autorun mode
     $('#btn_single').prop('disabled', autorun);
@@ -1852,34 +1935,6 @@
     return value + unit;
   }
 
- function signal(){
-          
-          var val = parseLocalFloat($('#gen_ch1_ampl').val());
-          params.local.gen_sig_amp_ch1 = val;
-        
-          var val = parseLocalFloat($('#gen_ch1_freq').val());
-          params.local.gen_sig_freq_ch1 = val;
-         
-          /*var val = parseLocalFloat($('#gen_sig1_dc').val());
-          params.local.gen_sig_dcoff_ch1 = val;
-
-          /*$('#gen_enable_ch1, #gen_enable_ch2').on('change', function() { 
-                params.local[this.id] = ($(this).is(':checked') ? 1 : 0);
-                sendParams(); 
-          });*/ 
-
-          /*
-          function onDropdownChange(that, param_name, do_get) {
-            params.local[param_name] = parseInt(that.val());
-            sendParams(do_get);
-            that.blur();
-            user_editing = false;
-          }
-          */
-  
-          //onDropdownChange($('#gen_ch1_sigtype'), 'gen_sig_type_ch1');
-      };
-
   function setCookie(cname, cvalue, exdays){
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -1926,88 +1981,21 @@
     return array;
   }
 
-  var x;
+   function signal(){
+          
+          var val = parseLocalFloat($('#gen_ch1_ampl').val());
+          params.local.gen_sig_amp_ch1 = val;
+        
+          var val = parseLocalFloat($('#gen_ch1_freq').val());
+          params.local.gen_sig_freq_ch1 = val;
+         
+          var val = parseLocalFloat($('#gen_ch1_dc').val());
+          params.local.gen_sig_dcoff_ch1 = val;
 
-  for(var i = 1; i < 13; i++){
-    if(getCookie(i) == "" && i == 12){
-      var arr = [1,2,3,4,5,6,7,8,9,10,11,12];
-      shuffle(arr);
-      for(var i = 1; i < 13; i++){
-        setCookie(i, arr[i-1], 2);
-      }
-      x = arr[0]
-      eraseCookie(x);
-    }
-  }
-  //alert("cookies:" + document.cookie);
+          onDropdownChange($('#gen_ch1_sigtype'), 'gen_sig_type_ch1');
+      };
 
-  if(x == undefined){
-    for(var i = 1; i < 13; i++){
-      if(getCookie(i) != ""){
-        x = getCookie(i);
-        eraseCookie(i);
-        break;
-      } 
-    }
-  }
-
-  //alert(x);
-
-  if(location.hash.substr(5)==="pametno"){
-
-    switch(x){
-      case "1":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "2":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-        $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "3":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "4":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "5":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "6":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "7":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "8":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "9":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "10":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "11":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-      case "12":
-          $('#gen_ch1_ampl')[0].value = 0.1;
-          $('#gen_ch1_freq')[0].value = 10000;
-          break;
-    }
-    //alert($('#gen_ch1_ampl')[0].value);
-    signal();
-  } 
+  //alert(x); 
   
   </script>
   <script src="../assets/redpitaya.custom.js"></script>

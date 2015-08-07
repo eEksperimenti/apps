@@ -1,6 +1,0 @@
-{
-    "name": "Signalni generator in osciloskop - remote",
-    "version": "alpha",
-    "revision": "d3751f9",
-    "description": "A two channel waveform generator with integrated two channel time domain signal visualization system."
-}
