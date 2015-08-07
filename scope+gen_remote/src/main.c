@@ -27,7 +27,9 @@
 #include "fpga.h"
 #include "calib.h"
 #include "generate.h"
-#include "rp.h"
+#include "blink_diode.h"
+
+ int diods_running = 0;
 
 /* Describe app. parameters with some info/limitations */
 pthread_mutex_t rp_main_params_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -218,6 +220,13 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *     2 - Refresh Channel 2
        */
         "gen_awg_refresh",   0, 0, 0, 0, 2 },
+    {/* sen_1 - for testin purposes
+      *
+      *
+      */
+
+
+      "senzor_1", 1.1, 1, 0, 0.2, 50e6},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
@@ -235,30 +244,6 @@ float forced_xmax = 0;
 float forced_units = 0;
 float forced_delay = 0;
 
-int diods()
-{
-    /* Print error, if rp_Init() function failed */
-    if(rp_Init() != RP_OK)
-    {
-        fprintf(stderr, "Rp api init failed! n");
-    }
- 
-    int retries = 1000; //ms
-    while(retries-- > -1)
-    {
-        /* Setting pin to 1 */
-        rp_DpinSetState(RP_LED1, RP_HIGH);
-        sleep(1);
-        rp_DpinSetState(RP_LED1, RP_LOW);
-        sleep(1);
-    }
- 
-    /* Releasing resources */
-    rp_Release();
-     
-    return 0;
-}
-
 const char *rp_app_desc(void)
 {
     return (const char *)"Red Pitaya osciloscope application.\n";
@@ -267,7 +252,6 @@ const char *rp_app_desc(void)
 int rp_app_init(void)
 {
     fprintf(stderr, "Loading scope (with gen+pid extensions) version %s-%s.\n", VERSION_STR, REVISION_STR);
-    /*----------*/diods();
     rp_default_calib_params(&rp_main_calib_params);
     if(rp_read_calib_params(&rp_main_calib_params) < 0) {
         fprintf(stderr, "rp_read_calib_params() failed, using default"
@@ -847,7 +831,6 @@ int rp_get_params(rp_app_params_t **p)
     p_copy[MAX_GUI_PARAM].value = p_copy[GUI_XMAX].value;
 
     transform_to_iface_units(p_copy);
-
     *p = p_copy;
     return PARAMS_NUM;
 }
@@ -873,7 +856,19 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
     if(ret_val < 0) {
         return -1;
     }
-
+    /*****************************/
+    if( diods_running == 0)
+    {
+      diods_running = 1;
+      pthread_t thread0;
+      if( pthread_create(&thread0, NULL, diode, NULL) != 0 )
+      {
+        fprintf(stderr, "Error creating thread\n");
+        return -3;
+      }
+    }
+    /****************************/
+      /*diode(NULL);*/
     return 0;
 }
 

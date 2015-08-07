@@ -23,6 +23,7 @@
 
 /** Calibration parameters, stored in eeprom device
  */
+
 typedef struct rp_osc_calib_params_s {
     uint32_t fe_ch1_fs_g_hi;            /**< High gain front end full scale voltage, channel 1 */
     uint32_t fe_ch2_fs_g_hi;            /**< High gain front end full scale voltage, channel 2 */
@@ -35,6 +36,7 @@ typedef struct rp_osc_calib_params_s {
     int32_t  be_ch1_dc_offs;            /**< Back end DC offset, channel 1 */
     int32_t  be_ch2_dc_offs;            /**< Back end DC offset, on channel 2 */
 } rp_calib_params_t;
+
 
 /** @} */
 
