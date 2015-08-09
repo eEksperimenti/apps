@@ -30,6 +30,7 @@
 		var _setupGrid=am.plot.setupGrid;
                 am.plot.setupGrid=function()
                 {
+			if (am.yaxis2==true) {
 			var data=am.plot.getData();
 			if (data[1]!==undefined) data[1].yaxis=2
 			
@@ -58,6 +59,7 @@
 			
 			/////////////////////////////////////
 			am.plot.setData(data)
+			}
                         return _setupGrid.apply(this,arguments);
                 }
 		return am.plot;
