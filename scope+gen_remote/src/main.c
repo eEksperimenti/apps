@@ -28,8 +28,12 @@
 #include "calib.h"
 #include "generate.h"
 #include "blink_diode.h"
+#include "read_analog_sig.h"
 
  int diods_running = 0;
+ int num_of_threads = 0;
+ int read_analog_sig = 0;
+ float rp_ain0_val = 0;
 
 /* Describe app. parameters with some info/limitations */
 pthread_mutex_t rp_main_params_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -220,13 +224,14 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *     2 - Refresh Channel 2
        */
         "gen_awg_refresh",   0, 0, 0, 0, 2 },
-    {/* sen_1 - for testin purposes
-      *
-      *
-      */
-
-
-      "senzor_1", 1.1, 1, 0, 0.2, 50e6},
+    {/* ain0_Val - val of analog pin 0 */
+      "ain0_val", 1.0, 1, 0, -50e6, 50e6},
+    {/* ain1_Val - val of analog pin 1 */
+      "ain1_val", 1.1, 1, 0, -50e6, 50e6},
+    {/* ain2_Val - val of analog pin 2 */
+      "ain2_val", 1.2, 1, 0, -50e6, 50e6},
+    {/* ain3_Val - val of analog pin 3 */
+      "ain3_val", 1.3, 1, 0, -50e6, 50e6},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
@@ -837,6 +842,20 @@ int rp_get_params(rp_app_params_t **p)
 
 int rp_get_signals(float ***s, int *sig_num, int *sig_len)
 {
+
+    if( read_analog_sig == 0)
+    {
+      ++read_analog_sig;
+      pthread_t thread0;
+
+      if( pthread_create(&thread0, NULL, reading_analog_sig, NULL) != 0 )
+      {
+        fprintf(stderr, "Error creating thread\n");
+        return -3;
+      }
+    }
+
+
     int ret_val;
     int sig_idx;
 
@@ -856,10 +875,11 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
     if(ret_val < 0) {
         return -1;
     }
-    /*****************************/
+    /*****************************
     if( diods_running == 0)
     {
       diods_running = 1;
+      ++num_of_threads;
       pthread_t thread0;
       if( pthread_create(&thread0, NULL, diode, NULL) != 0 )
       {
@@ -867,8 +887,10 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
         return -3;
       }
     }
-    /****************************/
-      /*diode(NULL);*/
+    ***************************/
+      /*diode(NULL);
+    rp_main_params[SENZOR_1].value = num_of_threads;*/
+    rp_main_params[RP_AIN0_VAL].value = rp_ain0_val;
     return 0;
 }
 

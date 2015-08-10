@@ -8,6 +8,7 @@
 #define Istrue(e) ((e) != 0) //Helper function. Int > 0 is true, else == 0 is false
 
 
+
 void *diode(void *ptr){
 
 	/* Print error, if rp_Init() function failed */
@@ -24,7 +25,6 @@ void *diode(void *ptr){
 	rp_DpinSetState(pin1, RP_HIGH);
 	sleep(1);
 	rp_DpinSetState(pin1, RP_LOW);
-
 
 	rp_DpinSetState(pin2, RP_HIGH);
 	sleep(1);
