@@ -27,13 +27,7 @@
 #include "fpga.h"
 #include "calib.h"
 #include "generate.h"
-#include "blink_diode.h"
 #include "read_analog_sig.h"
-
- int diods_running = 0;
- int num_of_threads = 0;
- int read_analog_sig = 0;
- float rp_ain0_val = 0;
 
 /* Describe app. parameters with some info/limitations */
 pthread_mutex_t rp_main_params_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -235,6 +229,12 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
+
+float *rp_ain0_val = &rp_main_params[RP_AIN0_VAL].value;
+float *rp_ain1_val = &rp_main_params[RP_AIN1_VAL].value;
+float *rp_ain2_val = &rp_main_params[RP_AIN2_VAL].value;
+float *rp_ain3_val = &rp_main_params[RP_AIN3_VAL].value;
+
 /* params initialized */
 static int params_init = 0;
 
@@ -271,17 +271,19 @@ int rp_app_init(void)
     }
 
     rp_set_params(&rp_main_params[0], PARAMS_NUM);
-
+    rp_start_API();
 
     return 0;
 }
 
 int rp_app_exit(void)
 {
+    rp_stop_API();
     fprintf(stderr, "Unloading scope (with gen+pid extensions) version %s-%s.\n", VERSION_STR, REVISION_STR);
 
     rp_osc_worker_exit();
     generate_exit();
+    /*release_api_resources();*/
 
     return 0;
 }
@@ -842,20 +844,8 @@ int rp_get_params(rp_app_params_t **p)
 
 int rp_get_signals(float ***s, int *sig_num, int *sig_len)
 {
-
-    if( read_analog_sig == 0)
-    {
-      ++read_analog_sig;
-      pthread_t thread0;
-
-      if( pthread_create(&thread0, NULL, reading_analog_sig, NULL) != 0 )
-      {
-        fprintf(stderr, "Error creating thread\n");
-        return -3;
-      }
-    }
-
-
+    /* so we get the analogsignals */
+    pthread_mutex_unlock(&rp_analog_sig_mutex);
     int ret_val;
     int sig_idx;
 
@@ -875,22 +865,9 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
     if(ret_val < 0) {
         return -1;
     }
-    /*****************************
-    if( diods_running == 0)
-    {
-      diods_running = 1;
-      ++num_of_threads;
-      pthread_t thread0;
-      if( pthread_create(&thread0, NULL, diode, NULL) != 0 )
-      {
-        fprintf(stderr, "Error creating thread\n");
-        return -3;
-      }
-    }
-    ***************************/
-      /*diode(NULL);
-    rp_main_params[SENZOR_1].value = num_of_threads;*/
-    rp_main_params[RP_AIN0_VAL].value = rp_ain0_val;
+    /* so we stop acquiring analog signals */
+    pthread_mutex_lock(&rp_analog_sig_mutex);
+
     return 0;
 }
 
