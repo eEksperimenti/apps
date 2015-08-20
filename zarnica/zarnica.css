@@ -41,3 +41,13 @@
   margin-right: 20px;
   margin-left: 10px;
  }*/
+ #settingsButton{
+  margin-left: 10px;
+ }
+#accordion{
+  margin-left:30px;
+  width:300px;
+}
+.modal-open{
+  overflow: visible;
+}

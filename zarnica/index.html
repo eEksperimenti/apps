@@ -27,9 +27,11 @@
   <script src="../assets/flot/jquery.flot.navigate.js"></script>
   <script src="../assets/flot/jquery.flot.resize.min.js"></script>
   <script src="../assets/flot/jquery.flot.touch.js?2"></script>
+    <script src="../assets/axes-manager.js"></script>
   <script src="../assets/translator.js"></script>
   <script type="text/javascript">
-  
+  am.div_id='nastavitve'; //id razdelka za izris kontrol
+  am.yaxis2=true; //omogoči/onemogoči delovanje druge y osi
   // Settings which can be modified
    
   var app_id = 'zarnica';  
@@ -110,8 +112,11 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
   }; 
     
   // On page loaded
-  
+
   $(function() {
+    
+
+
   	$("uproField").val(1);
   	$("koeficientField").val(1);
     
@@ -131,6 +136,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     
     // Add application ID in the message from modal popup
     $('.app-id').text(app_id);
+    hash= window.location.hash;
+    $("#stopnja").val("Stopnja zahtevnosti: "+hash);
     
     // Disable all controls until the params state is loaded for the first time 
     //$('input, select, button', '.container').prop('disabled', true);
@@ -592,6 +599,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         async: false
       });
     };
+
             
   });
   
@@ -624,6 +632,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     .fail(function() {
       showModalError('Could not start the application.', true);
     });
+     
+   
   }
   
   function showModalError(err_msg, retry_btn, restart_btn, ignore_btn) {
@@ -1904,8 +1914,13 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     a.remove();
   }
 
-
-
+  $(document).keypress(function(event){
+    if (event.which == 49){
+      $("#axisSettings").toggle();
+    }if (event.which == 50){
+      $("#channelSettings").toggle();
+    }
+ });
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
 </head>
@@ -1918,6 +1933,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     </div>
   </div>
   <div class="container">
+  <div id="stopnja"></div>
     <div class="row">
 	<a href='#sl' class='translate' >sl</a>
 	<a href='#en' class='translate' >en</a>
@@ -1939,6 +1955,11 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           </button>
               <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 1</button>
         <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 2</button>
+         <span id="settingsButton">
+             <button id="settingsBtn" class="btn btn-primary" onclick="showSettings()" >Instructions</button>
+             <button id="resetValues" class="btn btn-primary btn-lg" onclick="resetValues()" data-checked="true">Reset</button>
+             <button id="export"  class="btn btn-primary btn-lg" data-checked="true" onclick="izvoz()">Export data</button>
+       </span>
         </div>
       </div>
     </div>
@@ -1964,6 +1985,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           <button id="range_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
             <span class="glyphicon glyphicon-plus"></span>
           </button>
+
         </div>
 
         <div class="graph-holder well well-small">
@@ -1981,42 +2003,22 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
       </div>
 
     <div class="panel-group col-xs-12 col-sm-12 col-md-2" id="accordion">
-
-
-      <!-- ************ DESNA STRAN *************** -->
-
-      <div id="leftPanel-group" class="panel-group">
-          <div id="leftPanel" class="panel-default">
-            <div id="leftPanel-body" class="panel-body">
-             <label class="control-label">Uporabljen upor za meritev toka:</label>
-              <div id="leftPanel-inputGroup" class="input-group">
-                   <input type="text"  id="uporField" class="form-control" aria-describedby="basic-addon1">
-                    <span class="input-group-addon">Ohm</span>
-              </div>
+       <!-- ************ DESNA STRAN ***************  -->
+          <div class="panel panel-default" id="axisSettings" style="display:none">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#settings">
+                Nastavitve 
+              </a>
+            </h4>
+          </div>
+          <div  id="settings"  class="panel-collapse collapse in"> 
+            <div class="container" id="nastavitve">
             </div>
           </div>
         </div>
-
-
-
-
-      <div id="rightPanel" class="panel-default">
-          <div id="rightPanel-body" class="panel-body">
-          <label class="control-label">Koeficient senzorja za meritev intenzitet:</label> 
-          <div class="input-group">
-            <input id="koeficientField" type="text" class="form-control" aria-describedby="basic-addon1">
-              <span class="input-group-addon">V/Cd</span>
-          </div>
-          </div>
-      </div>
-       <!-- ************ DESNA STRAN ***************  -->
-       <div id="buttons">
-	       <button id="settingsBtn" class="btn btn-primary" onclick="showSettings()" >Settings</button>
-	       <button id="resetValues" class="btn btn-primary btn-lg" onclick="resetValues()" data-checked="true">Ponastavi</button>
-	       <button id="export"  class="btn btn-primary btn-lg" data-checked="true" onclick="izvoz()">Izvozi meritev</button>
-       </div>
-
-       <div id="settings" style="display:none">
+    
+       <div id="channelSettings" style="display:none">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
