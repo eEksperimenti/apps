@@ -605,22 +605,28 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         showModalError((dresult.reason ? dresult.reason : 'Could not start the application.'), true);
       }
       else {
-        $.post(
+       /* $.post(
           post_url, 
            JSON.stringify({ datasets: { params: def_params } })
         )
-        .done(function(dresult) {
+        .done(function(dresult) {*/
           app_started = true;
          // params.local:{gain_ch1:1,gain_ch2:1};
          //resetValues();
+        var server = new WebSocket("ws://212.235.190.181:5950");
+        server.onopen = function(message){$.("#socketMessage").val("Server connected!")};
+        server.onmessage = function(message){
+        	$.("#socketMessage").val(message.value);
+        	dresult = message.value;
+        	updateGraphData()
+        }; 
 
-          updateGraphData();      
-        })
+       /* })
         .fail(function() {
           showModalError('Could not initialize the application with default parameters.', false, true);
         });
       }
-    })
+    })*/
     .fail(function() {
       showModalError('Could not start the application.', true);
     });
@@ -648,7 +654,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     
     // Send params if there are any unsent changes
    
-    sendParams();
+    //sendParams();
     
     var arun_before_ajax = autorun;
     var long_timeout_used = use_long_timeout;
@@ -1918,6 +1924,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     </div>
   </div>
   <div class="container">
+  	<div id="socketMessage" style="border:1px solid #000000;"></div>
     <div class="row">
 	<a href='#sl' class='translate' >sl</a>
 	<a href='#en' class='translate' >en</a>

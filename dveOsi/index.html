@@ -1,5 +1,5 @@
 <!-- $Id$
- * *
+ *
  * Red Pitaya Generator & Oscilloscope client.
  *
  * Author: Dakus <info@eskala.eu>
@@ -16,10 +16,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Žarnica</title>
+  <title>dveOsi</title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
-  <link href="zarnica.css" rel="stylesheet" type="text/css">
   <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
   <script src="../assets/bootstrap-3.0.0/js/bootstrap.min.js"></script>
   <script src="../assets/flot/jquery.flot.min.js"></script>
@@ -27,12 +26,16 @@
   <script src="../assets/flot/jquery.flot.navigate.js"></script>
   <script src="../assets/flot/jquery.flot.resize.min.js"></script>
   <script src="../assets/flot/jquery.flot.touch.js?2"></script>
+  <script src="../assets/axes-manager.js"></script>
   <script src="../assets/translator.js"></script>
   <script type="text/javascript">
+
+  am.div_id='nastavitve'; //id razdelka za izris kontrol
+  am.yaxis2=true; //omogoči/onemogoči delovanje druge y osi
   
   // Settings which can be modified
    
-  var app_id = 'zarnica';  
+  var app_id = 'dveOsi';  
   var root_url = '';
   //var root_url = 'http://10.0.1.221';      // Test local
   //var root_url = 'http://192.168.53.133';  // Test remote and local
@@ -64,9 +67,6 @@
     colors: ['#3276B1', '#D2322D', '#009900'],    // channel1, channel2, trigger line
     lines: { lineWidth: 1 },
     selection: { mode: 'xy' },
-    yaxes:[
-    {position:"left"},
-    {position:"right",alignTicksWithAxis: 1,label:"Svetilnost",alignWithTicke:1}],
     zoom: { interactive: true, trigger: null },
     xaxis: { min: xmin, max: xmax },
     grid: { borderWidth: 0 },
@@ -91,18 +91,10 @@
   var autorun = 1;
   var datasets = [];
   var plot = null;
-  var upor=1;
-  var koeficinet=1;
-  var data1=null;
-  var data2=null;
   var params = {
     original: null,
-    local:null
-  };	
-$.extend(params.original,{gain_ch1:1,gain_ch2:1});
- $.extend(params.local,{gain_ch1:1,gain_ch2:1});
- $.extend(params.local,{trig_mode:1});
- //$.extend(params.original,{trig_mode:1});
+    local: null
+  };
   
   // Default parameters - posted after server side app is started 
   var def_params = {
@@ -112,8 +104,6 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
   // On page loaded
   
   $(function() {
-  	$("uproField").val(1);
-  	$("koeficientField").val(1);
     
     // Show different buttons on touch screens    
     if(window.ontouchstart === undefined) {
@@ -133,7 +123,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     $('.app-id').text(app_id);
     
     // Disable all controls until the params state is loaded for the first time 
-    //$('input, select, button', '.container').prop('disabled', true);
+   // $('input, select, button', '.container').prop('disabled', true);
     
     // Events binding for trigger controls
     
@@ -166,13 +156,14 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
       user_editing = true;
     });
     
-    $('#trig_mode').on('change', function() {
+    autorun = false;
+ /*   $('#trig_mode').on('change', function() {
       onDropdownChange($(this), 'trig_mode', true);
       
       // Autorun if trigger mode is Auto(0) or Normal(1), stop if it is Single(2).
-      autorun =  (params.local.trig_mode == 2 ? 0 : 1); 
+      autorun = (params.local.trig_mode == 2 ? 0 : 1); 
       runStop();
-    });
+    });*/
     
     $('#trig_source').on('change', function() { onDropdownChange($(this), 'trig_source'); });
     $('#trig_edge').on('change', function() { onDropdownChange($(this), 'trig_edge'); });
@@ -607,13 +598,10 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
       else {
         $.post(
           post_url, 
-           JSON.stringify({ datasets: { params: def_params } })
+          JSON.stringify({ datasets: { params: def_params } })
         )
         .done(function(dresult) {
           app_started = true;
-         // params.local:{gain_ch1:1,gain_ch2:1};
-         //resetValues();
-
           updateGraphData();      
         })
         .fail(function() {
@@ -647,7 +635,6 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     downloading = true;
     
     // Send params if there are any unsent changes
-   
     sendParams();
     
     var arun_before_ajax = autorun;
@@ -688,33 +675,15 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         var arun_after_ajax = autorun;
         
         datasets = [];
-       	upor = $("#uporField").val();
-       	Koeficient = $("#koeficientField").val();
-
-		 data1 = dresult.datasets.g1[0];
-		 data2 = dresult.datasets.g1[1];
-			data1.color=0;
-			data1.label="Tok";
-			data2.color=1;
-			data2.label="Svetilnost";
-
-           for(var j=0; j<data1.data.length; j++) {
-            data1.data[j][1] = (25*dresult.datasets.g1[0].data[j][1]-0.3)/upor;
-            data2.data[j][1] = (25*dresult.datasets.g1[1].data[j][1]-0.3)*Koeficient;
-           }
-          
-          datasets.push(data1);
-          datasets.push(data2);
-          $.extend(datasets[1],{label:'Svetilnost',color:1,yaxis:2});
-       
-       	  $.extend(dresult.datasets.params,{gain_ch1:1,gain_ch2:1});
-       	  $.extend(params.local,{trig_mode:1});
+		var t_channel=$('#t-channel').text();
+        for(var i=0; i<dresult.datasets.g1.length; i++) {
+          dresult.datasets.g1[i].color = i;
+          dresult.datasets.g1[i].label = t_channel + (i+1);          
+          datasets.push(dresult.datasets.g1[i]);
+        }
         
         if(! plot) {
           initPlot(dresult.datasets.params);
-           plot=$.plot(plot_holder,datasets, plot_options);
-          updateRanges();
-         
         }
         else {
           // Apply the params state received from server if not in edit mode
@@ -811,11 +780,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     var ymax = init_params.gui_reset_y_range / 2;
     var ymin = ymax * -1;
     
-    //$.extend(params.local,{gain_ch1:1,gain_ch2:1});
     // Load received params
     loadParams(init_params);
-    sendParams(true,true);
-
     
     // When xmin/xmax are null, the min/max values of received data will be used. For ymin/ymax use the gui_reset_y_range param.
     $.extend(true, plot_options, {
@@ -827,13 +793,11 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     var filtered_data = filterData(datasets, plot_holder.width());
   
     // Plot first creation and drawing
-
-    updateGraphData();
-   /* plot = $.plot(
+    plot = $.plot(
       plot_holder, 
       filtered_data,
       plot_options
-    );*/
+    );
     
     // Selection
     plot_holder.on('plotselected', function(event, ranges) {
@@ -940,9 +904,9 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     }
     
     $('#gain_ch1_att').val(params.original.prb_att_ch1);
-    $('#gain_ch1_sett').val(1);
+    $('#gain_ch1_sett').val(params.original.gain_ch1);
     $('#gain_ch2_att').val(params.original.prb_att_ch2);
-    $('#gain_ch2_sett').val(1);
+    $('#gain_ch2_sett').val(params.original.gain_ch2);
     
     $('#gen_enable_ch1').prop('checked', (params.original.gen_enable_ch1 ? true : false));
     $('#gen_enable_ch2').prop('checked', (params.original.gen_enable_ch2 ? true : false));
@@ -1005,8 +969,6 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     params.local.single_btn = (single_btn === true ? 1 : 0);
     use_long_timeout = !!auto_flag;
   
-    //params.local = {gain_ch1:1,gain_ch2:1};
-     //$.extend(params.local,{trig_mode:1});
     $.ajax({
       type: 'POST',
       url: post_url,
@@ -1083,7 +1045,6 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
   
   function getData(from, to) {
     var rangedata = new Array();
-    
     for(var i=0; i<datasets.length; i++) {
       if(! $('#btn_ch' + (i+1)).data('checked')) {
         continue;
@@ -1093,10 +1054,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         if(datasets[i].data[j][0] > to) {
           break;
         }
-      
         if(datasets[i].data[j][0] >= from) {
-        
-         rangedata[rangedata.length - 1].data.push(datasets[i].data[j]);         
+          rangedata[rangedata.length - 1].data.push(datasets[i].data[j]);
         }
       }
     }
@@ -1225,7 +1184,6 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
   }
   
   function redrawPlot() {
-    
     if(! downloading) {
       if(! plot) {
         updateGraphData();
@@ -1834,78 +1792,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
     return value + unit;
   }
-  function  resetValues(){
-      $("#uporField").val("1");
-      $("#koeficientField").val("1");
-      plot=false;
-      downloading=false;
-      initPlot(params.local);
-      redrawPlot();
-  };
- $("#uporField").on("keyup",function(){
-
-   
-      plot=false;
-      downloading=false;
-      plot=false;
-      downloading=false;
-      initPlot(params.local);
-      redrawPlot();
-      
-   
-  });
- function showSettings(){
- 	$("#settings").toggle();
- }
-   function izvoz()
-  {
-    //http://blog.eliacontini.info/post/79860720828/export-to-csv-using-javascript-the-download
-    // some data to export
-    // prepare CSV data
-    var csvData = [];
-    csvData.push('"id","T","U","I"');
- 
-     
-      for (var j=0;j<data1.data.length;++j)
-      {
-        csvData.push('"'+(j+1)+'","'+data1.data[j][0]+'","'+data1.data[j][1]+'","'+data2.data[j][1]+'"');
-      }
-    
-    
-    // download stuff
-    var fileName = "data.csv";
-    var buffer = csvData.join("\n");
-    var blob = new Blob([buffer], {
-      "type": "text/csv;charset=utf8;"			
-    });
   
-    var link = document.createElement("a");
-    
-    var a;
-    if(link.download !== undefined)
-    { // feature detection
-      a = $('<a id="export"><span>export</span></a>');
-      a.attr('href',window.URL.createObjectURL(blob));
-      a.attr('download',fileName);
-    }
-    else if(navigator.msSaveBlob)
-    { // IE 10+
-      a = $('<a id="export" href="#"><span>export</span></a>');
-      a.click(function()
-              {
-                navigator.msSaveBlob(blob, fileName);
-                return false;
-              });
-    }
-    
-    a.hide();
-    $('body').append(a);
-    a.find('span').trigger('click');
-    a.remove();
-  }
-
-
-
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
 </head>
@@ -1914,7 +1801,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
     <div class="container">
       <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/logo_white.png">
-      <h2 class="page-title">Žarnica</h2>
+      <h2 class="page-title">Generator & Oscilloscope</h2>
     </div>
   </div>
   <div class="container">
@@ -1937,86 +1824,70 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           <button id="btn_zoompan" class="btn btn-primary btn-lg" onclick="selectTool.call(this, 'zoompan')" style="display: none">
             <span class="glyphicon glyphicon-search"></span><span class="glyphicon glyphicon-move"></span>
           </button>
-              <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 1</button>
-        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 2</button>
         </div>
+        <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 1</button>
+        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Channel 2</button>
+        
+        <!-- <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Averaging</button>
+		-->
       </div>
     </div>
-    
- 
-
     <div class="row">
-
-      <div class="col-xs-12 col-sm-12 col-md-8 graph">
-      
-        <div class="btn-group zoomYaxis leftZoom">
-            <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
-              <span class="glyphicon glyphicon-minus"></span>
-            </button>
-            <button id="range_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
-             <span class="glyphicon glyphicon-plus"></span>
-            </button>
-            </div>
-        <div class="btn-group zoomYaxis rightZoom">
-          <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
-            <span class="glyphicon glyphicon-minus"></span>
-          </button>
-          <button id="range_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
-            <span class="glyphicon glyphicon-plus"></span>
-          </button>
-        </div>
-
+      <div class="col-xs-12 col-sm-12 col-md-8">
         <div class="graph-holder well well-small">
-          <div id="ytitle">I[A]</div>
-           <div class="y2title">Iv[candela] </div>
+          <div id="ytitle">Voltage [ V ]</div>
           <div id="trigger_cnv_holder">
             <canvas id="trigger_canvas" width="25" height="460"></canvas>
             <div id="trigger_tooltip"></div>
           </div>
-          <div id="plot_holder" class="zoomPadding"></div>
-          <div id="xtitle">t[s]</div>
+          <div id="plot_holder"></div>
+          <div id="xtitle"></div>
 		  <span id='t-channel' style='display: none'>Channel</span>
         </div>
-
       </div>
 
-    <div class="panel-group col-xs-12 col-sm-12 col-md-2" id="accordion">
-
-
-      <!-- ************ DESNA STRAN *************** -->
-
-      <div id="leftPanel-group" class="panel-group">
-          <div id="leftPanel" class="panel-default">
-            <div id="leftPanel-body" class="panel-body">
-             <label class="control-label">Uporabljen upor za meritev toka:</label>
-              <div id="leftPanel-inputGroup" class="input-group">
-                   <input type="text"  id="uporField" class="form-control" aria-describedby="basic-addon1">
-                    <span class="input-group-addon">Ohm</span>
-              </div>
+      <div class="panel-group col-xs-12 col-sm-12 col-md-4" id="accordion">
+      <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#settings">
+                Nastavitve 
+              </a>
+            </h4>
+          </div>
+          <div  id="settings"  class="panel-collapse collapse in"> 
+            <div class="container" id="nastavitve">
             </div>
           </div>
         </div>
-
-
-
-
-      <div id="rightPanel" class="panel-default">
-          <div id="rightPanel-body" class="panel-body">
-          <label class="control-label">Koeficient senzorja za meritev intenzitet:</label> 
-          <div class="input-group">
-            <input id="koeficientField" type="text" class="form-control" aria-describedby="basic-addon1">
-              <span class="input-group-addon">V/Cd</span>
+		<div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#autoscale">
+                Autoscale
+              </a>
+            </h4>
           </div>
+          <div  id="autoscale"  class="panel-collapse collapse"> 
+            <div class="panel-body">
+				<div class="row">
+					<button id="btn_autoscale_y" class="btn btn-primary btn-lg" data-autozoom="false" onclick="autoscaleY()">
+						<span class="glyphicon glyphicon-resize-vertical"></span> Autoscale
+					</button>
+				</div>
+				
+				 <div class="row"> 
+					<button class="btn btn-primary btn-lg" onclick="resetZoom()">
+						<span class="glyphicon glyphicon-retweet"></span> Reset zoom
+					</button>  
+				 </div> 
+				 
+				  <div class="row"> 
+					<button id="btn_auto" class="btn btn-primary btn-lg" align="left" onclick="serverAutoScale()">AUTO</button>
+				  </div>
+			</div>
           </div>
-      </div>
-       <!-- ************ DESNA STRAN ***************  -->
-       <div id="buttons">
-	       <button id="settingsBtn" class="btn btn-primary" onclick="showSettings()" >Settings</button>
-	       <button id="resetValues" class="btn btn-primary btn-lg" onclick="resetValues()" data-checked="true">Ponastavi</button>
-	       <button id="export"  class="btn btn-primary btn-lg" data-checked="true" onclick="izvoz()">Izvozi meritev</button>
-       </div>
-
-       <div id="settings" style="display:none">
+        </div>
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
@@ -2091,7 +1962,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
             <div class="panel-body">
               <form class="form-horizontal" role="form" onsubmit="return false;">
                 <div class="form-group">
-                  <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Range:</label>
+                  <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Range :</label>
                   <div class="col-xs-8 col-sm-9">
                     <div class="row">
                       <div class="col-xs-6 text-center">
@@ -2262,20 +2133,186 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
             </div>
           </div>
         </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#generator">
+                Signal generator
+              </a>
+            </h4>
+          </div>
+          <div id="generator" class="panel-collapse collapse">
+            <div class="panel-body">
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="checkbox" style="padding-bottom: 12px;">
+                  <label class="group-label">
+                    <input type="checkbox" id="gen_enable_ch1" checked> Channel 1
+                  </label>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_sigtype" class="col-xs-4 control-label">Signal type:</label>
+                  <div class="col-xs-4 col-sm-7">
+                    <select class="form-control" id="gen_ch1_sigtype">
+                      <option value="0">Sine</option>
+                      <option value="1">Square</option>
+                      <option value="2">Triangle</option>
+                      <option value="3">From file</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_ampl" class="col-xs-4 control-label">Amplitude:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_ampl">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_ampl">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_ampl_units">Vpp</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_freq" class="col-xs-4 control-label">Frequency:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_freq">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_freq">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_freq_units">Hz</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_dc" class="col-xs-4 control-label">DC offset:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_dc">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_dc">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_dc_units">V</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Trigger mode:</label>
+                  <div class="col-xs-4 col-sm-7">
+                    <select class="form-control" id="gen_ch1_trigmode">
+                      <option value="0">Continuous</option>
+                      <option value="1">Single</option>
+                      <option value="2">External</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="row">
+                  <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
+                    <button id="gen_ch1_single" class="btn btn-primary" onclick="return postGenSingle(1)">
+                      <span class="glyphicon glyphicon-step-forward"></span> Single
+                    </button>
+                    <button id="gen_ch1_upload" class="btn btn-primary" onclick="return showUploadForm(1)">
+                      <span class="glyphicon glyphicon-upload"></span> File upload
+                    </button>
+                  </div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="checkbox" style="padding-top: 15px; padding-bottom: 12px;">
+                  <label class="group-label">
+                    <input type="checkbox" id="gen_enable_ch2" checked> Channel 2
+                  </label>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch2_sigtype" class="col-xs-4 control-label">Signal type:</label>
+                  <div class="col-xs-4 col-sm-7">
+                    <select class="form-control" id="gen_ch2_sigtype">
+                      <option value="0">Sine</option>
+                      <option value="1">Square</option>
+                      <option value="2">Triangle</option>
+                      <option value="3">From file</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch2_ampl" class="col-xs-4 control-label">Amplitude:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_ampl">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_ampl">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_ampl_units">Vpp</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch2_freq" class="col-xs-4 control-label">Frequency:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_freq">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_freq">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_freq_units">Hz</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch2_dc" class="col-xs-4 control-label">DC offset:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_dc">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_dc">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_dc_units">V</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch2_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Trigger mode:</label>
+                  <div class="col-xs-4 col-sm-7">
+                    <select class="form-control" id="gen_ch2_trigmode">
+                      <option value="0">Continuous</option>
+                      <option value="1">Single</option>
+                      <option value="2">External</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="row">
+                  <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
+                    <button id="gen_ch2_single" class="btn btn-primary" onclick="return postGenSingle(2)">
+                      <span class="glyphicon glyphicon-step-forward"></span> Single
+                    </button>
+                    <button id="gen_ch2_upload" class="btn btn-primary" onclick="return showUploadForm(2)">
+                      <span class="glyphicon glyphicon-upload"></span> File upload
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    </div>
-
-
-    <!-- ************ TOOLBAR BOTTOM *************-->
-   
-     <!-- ************ TOOLBAR BOTTOM *************-->
- 
     <div class="footer clearfix">
       <p class="pull-right" style="margin: 4px 0 0">&copy; 2014 - Red Pitaya</p>
     </div>
   </div>
-  <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
+ <!-- <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -2289,7 +2326,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
         </div>
       </div>
     </div>
-  </div>
+  </div>-->
   <div id="modal_app" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_app_label" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -2332,4 +2369,3 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
   </div>  
 </body>
 </html>
-
