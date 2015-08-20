@@ -42,7 +42,7 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *    0 - auto
        *    1 - normal
        *    2 - single  */
-        "trig_mode", 0, 1, 0,         0,         2 },
+        "trig_mode", 2, 1, 0,         0,         2 },
     { /* trig_source:
        *    0 - ChA
        *    1 - ChB
@@ -226,6 +226,10 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
       "ain2_val", 1.2, 1, 0, -50e6, 50e6},
     {/* ain3_Val - val of analog pin 3 */
       "ain3_val", 1.3, 1, 0, -50e6, 50e6},
+    {/* ain3_Val - val of analog pin 3 */
+      "delta_T", 1, 1, 0, 0, 50e6},
+    {/* ain3_Val - val of analog pin 3 */
+      "num_of_meas", 100, 1, 0, 0, 50e6},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
@@ -234,6 +238,9 @@ float *rp_ain0_val = &rp_main_params[RP_AIN0_VAL].value;
 float *rp_ain1_val = &rp_main_params[RP_AIN1_VAL].value;
 float *rp_ain2_val = &rp_main_params[RP_AIN2_VAL].value;
 float *rp_ain3_val = &rp_main_params[RP_AIN3_VAL].value;
+
+float *pdelta_T = &rp_main_params[DELTA_T].value;
+float *pnum_of_meas = &rp_main_params[NUM_OF_MEAS].value;
 
 /* params initialized */
 static int params_init = 0;
@@ -283,7 +290,6 @@ int rp_app_exit(void)
 
     rp_osc_worker_exit();
     generate_exit();
-    /*release_api_resources();*/
 
     return 0;
 }
