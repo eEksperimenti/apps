@@ -16,7 +16,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eSenzor</title>
+  <title>Generator & Oscilloscope</title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
   <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
@@ -91,6 +91,7 @@
     original: null,
     local: null
   };
+  var senzorji_podatki = null;
   
   // Default parameters - posted after server side app is started 
   var def_params = {
@@ -100,6 +101,111 @@
   // On page loaded
   
   $(function() {
+
+    // aplikacija s signali
+
+    var xos = 10; 
+
+    var nastavitve = {
+      series: {
+        lines: {
+          show: true
+        },
+        points: {
+          show: true
+        }
+      },
+      grid: {
+        hoverable: true,
+        clickable: true
+      },
+      xaxis: {
+        min: 0,
+        max: xos
+      },
+      yaxis: {
+        min: 0,
+        max: 4
+      }
+    };
+
+    $("<div id='tooltip'></div>").css({
+      position: "absolute",
+      display: "none",
+      border: "1px solid #fdd",
+      padding: "2px",
+      "background-color": "#fee",
+      opacity: 0.80
+    }).appendTo("body");
+
+    $("#senzorji_graf").bind("plothover", function (event, pos, item) {
+
+      var str = "(" + pos.x.toFixed(2) + ", " + pos.y.toFixed(2) + ")";
+      $("#hoverdata").text(str);
+
+      if (item) {
+        var x = item.datapoint[0].toFixed(2),
+          y = item.datapoint[1].toFixed(2);
+
+        $("#tooltip").html("x: " + x + " y: " + y)
+          .css({top: item.pageY+5, left: item.pageX+5})
+          .fadeIn(200);
+      } 
+      else{
+        $("#tooltip").hide();
+      }
+    });
+
+    $("#senzorji_graf").bind("plotclick", function (event, pos, item) {
+      if (item) {
+        $("#clickdata").text(" - click point " + item.dataIndex + " in " + item.series.label);
+        plot.highlight(item.series, item.datapoint);
+      }
+    });
+
+    var senzorji_podatki = [[]];
+
+    var senzorji = $.plot($('#senzorji_graf'), senzorji_podatki, nastavitve);
+
+    var t = 0;
+    var s = 0;
+
+    $('#start').on('click', function(){
+      var cas = $('#cas').val();
+      var st_meritev = $('#st_meritev').val();
+
+      if(cas >= 0.001 && cas <= 100){
+        params.local.delta_T = parseFloat(cas);
+        $('.cas_warning').css("display", "none");
+
+        if(st_meritev >= 1 && st_meritev <= 1000){
+          params.local.num_of_meas = parseInt(st_meritev);
+          $('.st_meritev_warning').css("display", "none");
+
+          params.local.trig_mode = 0;
+          //sendParams();
+
+          senzorji_podatki[0].push([t, s]);
+          t += cas;
+          s += 0.5;
+
+          xos = st_meritev*cas;
+          senzorji.setupGrid();
+          senzorji.setData(senzorji_podatki);
+          senzorji.draw();
+          alert(senzorji_podatki.toString());
+
+        }
+        else{
+          $('.st_meritev_warning').css("display", "");
+        }
+      }
+      else{
+        $('.cas_warning').css("display", "");
+      }
+    });
+
+    // osnovna aplikacija
     
     // Show different buttons on touch screens    
     if(window.ontouchstart === undefined) {
@@ -119,7 +225,7 @@
     $('.app-id').text(app_id);
     
     // Disable all controls until the params state is loaded for the first time 
-    $('input, select, button', '.container').prop('disabled', true);
+    /*$('input, select, button', '.container').prop('disabled', true);*/
     
     // Events binding for trigger controls
     
@@ -959,6 +1065,8 @@
       send_que = sending;
       return;
     }
+
+    var stari_podatki = params.local.change;
     
     var auto_flag = params.local.auto_flag;  // Keep the value of auto_flag, because in POST response it is always 0
     sending = true;
@@ -1014,6 +1122,12 @@
         if(refresh_data && !downloading) {
           updateGraphData();
         } 
+
+        if(params.local.change != stari_podatki){
+          console.log(42);
+
+          $.plot($('#senzorji_graf'), senzorji_podatki);
+        }
       }
       else if(dresult.status == 'ERROR') {
         showModalError((dresult.reason ? dresult.reason : 'Error while sending data (E1).'), false, true, true);
@@ -1022,6 +1136,8 @@
       else {
         showModalError('Error while sending data (E2).', false, true, true);
       }
+
+
     })
     .fail(function() {
       showModalError('Error while sending data (E3).', false, true, true);
@@ -1798,7 +1914,7 @@
     <div class="container">
       <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
-      <h2 class="page-title">Signalni generator in osciloskop</h2>
+      <h2 class="page-title"> eSenzor </h2>
     </div>
   </div>
 	<!-- <a href='#sl' class='translate' style ="float: right"">sl</a>
@@ -2364,6 +2480,48 @@
         </div>
       </div>
     </div>
-  </div>  
+  </div> 
+  <div class="container">
+    <div class="row">
+      <ul class="nav nav-tabs">
+        <li class="active"><a href=""> MERITVE </a></li>
+        <li><a href=""> GRAF </a></li>
+      </ul>
+    </div>
+    <div class="row">
+      <div class="col-xs-4"></div>
+      <div class="col-xs-4">
+        <div class="row">
+          Vnesi vrednost med 1 in 100.
+        </div>
+        <div class="row">
+          <input type="number" id="cas" min="1" max="100">
+        </div>
+        <div class="row alert alert-warning cas_warning" style="display: none;">
+          Vpisana vrednost ni pravilna.
+        </div>
+        <div class="row">
+          Vnesi vrednost med 1 in 1000.
+        </div>
+        <div class="row">
+          <input type="number" id="st_meritev" min="1" max="1000">
+        </div>
+        <div class="row alert alert-warning st_meritev_warning" style="display: none;">
+          Vpisana vrednost ni pravilna.
+        </div>
+        <div class="row">
+          <button class="btn btn-default" id="start"> ZAČNI </button>
+        </div>
+        <div class="row">
+          <button class="btn btn-default" id="konec"> KONČAJ </button>
+        </div>
+      </div>
+      <div class="col-xs-4"></div>
+    </div>
+    <div class="row">
+      <div id="senzorji_graf" style="width:600px;height:300px"></div>
+    </div>
+  </div>
+
 </body>
 </html>

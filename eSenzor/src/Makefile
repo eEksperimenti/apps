@@ -1,7 +1,7 @@
 CC=$(CROSS_COMPILE)gcc
 #dosent work with -std=gnu99
 #-g for debugging
-CFLAGS= -Wall -Werror -fPIC 
+CFLAGS= -Wall  -fPIC 
 OFLAGS= -Wall -Werror 
 LDFLAGS=-shared
 CROSS_COMPILE=arm-linux-gnueabi-

@@ -42,7 +42,7 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *    0 - auto
        *    1 - normal
        *    2 - single  */
-        "trig_mode", 2, 1, 0,         0,         2 },
+        "trig_mode", 0, 1, 0,         0,         2 },
     { /* trig_source:
        *    0 - ChA
        *    1 - ChB
@@ -226,10 +226,12 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
       "ain2_val", 1.2, 1, 0, -50e6, 50e6},
     {/* ain3_Val - val of analog pin 3 */
       "ain3_val", 1.3, 1, 0, -50e6, 50e6},
-    {/* ain3_Val - val of analog pin 3 */
+    {/* delta_T */
       "delta_T", 1, 1, 0, 0, 50e6},
-    {/* ain3_Val - val of analog pin 3 */
-      "num_of_meas", 100, 1, 0, 0, 50e6},
+    {/* num_of_meas */
+      "num_of_meas", 10, 1, 0, 0, 50e6},
+    {/* newdata */
+      "change", 0, 1, 0, 0, 255},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
@@ -241,6 +243,8 @@ float *rp_ain3_val = &rp_main_params[RP_AIN3_VAL].value;
 
 float *pdelta_T = &rp_main_params[DELTA_T].value;
 float *pnum_of_meas = &rp_main_params[NUM_OF_MEAS].value;
+float *ptrig_mode = &rp_main_params[TRIG_MODE_PARAM].value;
+float *pchange = &rp_main_params[CHANGE].value;
 
 /* params initialized */
 static int params_init = 0;
@@ -278,6 +282,7 @@ int rp_app_init(void)
     }
 
     rp_set_params(&rp_main_params[0], PARAMS_NUM);
+    rp_init_API();
     rp_start_API();
 
     return 0;
@@ -285,11 +290,11 @@ int rp_app_init(void)
 
 int rp_app_exit(void)
 {
-    rp_stop_API();
     fprintf(stderr, "Unloading scope (with gen+pid extensions) version %s-%s.\n", VERSION_STR, REVISION_STR);
-
+    rp_stop_API();
     rp_osc_worker_exit();
     generate_exit();
+    exit(0);
 
     return 0;
 }
@@ -817,7 +822,6 @@ int rp_get_params(rp_app_params_t **p)
 {
     rp_app_params_t *p_copy = NULL;
     int i;
-
     p_copy = (rp_app_params_t *)malloc((PARAMS_NUM+1) * sizeof(rp_app_params_t));
     if(p_copy == NULL)
         return -1;
@@ -845,13 +849,16 @@ int rp_get_params(rp_app_params_t **p)
 
     transform_to_iface_units(p_copy);
     *p = p_copy;
+   
     return PARAMS_NUM;
 }
 
 int rp_get_signals(float ***s, int *sig_num, int *sig_len)
 {
     /* so we get the analogsignals */
-    pthread_mutex_unlock(&rp_analog_sig_mutex);
+    /*if( rp_main_params[TRIG_MODE_PARAM].value != 2)
+      pthread_mutex_unlock(&rp_analog_sig_mutex);*/
+
     int ret_val;
     int sig_idx;
 
@@ -871,8 +878,24 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
     if(ret_val < 0) {
         return -1;
     }
+
+
+
     /* so we stop acquiring analog signals */
-    pthread_mutex_lock(&rp_analog_sig_mutex);
+    /* if( rp_main_params[TRIG_MODE_PARAM].value != 2)
+      pthread_mutex_lock(&rp_analog_sig_mutex);*/
+
+      /*-----------------*/
+    /*if( trig_mode == 2 && rp_main_params[TRIG_MODE_PARAM].value == 0 )
+    {
+      pthread_mutex_unlock(&rp_analog_sig_mutex);
+    }
+    else if( api_wait == 1 )
+    {
+      pthread_mutex_lock(&rp_analog_sig_mutex);
+    }*/
+    /*-----------------*/
+
 
     return 0;
 }
@@ -1039,6 +1062,7 @@ int rp_update_main_params(rp_app_params_t *params)
     }
     pthread_mutex_unlock(&rp_main_params_mutex);
     params_init = 0;
+
     rp_set_params(&rp_main_params[0], PARAMS_NUM);
 
     return 0;
