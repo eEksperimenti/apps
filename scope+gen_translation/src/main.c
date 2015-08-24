@@ -217,6 +217,8 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *     2 - Refresh Channel 2
        */
         "gen_awg_refresh",   0, 0, 0, 0, 2 },
+    {/* newdata */
+        "change", 0, 1, 0, 0, 255},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
@@ -801,6 +803,8 @@ int rp_get_params(rp_app_params_t **p)
     if(p_copy == NULL)
         return -1;
 
+   ++rp_main_params[CHANGE].value;
+
     pthread_mutex_lock(&rp_main_params_mutex);
     for(i = 0; i < PARAMS_NUM; i++) {
         int p_strlen = strlen(rp_main_params[i].name);
@@ -830,6 +834,7 @@ int rp_get_params(rp_app_params_t **p)
 
 int rp_get_signals(float ***s, int *sig_num, int *sig_len)
 {
+
     int ret_val;
     int sig_idx;
 
