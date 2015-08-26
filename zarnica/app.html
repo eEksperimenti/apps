@@ -27,9 +27,10 @@
   <script src="../assets/flot/jquery.flot.navigate.js"></script>
   <script src="../assets/flot/jquery.flot.resize.min.js"></script>
   <script src="../assets/flot/jquery.flot.touch.js?2"></script>
-    <script src="../assets/axes-manager.js"></script>
+  <script src="../assets/axes-manager.js"></script>
   <script src="../assets/translator.js"></script>
   <script type="text/javascript">
+
   am.div_id='nastavitve'; //id razdelka za izris kontrol
   am.yaxis2=true; //omogoči/onemogoči delovanje druge y osi
   // Settings which can be modified
@@ -1927,8 +1928,8 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
 <body>
   <div class="header">
     <div class="container">
-      <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-      <img class="logo pull-left" src="../assets/images/logo_white.png">
+      <a id="btn_exit" class="pull-left" href="index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
+      <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
       <h2 class="page-title">Žarnica</h2>
     </div>
   </div>
@@ -2004,7 +2005,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
 
     <div class="panel-group col-xs-12 col-sm-12 col-md-2" id="accordion">
        <!-- ************ DESNA STRAN ***************  -->
-          <div class="panel panel-default" id="axisSettings" style="display:none">
+          <div class="panel panel-default" id="axisSettings">
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#settings">
@@ -2018,7 +2019,7 @@ $.extend(params.original,{gain_ch1:1,gain_ch2:1});
           </div>
         </div>
     
-       <div id="channelSettings" style="display:none">
+       <div id="channelSettings">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
