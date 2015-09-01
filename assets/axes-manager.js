@@ -26,6 +26,7 @@
 		}
 
 		am.plot=proxied.apply(this, args);//call the default is here
+		$('#y2title,.y2title').css('left',(am.plot.getPlaceholder().parent().width()+10)+'px')
 		
 		var _setupGrid=am.plot.setupGrid;
                 am.plot.setupGrid=function()
@@ -153,6 +154,7 @@
 		</div>';
 	
 	$('#'+am.div_id).html('<b>Leva Y os (ordinata)</b>'+html.replace(/%1/g, '1')+'<hr><b>Desna Y os (ordinata)</b>'+html.replace(/%1/g, '2')+cb);
+	$('#y2title,.y2title').css('right','0');
 	$('.nastavitve > .form-group > .form-control').keypress(function(event){
 		if (event.which==13)
 		{
