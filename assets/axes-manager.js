@@ -132,7 +132,7 @@
 			  <input type='text' class='form-control' id='enota-y%1'>\
 			</div>\
 			<div class='form-group'>\
-			  <label for='faktor-y%1'>Faktor pretvorbe (a%1*V1+b%1*V2+c%1)</label>\
+			  <label for='faktor-y%1'>Faktor pretvorbe [a%1,b%1,c%1] (a%1*V1+b%1*V2+c%1)</label>\
 			  <input type='text' class='form-control' id='faktor-y%1'>\
 			</div>\
 			<div class='form-group'>\
@@ -148,11 +148,11 @@
 	var cb='<div class="checkbox">\
 		<label>\
 			<input type="checkbox" id="alignTicksWithAxis" value="" checked>\
-				align ticks with axis\
+				poravnaj oznake obeh ordinat\
 		</label>\
 		</div>';
 	
-	$('#'+am.div_id).html('<b>Kanal 1</b>'+html.replace(/%1/g, '1')+'<hr><b>Kanal 2</b>'+html.replace(/%1/g, '2')+cb);
+	$('#'+am.div_id).html('<b>Leva Y os (ordinata)</b>'+html.replace(/%1/g, '1')+'<hr><b>Desna Y os (ordinata)</b>'+html.replace(/%1/g, '2')+cb);
 	$('.nastavitve > .form-group > .form-control').keypress(function(event){
 		if (event.which==13)
 		{
