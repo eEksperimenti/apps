@@ -29,12 +29,13 @@
 		$('#y2title,.y2title').css('left',(am.plot.getPlaceholder().parent().width()+10)+'px')
 		
 		var _setupGrid=am.plot.setupGrid;
-                am.plot.setupGrid=function()
-                {
-			if (am.yaxis2==true) {
+    am.plot.setupGrid=function()
+    {
 			var data=am.plot.getData();
+			if (am.yaxis1==false) data[0].lines.show=false;
+			if (am.yaxis2==false) data.pop();
 			if (data[1]!==undefined) data[1].yaxis=2
-			
+				
 			//////////////////////////
 			var len=data[0].data.length;
 			var m1=eval(y1.faktor);
@@ -46,7 +47,7 @@
 				data[0].data[i][1]=m1[0]*va+m1[1]*vb+m1[2];
 				if (data[1]!==undefined) data[1].data[i][1]=m2[0]*va+m2[1]*vb+m2[2];
 			}
-			
+				
 			var options=am.plot.getOptions();
 			options.yaxes[0].min = y1.ymin;
 			options.yaxes[0].max = y1.ymax;
@@ -57,12 +58,11 @@
 				options.yaxes[1].max = y2.ymax;
 				options.yaxes[1].alignTicksWithAxis=y2.alignTicksWithAxis.prop("checked")?1:0;
 			}
-			
-			/////////////////////////////////////
-			am.plot.setData(data)
-			}
-                        return _setupGrid.apply(this,arguments);
-                }
+				
+				/////////////////////////////////////
+			am.plot.setData(data);
+      return _setupGrid.apply(this,arguments);
+    }
 		return am.plot;
 	      };
 	      $.plot.plugins=proxied.plugins;
@@ -91,7 +91,8 @@
     window.am=am;
     
     am.div_id='nastavitve';
-    am.yaxis2=true;
+    am.yaxis1=true;
+		am.yaxis2=true;
     var y={'id':'',title_id:'','velicina':'','enota':'','faktor':'[1, 0, 0]', 'ymin':-1,'ymax':1}
     var y1=$.extend(true, {}, y);
     var y2=$.extend(true, {}, y);
@@ -153,7 +154,8 @@
 		</label>\
 		</div>';
 	
-	$('#'+am.div_id).html('<b>Leva Y os (ordinata)</b>'+html.replace(/%1/g, '1')+'<hr><b>Desna Y os (ordinata)</b>'+html.replace(/%1/g, '2')+cb);
+	$('#'+am.div_id).html('<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="left-axis" value="" checked><b>Leva Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '1')+
+	'<hr><div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="right-axis" value="" checked><b>Desna Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '2')+cb);
 	$('#y2title,.y2title').css('right','0');
 	$('.nastavitve > .form-group > .form-control').keypress(function(event){
 		if (event.which==13)
@@ -169,7 +171,35 @@
 	y2.enota=y1.enota;
 	y2.alignTicksWithAxis=$('#alignTicksWithAxis');
 	am.update();
-    }
+  $('.axis-toggler').click(function(){
+		var cb=$(this);
+		if (cb.attr('id')=='left-axis')
+		{ 
+			am.yaxis1=cb.prop("checked");
+			if (!am.yaxis1)
+			{
+				$('#'+y1.title_id).hide();
+			}
+			else {
+				$('#'+y1.title_id).show();
+			}
+		}
+		else if (cb.attr('id')=='right-axis')
+		{
+			am.yaxis2=cb.prop("checked");
+			if (!am.yaxis2)
+			{
+				am.y2Axis=$('.y2Axis');
+				am.y2Axis.remove();
+				$('#'+y2.title_id).hide();
+			}
+			else {
+				$('.flot-text').append(am.y2Axis);
+				$('#'+y2.title_id).show();
+			}
+		}
+	});
+	}
     
     am.update=function(updateContainer)
     {
