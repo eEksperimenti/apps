@@ -33,7 +33,7 @@
     {
 			var data=am.plot.getData();
 			if (am.yaxis1==false) data[0].lines.show=false;
-			if (am.yaxis2==false) data.pop();
+			if (am.yaxis2==false && data.length==2) data.pop();
 			if (data[1]!==undefined) data[1].yaxis=2
 				
 			//////////////////////////
@@ -201,10 +201,12 @@
 				am.y2Axis=$('.y2Axis');
 				am.y2Axis.remove();
 				$('#'+y2.title_id).hide();
+				$('.rightZoom').hide();
 			}
 			else {
 				$('.flot-text').append(am.y2Axis);
 				$('#'+y2.title_id).show();
+				$('.rightZoom').show();
 			}
 		}
 	});
