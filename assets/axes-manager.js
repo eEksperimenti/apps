@@ -49,29 +49,13 @@
 			}
 				
 			var options=am.plot.getOptions();
-			if (y1.rangeChanged)
-			{
-				options.yaxes[0].min = y1.ymin;
-				options.yaxes[0].max = y1.ymax;
-				y1.rangeChanged=false;
-			}
-			else {
-				y1.ymin=options.yaxes[0].min;
-				y1.ymax=options.yaxes[0].max;
-			}
+			options.yaxes[0].min = y1.ymin;
+			options.yaxes[0].max = y1.ymax;
 			
 			if (data[1]!==undefined)
 			{
-				if (y2.rangeChanged)
-				{
-					options.yaxes[1].min = y2.ymin;
-					options.yaxes[1].max = y2.ymax;
-					y2.rangeChanged=false;
-				}
-				else {
-					y2.ymin=options.yaxes[1].min;
-					y2.ymax=options.yaxes[1].max;
-				}
+				options.yaxes[1].min = y2.ymin;
+				options.yaxes[1].max = y2.ymax;
 				options.yaxes[1].alignTicksWithAxis=y2.alignTicksWithAxis.prop("checked")?1:0;
 			}
 				
@@ -109,7 +93,7 @@
     am.div_id='nastavitve';
     am.yaxis1=true;
 		am.yaxis2=true;
-    var y={'id':'',title_id:'','velicina':'','enota':'','faktor':'[1, 0, 0]', 'ymin':-1,'ymax':1,'rangeChanged':false}
+    var y={'id':'',title_id:'','velicina':'','enota':'','faktor':'[1, 0, 0]', 'ymin':-1,'ymax':1}
     var y1=$.extend(true, {}, y);
     var y2=$.extend(true, {}, y);
     y2.faktor='[0,1,0]';
@@ -120,22 +104,31 @@
     
     function extractUnitFromLabel(label)
     {
-	return label.substring(label.lastIndexOf("[")+1,label.lastIndexOf("]"));
+			return label.substring(label.lastIndexOf("[")+1,label.lastIndexOf("]"));
     }
     
     addElement=function(y)
     {
-	if (y.title_id==null) return;
-	
-	var element=$('#'+y.title_id);
-	
-	if (element.length==0) {
-		element=$('.'+y.title_id).first();
-		if (element.length==0) element=null; 
-	}
-	y.element=element;
+			if (y.title_id==null) return;
+			
+			var element=$('#'+y.title_id);
+			
+			if (element.length==0) {
+				element=$('.'+y.title_id).first();
+				if (element.length==0) element=null; 
+			}
+			y.element=element;
     }
     
+		am.update_yrange=function(rinx,ymin,ymax)
+		{
+			var yax=null;
+			if (rinx==0) yax=y1;
+			yax.ymin=ymin;
+			yax.ymax=ymax;
+			am.update();
+		}
+		
     am.init=function()
     {
 	if (am.yaxis2==false) y2.title_id=null;
@@ -219,23 +212,20 @@
     
     am.update=function(updateContainer)
     {
-	var ids=['velicina','enota','faktor','ymin','ymax'];
-	
-	var container=y1;
-	for (var j=0;j<2;++j)
-	{
-		if (j==1) container=y2;
-		for (var i=0;i<ids.length;++i)
-		{
-			if (updateContainer===true)
+			var ids=['velicina','enota','faktor','ymin','ymax'];
+			
+			var container=y1;
+			for (var j=0;j<2;++j)
 			{
-				container[ids[i]]=$('#'+ids[i]+'-y'+(j+1)).val();
-				container[ids[i]].rangeChanged=true;
+				if (j==1) container=y2;
+				for (var i=0;i<ids.length;++i)
+				{
+					if (updateContainer===true)
+						container[ids[i]]=$('#'+ids[i]+'-y'+(j+1)).val();
+					else
+						$('#'+ids[i]+'-y'+(j+1)).val(container[ids[i]]);
+				}
 			}
-			else
-				$('#'+ids[i]+'-y'+(j+1)).val(container[ids[i]]);
-		}
-	}
     }
     
     am.updateLabels=function()
