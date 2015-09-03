@@ -122,8 +122,8 @@
     
 		am.update_yrange=function(rinx,ymin,ymax)
 		{
-			var yax=null;
-			if (rinx==0) yax=y1;
+			var yax=y1;
+			if (rinx==1) yax=y2;
 			yax.ymin=ymin;
 			yax.ymax=ymax;
 			am.update();
