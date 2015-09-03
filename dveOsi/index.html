@@ -257,8 +257,7 @@
         min = center - half;
         max = center + half;
         
-        options.yaxes[0].min = min;
-        options.yaxes[0].max = max;
+        am.update_yrange(0,min,max)
 
         plot.setupGrid();
         plot.draw();
