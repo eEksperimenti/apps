@@ -1528,6 +1528,7 @@
     var axes = plot.getAxes();
     var xrange = axes.xaxis.max - axes.xaxis.min;
     var yrange = axes.yaxis.max - axes.yaxis.min;
+    var y2range = axes.y2axis.max - axes.y2axis.min;
     var yminrange = 5e-3;  // Volts
     var ymaxrange = params.original.gui_reset_y_range;
     var xmaxrange = 10.0;  // seconds
@@ -1543,18 +1544,21 @@
     }
     var seconds = (xunit == 'ns' ? 1e-9 : ( xunit == 'µs' ? 1e-6 : (xunit == 'ms' ? 1e-3 : 1)));
     
+    /*
     if(yrange < 1) {
       yunit = 'mV';
       yrange *= 1000;
       ymaxrange *= 1000;
       yminrange *= 1000;
     }
+    */
 
     $('#range_x').html(+(Math.round(xrange + "e+" + decimals) + "e-" + decimals) + ' ' + xunit);
     $('#range_y').html(Math.floor(yrange) + ' ' + yunit);
     
     var nearest_x = getNearestRanges(xrange);
     var nearest_y = getNearestRanges(yrange);
+    var nearest_y2 = getNearestRanges(y2range);
         
     // X limitations 
     if(nearest_x.next * seconds > xmaxrange) {
@@ -1576,23 +1580,29 @@
     $('#range_x_plus').data({ nearest: nearest_x.next, unit: xunit }).data('bs.tooltip').options.title = nearest_x.next;
     
     // Y limitations
+    y_limitations('#range_y_minus, .range_y_minus','#range_y_plus, .range_y_plus',nearest_y,yminrange,ymaxrange,yunit);
+    y_limitations('#range_y2_minus, .range_y2_minus','#range_y2_plus, .range_y2_plus',nearest_y2,yminrange,ymaxrange,yunit);
+  }
+  
+  function y_limitations(minus_selector,plus_selector,nearest_y,yminrange,ymaxrange,yunit)
+  {
     if(nearest_y.next - nearest_y.prev >= ymaxrange) {
       nearest_y.next = null;
-      $('#range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').prop('disabled', true);
+      $(plus_selector).prop('disabled', true);
     }
     else {
-      $('#range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').prop('disabled', false);
+      $(plus_selector).prop('disabled', false);
     }
     if(nearest_y.prev < yminrange) {
       nearest_y.prev = null;
-      $('#range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus').prop('disabled', true);
+      $(minus_selector).prop('disabled', true);
     }
     else {
-      $('#range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus').prop('disabled', false);
+      $(minus_selector).prop('disabled', false);
     }
     
-    $('#range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus').data({ nearest: nearest_y.prev, unit: yunit }).data('bs.tooltip').options.title = nearest_y.prev;
-    $('#range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').data({ nearest: nearest_y.next, unit: yunit }).data('bs.tooltip').options.title = nearest_y.next;
+    $(minus_selector).data({ nearest: nearest_y.prev, unit: yunit }).data('bs.tooltip').options.title = nearest_y.prev;
+    $(plus_selector).data({ nearest: nearest_y.next, unit: yunit }).data('bs.tooltip').options.title = nearest_y.next;
   }
   
   function getNearestRanges(number) {
