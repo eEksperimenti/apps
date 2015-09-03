@@ -19,6 +19,25 @@
   <title>dveOsi</title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    .zoomYaxis{
+      -ms-transform: rotate(-90deg);
+      -webkit-transform: rotate(-90deg);
+      transform: rotate(-90deg);
+    }
+    .leftZoom{
+      left: -70px;
+      top: 300px;
+    }
+    .graph-holder{
+      margin-right:30px;
+    }
+     .rightZoom{
+      left: 40px;
+      float: right;
+      top: 300px;
+    }
+  </style>
   <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
   <script src="../assets/bootstrap-3.0.0/js/bootstrap.min.js"></script>
   <script src="../assets/flot/jquery.flot.min.js"></script>
@@ -237,14 +256,16 @@
       }
     });
     
-    $('#range_y_minus, #range_y_plus').on('click', function() {
+    $('#range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus, #range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').on('click', function() {
       var nearest = $(this).data('nearest');
       
       if(nearest && plot) {
         var options = plot.getOptions();
         var axes = plot.getAxes();
-        var min = (options.yaxes[0].min !== null ? options.yaxes[0].min : axes.yaxis.min);
-        var max = (options.yaxes[0].max !== null ? options.yaxes[0].max : axes.yaxis.max);
+        var ax=0;
+        if ($(this).hasClass('range_y2_minus') || $(this).hasClass('range_y2_plus')) ax=1;
+        var min = (options.yaxes[ax].min !== null ? options.yaxes[ax].min : axes.yaxis.min);
+        var max = (options.yaxes[ax].max !== null ? options.yaxes[ax].max : axes.yaxis.max);
         var unit = $(this).data('unit');
         
         // Convert millivolts to volts.
@@ -257,7 +278,7 @@
         min = center - half;
         max = center + half;
         
-        am.update_yrange(0,min,max)
+        am.update_yrange(ax,min,max)
 
         plot.setupGrid();
         plot.draw();
@@ -568,7 +589,7 @@
     });
     
     // Tooltips for range buttons
-    $('#range_x_minus, #range_x_plus, #range_y_minus, #range_y_plus').tooltip({
+    $('#range_x_minus, #range_x_plus, #range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus, #range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').tooltip({
       container: 'body'
     });
     
@@ -764,7 +785,7 @@
           
           // Manage the state of other components
           $('#accordion').find('input,select').not('#trig_level').prop('disabled', false);
-          $('.btn').not('#btn_single, #range_y_plus, #range_y_minus, #range_x_plus, #range_x_minus, #gen_ch1_single, #gen_ch2_single').prop('disabled', false);
+          $('.btn').not('#btn_single, #range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus, #range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus, #range_x_plus, #range_x_minus, #gen_ch1_single, #gen_ch2_single').prop('disabled', false);
         }
       }
       
@@ -1557,21 +1578,21 @@
     // Y limitations
     if(nearest_y.next - nearest_y.prev >= ymaxrange) {
       nearest_y.next = null;
-      $('#range_y_plus').prop('disabled', true);
+      $('#range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').prop('disabled', true);
     }
     else {
-      $('#range_y_plus').prop('disabled', false);
+      $('#range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').prop('disabled', false);
     }
     if(nearest_y.prev < yminrange) {
       nearest_y.prev = null;
-      $('#range_y_minus').prop('disabled', true);
+      $('#range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus').prop('disabled', true);
     }
     else {
-      $('#range_y_minus').prop('disabled', false);
+      $('#range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus').prop('disabled', false);
     }
     
-    $('#range_y_minus').data({ nearest: nearest_y.prev, unit: yunit }).data('bs.tooltip').options.title = nearest_y.prev;
-    $('#range_y_plus').data({ nearest: nearest_y.next, unit: yunit }).data('bs.tooltip').options.title = nearest_y.next;
+    $('#range_y_minus, .range_y_minus, #range_y2_minus, .range_y2_minus').data({ nearest: nearest_y.prev, unit: yunit }).data('bs.tooltip').options.title = nearest_y.prev;
+    $('#range_y_plus, .range_y_plus, #range_y2_plus, .range_y2_plus').data({ nearest: nearest_y.next, unit: yunit }).data('bs.tooltip').options.title = nearest_y.next;
   }
   
   function getNearestRanges(number) {
@@ -1833,6 +1854,22 @@
     </div>
     <div class="row">
       <div class="col-xs-12 col-sm-12 col-md-8">
+        <div class="btn-group zoomYaxis leftZoom">
+            <button id="range_y_minus" type="button" class="range_y_minus btn btn-primary btn-lg range-btn-left">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+            <button id="range_y_plus" type="button" class="range_y_plus btn btn-primary btn-lg range-btn-right">
+             <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            </div>
+        <div class="btn-group zoomYaxis rightZoom">
+          <button id="range_y2_minus" type="button" class="range_y2_minus btn btn-primary btn-lg range-btn-left">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+          <button id="range_y2_plus" type="button" class="range_y2_plus btn btn-primary btn-lg range-btn-right">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+        </div>
         <div class="graph-holder well well-small">
           <div id="ytitle">Voltage [ V ]</div>
           <div id="trigger_cnv_holder">
@@ -1981,10 +2018,10 @@
                       <div class="col-xs-6 text-center">
                         <div class="group-label" style="padding-bottom: 10px;">Y axis</div>
                         <div class="btn-group" style="margin-bottom: -3px;">
-                          <button id="range_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+                          <button id="range_y_minus" type="button" class="range_y_minus btn btn-primary btn-lg range-btn-left">
                             <span class="glyphicon glyphicon-minus"></span>
                           </button>
-                          <button id="range_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+                          <button id="range_y_plus" type="button" class="range_y_plus btn btn-primary btn-lg range-btn-right">
                             <span class="glyphicon glyphicon-plus"></span>
                           </button>
                         </div>
