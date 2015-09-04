@@ -218,34 +218,23 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *     2 - Refresh Channel 2
        */
         "gen_awg_refresh",   0, 0, 0, 0, 2 },
-    {/* ain0_Val - val of analog pin 0 */
-      "ain0_val", 1.0, 1, 0, -50e6, 50e6},
-    {/* ain1_Val - val of analog pin 1 */
-      "ain1_val", 1.1, 1, 0, -50e6, 50e6},
-    {/* ain2_Val - val of analog pin 2 */
-      "ain2_val", 1.2, 1, 0, -50e6, 50e6},
-    {/* ain3_Val - val of analog pin 3 */
-      "ain3_val", 1.3, 1, 0, -50e6, 50e6},
     {/* delta_T */
       "delta_T", 1, 1, 0, 0, 50e6},
     {/* num_of_meas */
       "num_of_meas", 10, 1, 0, 0, 50e6},
+    {/* num_of_meas */
+      "N", 0, 1, 0, 0, 50e6},
     {/* newdata */
       "change", 0, 1, 0, 0, 255},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
 
-float *rp_ain0_val = &rp_main_params[RP_AIN0_VAL].value;
-float *rp_ain1_val = &rp_main_params[RP_AIN1_VAL].value;
-float *rp_ain2_val = &rp_main_params[RP_AIN2_VAL].value;
-float *rp_ain3_val = &rp_main_params[RP_AIN3_VAL].value;
-
 float *pdelta_T = &rp_main_params[DELTA_T].value;
 float *pnum_of_meas = &rp_main_params[NUM_OF_MEAS].value;
 float *ptrig_mode = &rp_main_params[TRIG_MODE_PARAM].value;
 float *pchange = &rp_main_params[CHANGE].value;
-
+int one_time = 0;
 /* params initialized */
 static int params_init = 0;
 
@@ -285,6 +274,7 @@ int rp_app_init(void)
     rp_init_API();
     rp_start_API();
 
+    usleep(1e3);
     return 0;
 }
 
@@ -856,8 +846,8 @@ int rp_get_params(rp_app_params_t **p)
 int rp_get_signals(float ***s, int *sig_num, int *sig_len)
 {
     /* so we get the analogsignals */
-    /*if( rp_main_params[TRIG_MODE_PARAM].value != 2)
-      pthread_mutex_unlock(&rp_analog_sig_mutex);*/
+    /*if( rp_main_params[TRIG_MODE_PARAM].value == 0 && pthread_mutex_trylock(&rp_analog_sig_mutex) == EDEADLK )
+      pthread_mutex_unlock(&rp_analog_sig_mutex); */
 
     int ret_val;
     int sig_idx;
@@ -867,8 +857,10 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
 
     *sig_num = SIGNALS_NUM;
     *sig_len = SIGNAL_LENGTH;
-
+   
     ret_val = rp_osc_get_signals(s, &sig_idx);
+     
+    rp_copy_analog_signals(s);
 
     /* Not finished signal */
     if((ret_val != -1) && sig_idx != SIGNAL_LENGTH-1) {
@@ -878,24 +870,6 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
     if(ret_val < 0) {
         return -1;
     }
-
-
-
-    /* so we stop acquiring analog signals */
-    /* if( rp_main_params[TRIG_MODE_PARAM].value != 2)
-      pthread_mutex_lock(&rp_analog_sig_mutex);*/
-
-      /*-----------------*/
-    /*if( trig_mode == 2 && rp_main_params[TRIG_MODE_PARAM].value == 0 )
-    {
-      pthread_mutex_unlock(&rp_analog_sig_mutex);
-    }
-    else if( api_wait == 1 )
-    {
-      pthread_mutex_lock(&rp_analog_sig_mutex);
-    }*/
-    /*-----------------*/
-
 
     return 0;
 }

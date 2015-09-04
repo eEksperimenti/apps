@@ -23,6 +23,8 @@
 
 #include "worker.h"
 #include "fpga.h"
+#include "read_analog_sig.h"
+
 
 pthread_t *rp_osc_thread_handler = NULL;
 void *rp_osc_worker_thread(void *args);
@@ -184,9 +186,12 @@ int rp_osc_get_signals(float ***signals, int *sig_idx)
         return -1;
     }
 
+
     memcpy(&s[0][0], &rp_osc_signals[0][0], sizeof(float)*SIGNAL_LENGTH);
     memcpy(&s[1][0], &rp_osc_signals[1][0], sizeof(float)*SIGNAL_LENGTH);
     memcpy(&s[2][0], &rp_osc_signals[2][0], sizeof(float)*SIGNAL_LENGTH);
+
+    
 
     *sig_idx = rp_osc_sig_last_idx;
 

@@ -14,6 +14,9 @@ int api_running = 1;
 int api_wait = 0;
 pthread_mutex_t rp_analog_sig_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t thread0;
+float *ana_sig_array = NULL;
+float *ptime = NULL;
+float *panalog_signals = NULL;
 
 
 int rp_init_API(void)
@@ -36,9 +39,12 @@ int rp_start_API(void)
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
   pthread_mutex_lock(&rp_analog_sig_mutex);
+  ptime = (float*)calloc(SIG_LENGTH, sizeof(*ptime));
+  panalog_signals = (float*)malloc(sizeof(float) * NUM_ANA_SIG * NUM_ANA_SIG_LEN);
+  ana_sig_array = panalog_signals;
   
   api_running = 1;
-  if( pthread_create(&thread0, &attr, read_analog_sig, NULL) != 0 )
+  if( pthread_create(&thread0, &attr, read_analog_sig3, NULL) != 0 )
   {
     fprintf(stderr, "Error creating thread\n");
     return -3;
@@ -54,12 +60,22 @@ int rp_stop_API(void)
   api_running = 0;
   //pthread_cancel(thread0);
   rp_Release();
+  free(ptime);
+  free(panalog_signals);
   //usleep(50);
   //pthread_join(thread0, NULL);
   return 0;
 }
 
-void *read_analog_sig3(void *ptr)
+void rp_copy_analog_signals(float ***signals)
+{
+  float **s = *signals;
+  //memcpy(&s[0][0], ptime, sizeof(float) * NUM_ANA_SIG_LEN * 2);
+  memcpy(&s[1][0], ana_sig_array, sizeof(float) * NUM_ANA_SIG_LEN * 2);
+  memcpy(&s[2][0], &ana_sig_array[NUM_ANA_SIG_LEN * 2], sizeof(float) * NUM_ANA_SIG_LEN * 2);
+}
+
+void *read_analog_sig(void *ptr)
 {
   int i;
 
@@ -77,10 +93,6 @@ void *read_analog_sig3(void *ptr)
 
     for( i = 0;i < num_of_meas; ++i)
     {
-      rp_ApinGetValue(RP_AIN0, rp_ain0_val);
-      rp_ApinGetValue(RP_AIN1, rp_ain1_val);
-      rp_ApinGetValue(RP_AIN2, rp_ain2_val);
-      rp_ApinGetValue(RP_AIN3, rp_ain3_val);
       ++(*pchange);
       sleep(sleep_delta_T);
     }
@@ -94,117 +106,76 @@ void *read_analog_sig3(void *ptr)
   return NULL;
 }
 
-
-void *read_analog_sig(void *ptr)
+void *read_analog_sig3(void *ptr)
 {
-	while( api_running != 0)
-	{
-     // pthread_mutex_lock(&rp_analog_sig_mutex);
-	    rp_ApinGetValue(RP_AIN0, rp_ain0_val);
-	   	rp_ApinGetValue(RP_AIN1, rp_ain1_val);
-	   	rp_ApinGetValue(RP_AIN2, rp_ain2_val);
-	   	rp_ApinGetValue(RP_AIN3, rp_ain3_val);
-      //sleep(1);
-      --api_running;
-     // pthread_mutex_unlock(&rp_analog_sig_mutex);
-	}
-
-    return NULL;
-}
-
-void *read_analog_sig2(void *ptr)
-{
-  /*float *ptab = (float*)malloc(sizeof(*ptab)*NUM_ANA_SIG * NUM_ANA_SIG_LEN);
-  float *pcurr = ptab;
-
-  float *pend = &ptab[(NUM_ANA_SIG * NUM_ANA_SIG_LEN) - 1];*/
-
   int i;
-  /*float val0;
-  float val1;
-  float val2;
-  float val3;
 
-  float sum0 = 0;
-  float sum1 = 0;
-  float sum2 = 0;
-  float sum3 = 0;*/
+  unsigned int sleep_delta_T;
+  unsigned int num_of_meas;
 
-  int sleep_delta_T;
-  int num_of_meas;
+  
+  float *panalog_sig0 = panalog_signals;
+  float *panalog_sig1 = &panalog_signals[NUM_ANA_SIG_LEN];
+  float *panalog_sig2 = &panalog_signals[NUM_ANA_SIG_LEN*2];
+  float *panalog_sig3 = &panalog_signals[NUM_ANA_SIG_LEN*3];
 
-  /*clock_t start, end;
-  double cpu_time_used;
+  float *pcurr_sig0 = NULL;
+  float *pcurr_sig1 = NULL;
+  float *pcurr_sig2 = NULL;
+  float *pcurr_sig3 = NULL;
 
-  time_t startTime, endTime;*/
- 
-  /* *ptrig_mode = 2;*/
+  /**ptrig_mode = 2;*/
   while(api_running)
   {
 
-    pthread_mutex_lock(&rp_analog_sig_mutex);
-    api_wait = 0;
+    //if( api_wait == 1 )
 
-    sleep_delta_T = (int)(*pdelta_T);
+
+    pcurr_sig0 = panalog_sig0;
+    pcurr_sig1 = panalog_sig1;
+    pcurr_sig2 = panalog_sig2;
+    pcurr_sig3 = panalog_sig3;
+
+    /*pthread_mutex_lock(&rp_analog_sig_mutex);
+    api_wait = 0;*/
+
+    sleep_delta_T = (int)(*pdelta_T) * 1e6;
     num_of_meas = (int)(*pnum_of_meas);
 
-    /*if( app_running == 0)
-      break;
-    time(&startTime);
-    start = clock();*/
-    /*for( ; i < *pnum_of_meas; ++i)
-    {*/
-      /*rp_ApinGetValue(RP_AIN0, pcurr);
-      ++pcurr;
-      rp_ApinGetValue(RP_AIN1, pcurr);
-      ++pcurr;
-      rp_ApinGetValue(RP_AIN2, pcurr);
-      ++pcurr;
-      rp_ApinGetValue(RP_AIN3, pcurr);
-      ++pcurr;*/
-
-      /*rp_ApinGetValue(RP_AIN0, &val0);
-      rp_ApinGetValue(RP_AIN1, &val1);
-      rp_ApinGetValue(RP_AIN2, &val2);
-      rp_ApinGetValue(RP_AIN3, &val3);*/
-
-     /* sum0 += val0;
-      sum1 += val1;
-      sum2 += val2;
-      sum3 += val3;*/
-    /*}*/
-
-    /**rp_ain0_val = sum0/(*pnum_of_meas);
-    *rp_ain1_val = sum1/(*pnum_of_meas);
-    *rp_ain2_val = sum2/(*pnum_of_meas);
-    *rp_ain3_val = sum3/(*pnum_of_meas);*/
-
-    for( i = 0;i < num_of_meas; ++i)
+    for( i = 0;i < *pnum_of_meas; ++i)
     {
-      rp_ApinGetValue(RP_AIN0, rp_ain0_val);
-      rp_ApinGetValue(RP_AIN1, rp_ain1_val);
-      rp_ApinGetValue(RP_AIN2, rp_ain2_val);
-      rp_ApinGetValue(RP_AIN3, rp_ain3_val);
+      rp_ApinGetValue(RP_AIN0, pcurr_sig0);
+      rp_ApinGetValue(RP_AIN1, pcurr_sig1);
+      rp_ApinGetValue(RP_AIN2, pcurr_sig2);
+      rp_ApinGetValue(RP_AIN3, pcurr_sig3);
+
+      ++pcurr_sig0;
+      ++pcurr_sig1;
+      ++pcurr_sig2;
+      ++pcurr_sig3;
+
+      //usleep(1e2);
+
+      //pthread_mutex_lock(&rp_main_params_mutex);
       ++(*pchange);
-      sleep(sleep_delta_T);
+      //pthread_mutex_unlock(&rp_main_params_mutex);
+      //system("echo sleep_delta_T >> /opt/www/apps/eSenzor/my.txt");
+      //pthread_mutex_lock(&rp_analog_write);
+      //sleep(1);
+      
+      //pthread_mutex_unlock(&rp_analog_write);
+
     }
-
-
-    *ptrig_mode = 2;
-
+    
+    
+    /**ptrig_mode = 2;*/
     api_wait = 1;
-    pthread_mutex_unlock(&rp_analog_sig_mutex);      
-  
-     /*end = clock();
-     time(&endTime);*/
-     /*cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;*/
-     /*cpu_time_used = ((double) (end - start));
-     *rp_ain2_val = cpu_time_used;
+    //pthread_mutex_unlock(&rp_analog_sig_mutex);
 
-     *rp_ain3_val = difftime(endTime, startTime);*/
+    //--api_running;
   }
 
-  /*free(ptab);*/
+  
   return NULL;
 }
 
