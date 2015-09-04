@@ -61,7 +61,13 @@
 				
 				/////////////////////////////////////
 			am.plot.setData(data);
-      return _setupGrid.apply(this,arguments);
+			var rval=_setupGrid.apply(this,arguments);
+			if (am.yaxis1==false) 
+			{
+					$('.legend td:eq(1)').remove();
+					$('.legend td:first').remove();
+			}
+      return rval;
     }
 		return am.plot;
 	      };
@@ -188,10 +194,20 @@
 			if (!am.yaxis1)
 			{
 				$('#'+y1.title_id).hide();
+				var gh1=$('.graph-holder:first').position().top;
+				var tc1=$('#trigger_canvas').parent().position().left;
 				$('.leftZoom').hide();
+				var gh2=$('.graph-holder:first').position().top;
+				var tc2=$('#trigger_canvas').parent().position().left;
+				$('#trigger_canvas').parent().css('left',(tc1-tc2)+'px');
+				$('.graph-holder:first').parent().css('top',(gh1-gh2)+'px');
+				$('.rightZoom:first').css('top',(300-(gh1-gh2))+'px');
 			}
 			else {
 				$('#'+y1.title_id).show();
+				$('.graph-holder:first').parent().css('top',0);
+				$('#trigger_canvas').parent().css('left',0);
+				$('.rightZoom:first').css('top','300px');
 				$('.leftZoom').show();
 			}
 		}
