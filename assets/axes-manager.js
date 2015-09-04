@@ -33,8 +33,8 @@
     {
 			var data=am.plot.getData();
 			if (am.yaxis1==false) data[0].lines.show=false;
-			if (am.yaxis2==false && data.length==2) data.pop();
-			if (data[1]!==undefined) data[1].yaxis=2
+			if (am.yaxis2==false && (data.length==2 || data.length==3)) data.splice(1,1);
+			if (am.yaxis2 && data[1]!==undefined) data[1].yaxis=2
 				
 			//////////////////////////
 			var len=data[0].data.length;
@@ -43,16 +43,16 @@
 			for (var i=0;i<len;++i) {
 				var va=data[0].data[i][1];
 				var vb=0.0;
-				if (data[1]!==undefined) vb=data[1].data[i][1];
+				if (am.yaxis2 && data[1]!==undefined) vb=data[1].data[i][1];
 				data[0].data[i][1]=m1[0]*va+m1[1]*vb+m1[2];
-				if (data[1]!==undefined) data[1].data[i][1]=m2[0]*va+m2[1]*vb+m2[2];
+				if (am.yaxis2 && data[1]!==undefined) data[1].data[i][1]=m2[0]*va+m2[1]*vb+m2[2];
 			}
 				
 			var options=am.plot.getOptions();
 			options.yaxes[0].min = y1.ymin;
 			options.yaxes[0].max = y1.ymax;
 			
-			if (data[1]!==undefined)
+			if (am.yaxis2 && data[1]!==undefined)
 			{
 				options.yaxes[1].min = y2.ymin;
 				options.yaxes[1].max = y2.ymax;
@@ -188,9 +188,11 @@
 			if (!am.yaxis1)
 			{
 				$('#'+y1.title_id).hide();
+				$('.leftZoom').hide();
 			}
 			else {
 				$('#'+y1.title_id).show();
+				$('.leftZoom').show();
 			}
 		}
 		else if (cb.attr('id')=='right-axis')
