@@ -219,13 +219,13 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        */
         "gen_awg_refresh",   0, 0, 0, 0, 2 },
     {/* delta_T */
-      "delta_T", 1, 1, 0, 0, 50e6},
+      "delta_T", -1, 1, 0, -1, 50e6},
     {/* num_of_meas */
-      "num_of_meas", 10, 1, 0, 0, 50e6},
+      "num_of_meas", -1, 1, 0, -1, 50e6},
     {/* num_of_meas */
       "N", 0, 1, 0, 0, 50e6},
     {/* newdata */
-      "change", 0, 1, 0, 0, 255},
+      "change", 0, 1, 0, 0, 100e3},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
@@ -234,7 +234,7 @@ float *pdelta_T = &rp_main_params[DELTA_T].value;
 float *pnum_of_meas = &rp_main_params[NUM_OF_MEAS].value;
 float *ptrig_mode = &rp_main_params[TRIG_MODE_PARAM].value;
 float *pchange = &rp_main_params[CHANGE].value;
-int one_time = 0;
+float *pN = &rp_main_params[N].value;
 /* params initialized */
 static int params_init = 0;
 
@@ -251,7 +251,7 @@ float forced_delay = 0;
 
 const char *rp_app_desc(void)
 {
-    return (const char *)"Red Pitaya osciloscope application.\n";
+    return (const char *)"eEksperimenti eSenzor aplikacija.n.\n";
 }
 
 int rp_app_init(void)
@@ -274,7 +274,6 @@ int rp_app_init(void)
     rp_init_API();
     rp_start_API();
 
-    usleep(1e3);
     return 0;
 }
 
@@ -858,9 +857,9 @@ int rp_get_signals(float ***s, int *sig_num, int *sig_len)
     *sig_num = SIGNALS_NUM;
     *sig_len = SIGNAL_LENGTH;
    
-    ret_val = rp_osc_get_signals(s, &sig_idx);
+    //ret_val = rp_osc_get_signals(s, &sig_idx);
      
-    rp_copy_analog_signals(s);
+    ret_val = rp_copy_analog_signals(s, &sig_idx);
 
     /* Not finished signal */
     if((ret_val != -1) && sig_idx != SIGNAL_LENGTH-1) {

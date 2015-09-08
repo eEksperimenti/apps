@@ -7,6 +7,7 @@ extern float *pdelta_T;
 extern float *pnum_of_meas;
 extern float *ptrig_mode;
 extern float *pchange;
+extern float *pN;
 extern int api_running;
 extern int api_wait;
 extern pthread_mutex_t rp_analog_sig_mutex;
@@ -16,8 +17,7 @@ extern float *ana_sig_array;
 
 void *read_analog_sig(void *ptr);
 void *read_analog_sig2(void *ptr);
-void *read_analog_sig3(void *ptr);
 int rp_start_API(void);
 int rp_init_API(void);
 int rp_stop_API(void);
-void rp_copy_analog_signals(float ***signals);
+int rp_copy_analog_signals(float ***signals, int *sig_idx);
