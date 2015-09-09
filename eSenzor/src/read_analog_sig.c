@@ -12,12 +12,18 @@
 
 int api_running = 1;
 int api_wait = 0;
+int last_ind = 511;
+
 pthread_mutex_t rp_analog_sig_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t thread0;
+
 float *ana_sig_array = NULL;
 float *ptime = NULL;
 float *panalog_signals = NULL;
-int last_ind = 0;
+
+unsigned int sleep_delta_T;
+unsigned int num_of_meas;
+
 
 
 int rp_init_API(void)
@@ -49,7 +55,7 @@ int rp_start_API(void)
     ptime[i] = i;
   }
 
-  panalog_signals = (float*)malloc(sizeof(float) * NUM_ANA_SIG * NUM_ANA_SIG_LEN);
+  panalog_signals = (float*)calloc(NUM_ANA_SIG * NUM_ANA_SIG_LEN, sizeof(*panalog_signals));
   ana_sig_array = panalog_signals;
   
   api_running = 1;
@@ -134,9 +140,7 @@ void *read_analog_sig(void *ptr)
 {
   unsigned int i;
   unsigned int j;
-
-  unsigned int sleep_delta_T;
-  unsigned int num_of_meas;
+  unsigned int n = 0;
   
   float *panalog_sig0 = panalog_signals;
   float *panalog_sig1 = &panalog_signals[NUM_ANA_SIG_LEN];
@@ -148,24 +152,35 @@ void *read_analog_sig(void *ptr)
   float *pcurr_sig2 = NULL;
   float *pcurr_sig3 = NULL;
 
+  float x_axe = 0;
+  float *x_time = NULL;
+
+
   while(api_running)
   {
-    pcurr_sig0 = panalog_sig0;
-    pcurr_sig1 = panalog_sig1;
-    pcurr_sig2 = panalog_sig2;
-    pcurr_sig3 = panalog_sig3;
+     while( *pdelta_T == -1 && *pnum_of_meas == -1 )
+       usleep(100);
 
-    /*while( *pdelta_T != -1 && *pnum_of_meas != -1 )
-      usleep(100);
-
-    sleep_delta_T = (int)(*pdelta_T) * 1e6;
-    num_of_meas = (int)(*pnum_of_meas);*/
+    sleep_delta_T = ((unsigned int)((*pdelta_T) * 1000));
+    num_of_meas = (unsigned int)(*pnum_of_meas);
 
    
-    //for( ; num_of_meas > 0; )
-    //{
+    for( ; num_of_meas > 0; )
+    {
+
+      pcurr_sig0 = panalog_sig0;
+      pcurr_sig1 = panalog_sig1;
+      pcurr_sig2 = panalog_sig2;
+      pcurr_sig3 = panalog_sig3;
+
+      //x_time = ptime;
+
       for( i = 0;i < NUM_ANA_SIG_LEN; ++i)
       {
+
+        //*x_time = x_axe;
+        //++x_time;
+
         rp_ApinGetValue(RP_AIN0, pcurr_sig0);
         rp_ApinGetValue(RP_AIN1, pcurr_sig1);
         rp_ApinGetValue(RP_AIN2, pcurr_sig2);
@@ -179,20 +194,36 @@ void *read_analog_sig(void *ptr)
         ++last_ind;
         --num_of_meas;
 
-        /*if( num_of_meas == 0)
+        if( num_of_meas == 0)
         {
+          n = last_ind;
           break;
-        }*/
+        }
 
-        //usleep(sleep_delta_T);
-        usleep(10);
+        usleep(sleep_delta_T);
+        //x_axe = *pdelta_T;
+        //usleep(10);
       }
 
-      while( last_ind == 511)
-        usleep(100);
-      //*pN = last_ind;
+      if( num_of_meas <= 0)
+      {
+        *pdelta_T = -1;
+        *pnum_of_meas = -1;
+        last_ind = 511;
+        //usleep(50);
+      }
+
+
       ++(*pchange);
-    //}
+      //*pN = (float)n; 
+
+      if( *pchange == 100e3 )
+        *pchange = 1;
+
+      //n = last_ind;
+      while( last_ind == 511 )
+        usleep(100);   
+    }
 
   }
   return NULL;
