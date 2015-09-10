@@ -140,7 +140,7 @@ void *read_analog_sig(void *ptr)
 {
   unsigned int i;
   unsigned int j;
-  unsigned int n = 0;
+  float n = 0;
   
   float *panalog_sig0 = panalog_signals;
   float *panalog_sig1 = &panalog_signals[NUM_ANA_SIG_LEN];
@@ -154,6 +154,8 @@ void *read_analog_sig(void *ptr)
 
   float x_axe = 0;
   float *x_time = NULL;
+
+  int send_ms = 0;
 
 
   while(api_running)
@@ -181,6 +183,28 @@ void *read_analog_sig(void *ptr)
         //*x_time = x_axe;
         //++x_time;
 
+        if( num_of_meas == 0)
+        {
+          n = last_ind;
+
+          for( ; i < NUM_ANA_SIG_LEN; )
+          {
+            *pcurr_sig0 = -100;
+            *pcurr_sig1 = -100;
+            *pcurr_sig2 = -100;
+            *pcurr_sig3 = -100;
+
+            ++pcurr_sig0;
+            ++pcurr_sig1;
+            ++pcurr_sig2;
+            ++pcurr_sig3;
+
+            ++i;
+          }
+
+          break;
+        }
+
         rp_ApinGetValue(RP_AIN0, pcurr_sig0);
         rp_ApinGetValue(RP_AIN1, pcurr_sig1);
         rp_ApinGetValue(RP_AIN2, pcurr_sig2);
@@ -194,16 +218,37 @@ void *read_analog_sig(void *ptr)
         ++last_ind;
         --num_of_meas;
 
-        if( num_of_meas == 0)
+        usleep(sleep_delta_T);
+        send_ms += *pdelta_T;
+
+        if( send_ms >= SEND_MS )
         {
+          for( ; i < NUM_ANA_SIG_LEN; )
+          {
+            *pcurr_sig0 = -100;
+            *pcurr_sig1 = -100;
+            *pcurr_sig2 = -100;
+            *pcurr_sig3 = -100;
+
+            ++pcurr_sig0;
+            ++pcurr_sig1;
+            ++pcurr_sig2;
+            ++pcurr_sig3;
+
+            ++i;
+          }
           n = last_ind;
+          last_ind = 511;
+          send_ms = 0;
           break;
         }
 
-        usleep(sleep_delta_T);
+        
         //x_axe = *pdelta_T;
         //usleep(10);
       }
+
+      send_ms = 0;
 
       if( num_of_meas <= 0)
       {
@@ -212,11 +257,10 @@ void *read_analog_sig(void *ptr)
         last_ind = 511;
         //usleep(50);
       }
-
-
+      
       ++(*pchange);
-      //*pN = (float)n; 
-
+      *pN = n;
+    
       if( *pchange == 100e3 )
         *pchange = 1;
 
@@ -226,5 +270,6 @@ void *read_analog_sig(void *ptr)
     }
 
   }
+
   return NULL;
 }
