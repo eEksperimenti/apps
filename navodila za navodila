@@ -34,7 +34,7 @@ Za njim dodaj še kodo
 
 V style.css dodaj:
 
-	.navodila{
+.navodila{
   font: 6px;
 }
 
