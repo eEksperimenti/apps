@@ -188,6 +188,7 @@
     
     vp.interpolate=function(pos,series)
     {
+      if (series===undefined) return;
         // Find the nearest points, x-wise
         var j;
         for (j = 0; j < series.data.length; ++j) {
