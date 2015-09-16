@@ -171,16 +171,19 @@
         for (var i = 0; i < hp.length; ++i) {
                 var pos=hp[i];
                 var y=pos.y;
-                var csinfo='CH'+(i+1)+' ('+pos.x.toFixed(3)+','+y.toFixed(3)+');';
+                if (y!==undefined)
+                {
+                  var csinfo='CH'+(i+1)+' ('+pos.x.toFixed(3)+','+y.toFixed(3)+');';
+                  
+                  if (markers.length==2) {
+                          csinfo+=' &Delta;CH'+(i+1)+' ('+Math.abs(markers[1][i].x-markers[0][i].x).toFixed(3)+','+Math.abs(markers[1][i].y-markers[0][i].y).toFixed(3)+');';
+                  }
+                  else if (markers.length==1) {
+                          csinfo+=' &Delta;CH'+(i+1)+' ('+Math.abs(pos.x-markers[0][i].x).toFixed(3)+','+Math.abs(y-markers[0][i].y).toFixed(3)+');';
+                  }
                 
-                if (markers.length==2) {
-                        csinfo+=' &Delta;CH'+(i+1)+' ('+Math.abs(markers[1][i].x-markers[0][i].x).toFixed(3)+','+Math.abs(markers[1][i].y-markers[0][i].y).toFixed(3)+');';
+                  ahtml.push(csinfo);
                 }
-                else if (markers.length==1) {
-                        csinfo+=' &Delta;CH'+(i+1)+' ('+Math.abs(pos.x-markers[0][i].x).toFixed(3)+','+Math.abs(y-markers[0][i].y).toFixed(3)+');';
-                }
-                
-                ahtml.push(csinfo);
         }
         
         this.trac_info.html(ahtml.join(' '));
