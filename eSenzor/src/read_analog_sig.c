@@ -139,7 +139,7 @@ void *read_analog_sig2(void *ptr)
 void *read_analog_sig(void *ptr)
 {
   unsigned int i;
-  unsigned int j;
+  /*unsigned int j;*/
   float n = 0;
   
   float *panalog_sig0 = panalog_signals;
@@ -152,8 +152,8 @@ void *read_analog_sig(void *ptr)
   float *pcurr_sig2 = NULL;
   float *pcurr_sig3 = NULL;
 
-  float x_axe = 0;
-  float *x_time = NULL;
+  /*float x_axe = 0;
+  float *x_time = NULL;*/
 
   int send_ms = 0;
 

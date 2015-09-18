@@ -9,7 +9,7 @@ CROSS_COMPILE=arm-linux-gnueabi-
 IDIR=../include/
 LDIR=../lib/
 
-OBJECTS=main.o fpga.o worker.o calib.o fpga_awg.o generate.o read_analog_sig.o
+OBJECTS=main.o fpga.o worker.o calib.o fpga_awg.o generate.o read_analog_sig.o load_save_params.o
 
 #Define header includes
 RP_PATH_INCLUDE=-I $(IDIR)

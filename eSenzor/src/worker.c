@@ -185,7 +185,7 @@ int rp_osc_get_signals(float ***signals, int *sig_idx)
         pthread_mutex_unlock(&rp_osc_sig_mutex);
         return -1;
     }
-    
+
     memcpy(&s[0][0], &rp_osc_signals[0][0], sizeof(float)*SIGNAL_LENGTH);
     memcpy(&s[1][0], &rp_osc_signals[1][0], sizeof(float)*SIGNAL_LENGTH);
     memcpy(&s[2][0], &rp_osc_signals[2][0], sizeof(float)*SIGNAL_LENGTH);

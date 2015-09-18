@@ -45,7 +45,7 @@ typedef struct rp_osc_meas_res_s {
 
 /* Parameters indexes - these defines should be in the same order as 
  * rp_app_params_t structure defined in main.c */
-#define PARAMS_NUM        61
+#define PARAMS_NUM        62
 #define MIN_GUI_PARAM     0
 #define MAX_GUI_PARAM     1
 #define TRIG_MODE_PARAM   2
@@ -107,7 +107,8 @@ typedef struct rp_osc_meas_res_s {
 #define DELTA_T           57
 #define NUM_OF_MEAS       58
 #define N                 59
-#define CHANGE            60
+#define LOAD_SAVE_PARAMS  60
+#define CHANGE            61
  
 
 /* Defines from which parameters on are AWG parameters (used in set_param() to

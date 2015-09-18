@@ -28,6 +28,7 @@
 #include "calib.h"
 #include "generate.h"
 #include "read_analog_sig.h"
+#include "load_save_params.h"
 
 /* Describe app. parameters with some info/limitations */
 pthread_mutex_t rp_main_params_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -224,6 +225,13 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
       "num_of_meas", -1, 1, 0, -1, 50e6},
     {/* num_of_meas */
       "N", 0, 1, 0, 0, 50e6},
+    {/* load_save_params - to load default values or save/load params from previous mesurments
+      *       0 - do nothing
+      *       1 - load default params
+      *       2 - load previous saved params, if empty load default
+      *       3 - save params from current measuments
+      */
+      "load_save_params", 1, 1, 0, 0, 3},
     {/* newdata */
       "change", 0, 1, 0, 0, 100e3},
     { /* Must be last! */
@@ -835,6 +843,25 @@ int rp_get_params(rp_app_params_t **p)
     /* Return the original public Xmin & Xmax to client (not the internally modified ones). */
     p_copy[MIN_GUI_PARAM].value = p_copy[GUI_XMIN].value;
     p_copy[MAX_GUI_PARAM].value = p_copy[GUI_XMAX].value;
+
+    /* See if load/save params buttons were pressed */
+    if( p_copy[LOAD_SAVE_PARAMS].value != 0 )
+    {
+        if( p_copy[LOAD_SAVE_PARAMS].value == 1 )
+        {
+          load_params(p_copy, 1);
+        }
+        else
+          if( p_copy[LOAD_SAVE_PARAMS].value == 2 )
+          {
+            load_params(p_copy, 0);
+          }
+        else
+          if( p_copy[LOAD_SAVE_PARAMS].value == 3 )
+          {
+            save_params(p_copy);
+          }
+    }
 
     transform_to_iface_units(p_copy);
     *p = p_copy;
