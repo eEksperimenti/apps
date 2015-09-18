@@ -87,8 +87,8 @@
   var plot_options = {
     colors: ['#3276B1', '#D2322D', '#009900'],    // channel1, channel2, trigger line
     lines: { lineWidth: 1 },
-    selection: { mode: 'xy' },
-    zoom: { interactive: true, trigger: null },
+    //selection: { mode: 'xy' },
+    //zoom: { interactive: true, trigger: null },
     xaxis: { min: xmin, max: xmax },
     grid: { borderWidth: 0 },
     legend: { noColumns: 2, margin: [0, 0], backgroundColor: 'transparent' },
@@ -177,6 +177,7 @@
       user_editing = true;
     });
     
+    //autorun = false;
     $('#trig_mode').on('change', function() {
       onDropdownChange($(this), 'trig_mode', true);
       
