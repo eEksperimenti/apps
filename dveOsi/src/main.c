@@ -27,6 +27,7 @@
 #include "fpga.h"
 #include "calib.h"
 #include "generate.h"
+#include "load_save_params.h"
 
 /* Describe app. parameters with some info/limitations */
 pthread_mutex_t rp_main_params_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -217,6 +218,13 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *     2 - Refresh Channel 2
        */
         "gen_awg_refresh",   0, 0, 0, 0, 2 },
+    { /* load_save_params - to load default values or save/load params from previous mesurments
+      *       0 - do nothing
+      *       1 - load default params
+      *       2 - load previous saved params, if empty load default
+      *       3 - save params from current measuments
+      */
+      "load_save_params", 1, 1, 0, 0, 3},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
@@ -788,6 +796,30 @@ int rp_set_params(rp_app_params_t *p, int len)
         }
     }
 
+    /* See if load/save params buttons have been pressed */
+    if( p[LOAD_SAVE_PARAMS].value != 0 )
+    {
+        if( rp_main_params[LOAD_SAVE_PARAMS].value == 1 )
+        {
+            load_params(rp_main_params, 1);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 2 )
+        {
+           load_params(rp_main_params, 0);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 3 )
+        {
+          save_params(rp_main_params);
+        }
+          
+      /* This code was for testing purposes
+      char comma[256];
+      sprintf(comma,"echo SET:%f >> /opt/www/apps/dveOsi/load_save_val.txt", rp_main_params[LOAD_SAVE_PARAMS].value);
+      system(comma);*/
+
+      rp_main_params[LOAD_SAVE_PARAMS].value = 0;
+    }
+    
     return 0;
 }
 
