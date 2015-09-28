@@ -105,7 +105,7 @@
     $('.app-id').text(app_id);
     
     // Disable all controls until the params state is loaded for the first time 
-    $('input, select, button', '.container').prop('disabled', true);
+    //$('input, select, button', '.container').prop('disabled', true);
     
     // Events binding for trigger controls
     
@@ -598,6 +598,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
           }
@@ -638,6 +640,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
           }
@@ -650,6 +654,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
           }
@@ -670,6 +676,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
 
@@ -684,6 +692,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
 
@@ -699,6 +709,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
           }
@@ -777,6 +789,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
 
@@ -791,6 +805,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
 
@@ -807,6 +823,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
           }
@@ -832,6 +850,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
 
@@ -846,6 +866,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
 
@@ -862,6 +884,8 @@
             $('#gen_sig1_freq')[0].value = 1000;
             $('#gen_sig1_dc')[0].value = 0;
             $('#gen_sig1_trigmode').val('0');
+            params.local['gen_enable_ch1'] = 0;
+            $('#gen_enable_ch1').prop('checked', false);
             
             signal();
           }
@@ -888,57 +912,56 @@
           var val = parseLocalFloat($('#gen_sig1_ampl').val());
           params.local.gen_sig_amp_ch1 = val;
         
-          var val = parseLocalFloat($('#gen_sig1_freq').val());
+          val = parseLocalFloat($('#gen_sig1_freq').val());
           params.local.gen_sig_freq_ch1 = val;
          
-          var val = parseLocalFloat($('#gen_sig1_dc').val());
+          val = parseLocalFloat($('#gen_sig1_dc').val());
           params.local.gen_sig_dcoff_ch1 = val;
 
-          /*$('#gen_enable_ch1, #gen_enable_ch2').on('change', function() { 
-                params.local[this.id] = ($(this).is(':checked') ? 1 : 0);
-                sendParams(); 
-          });*/ 
+          params.local.trig_mode = 0;
   
-          onDropdownChange($('#gen_sig1_sigtype'), 'gen_sig_type_ch1');
+          redrawPlot();
+          sendParams();
+          serverAutoScale();
       };
 
-    function sig(){
       $('#signal1').on('click', function(){
+
         $('#gen_sig1_sigtype').val('2');
         $('#gen_sig1_ampl')[0].value = 0.1;
         $('#gen_sig1_freq')[0].value = 10000;
         $('#gen_sig1_dc')[0].value = 0.1;
-        $('#gen_sig1_trigmode').val('0');
+        params.local['gen_enable_ch1'] = 1;
         signal();    
       });
-    }
-
-    sig();
 
     $('#signal2').on('click', function(){
+
       $('#gen_sig1_sigtype').val('0');
       $('#gen_sig1_ampl')[0].value = 1.6;
-      $('#gen_sig1_freq')[0].value = 1300000;
+      $('#gen_sig1_freq')[0].value = 130000;
       $('#gen_sig1_dc')[0].value = 0;
-      $('#gen_sig1_trigmode').val('0');
+      params.local['gen_enable_ch1'] = 1;
       signal();  
     });
 
     $('#signal3').on('click', function(){
+
       $('#gen_sig1_sigtype').val('1');
       $('#gen_sig1_ampl')[0].value = 0.7;
       $('#gen_sig1_freq')[0].value = 20000;
       $('#gen_sig1_dc')[0].value = 0.3;
-      $('#gen_sig1_trigmode').val('0');
+      params.local['gen_enable_ch1'] = 1;
       signal();  
     });
 
     $('#signal4').on('click', function(){
+
       $('#gen_sig1_sigtype').val('2');
       $('#gen_sig1_ampl')[0].value = 1;
       $('#gen_sig1_freq')[0].value = 600;
       $('#gen_sig1_dc')[0].value = -0.4;
-      $('#gen_sig1_trigmode').val('0');
+      params.local['gen_enable_ch1'] = 1;
       signal();  
     });
     
@@ -2690,7 +2713,7 @@
           </div>
           <div id="vzorci" class="panel-collapse collapse">
             <div class="panel-body">
-              <form class="form-horizontal" autocomplete="off" role="form" onsubmit="return false;">
+              <form class="form-horizontal" autocomplete="off" role="form" onsubmit="return false;" style="display: none;">
                 <div class="checkbox" style="padding-bottom: 12px;">
                   <label class="group-label">
                     <input type="checkbox" id="gen_enable_ch1"> Kanal 1
