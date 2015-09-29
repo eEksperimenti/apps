@@ -16,7 +16,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eZvok</title>
+  <title> eZvok </title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
   <style type="text/css">
@@ -125,19 +125,6 @@
   // On page loaded
   
   $(function() {
-
-    /*var file = "default_params.txt";
-    $.get(file,function(txt){
-
-      var lines = txt.split("\n");
-
-      for(var i = 58; i < lines.length; i++){
-
-        var vrstica = lines[i].split(":");
-
-        $("#" + vrstica[0]).val(vrstica[1]);
-      }
-    }); */
     
      $("#shrani").on("click", function(){
       params.local.load_save_params = 3;
@@ -153,6 +140,20 @@
     var src = (window.location).toString();
     var tezavnost = src.substring(src.lastIndexOf("#") + 1);
 
+    if(tezavnost == "lahko"){
+
+    }
+    else if(tezavnost == "srednje"){
+
+    }
+    else if(tezavnost == "pametno"){
+
+    }
+
+    //$('#uploaded_file').val("1000ksps_40k.csv");
+    //console.log($('#uploaded_file').val());
+
+    
     
     //////////////// preostala koda /////////////////////////
 
@@ -174,7 +175,7 @@
     $('.app-id').text(app_id);
     
     // Disable all controls until the params state is loaded for the first time 
-   //$('input, select, button', '.container').prop('disabled', true);
+    // $('input, select, button', '.container').prop('disabled', true);
     
     // Events binding for trigger controls
     
@@ -624,7 +625,7 @@
         async: false
       });
     };
-
+            
   });
   
   function startApp() {
@@ -643,7 +644,10 @@
         )
         .done(function(dresult) {
           app_started = true;
-          updateGraphData();      
+          updateGraphData(); 
+          /***************/
+          startUploadDefault();  
+          /*****************/   
         })
         .fail(function() {
           showModalError('Could not initialize the application with default parameters.', false, true);
@@ -1666,7 +1670,9 @@
       file_elem.off('change').on('change', function() {
         var file = this.files[0];
         var freader = new FileReader();
-        
+
+        console.log( file);
+        console.log(file.name);
         // File validation
         //var size = file.size;
         var type = file.type;
@@ -1678,17 +1684,73 @@
         else {
           file_elem.parent().removeClass('has-error');
           hint_elem.html('File size: ' + file.size + ' bytes');
+
           freader.onload = function(data) {
             fcontent_elem.val(this.result);
           };
+
           freader.readAsText(file);
         }
       });
     }
-    
     $('#modal_upload').modal('show');
     
     return false;
+  }
+
+  function startUploadDefault() {
+    /*var mbody = $('#modal_upload .modal-body');
+    var file_elem = $('#uploaded_file');
+    var hint_elem = $('#upload_form .help-block');
+    var channel = $('#modal_upload_label span').text();
+    
+    if(mbody.data('errtimer')) {
+      clearTimeout(mbody.data('errtimer'));
+      mbody.removeData('errtimer');
+    }
+    
+    if(! $('#uploaded_file').val().length) {
+      mbody.addClass('alert-danger').data('errtimer', setTimeout(function() { 
+        $('#modal_upload .modal-body').removeClass('alert-danger'); 
+      }, 1000));
+      return;
+    }
+    
+    file_elem.hide();
+    hint_elem.html('Uploading file...');
+    console.log("url:\n" + upload_url + channel);
+    console.log($('#uploaded_file_content').val());*/
+
+    $.get('1000ksps_40k.csv', function(data){
+      //console.log(data);
+      var channel = '1';
+      $.post(upload_url + channel, data, function(dresult) {
+
+        console.log(dresult);
+        if($.type(dresult) == 'string' && dresult.trim() == 'OK') {
+          $('#upload_form')[0].reset();
+          $('#modal_upload').modal('hide');
+
+          user_editing = true;
+          params.local.gen_awg_refresh = parseInt(channel);
+          sendParams();
+          console.log("senda");
+        }
+      });
+        /*else {
+          file_elem.show();
+          hint_elem.html('Error while uploading the file.');
+          file_elem.parent().addClass('has-error');
+        }
+      })
+      .fail(function() {
+        file_elem.show();
+        hint_elem.html('Error while uploading the selected file.');
+        file_elem.parent().addClass('has-error');
+      });*/
+    });
+
+   
   }
   
   function startUpload() {
@@ -1711,12 +1773,16 @@
     
     file_elem.hide();
     hint_elem.html('Uploading file...');
-    
+    console.log("url:\n" + upload_url + channel);
+    console.log($('#uploaded_file_content').val());
+
+
     $.post(upload_url + channel, $('#uploaded_file_content').val(), function(dresult) {
+
       if($.type(dresult) == 'string' && dresult.trim() == 'OK') {
         $('#upload_form')[0].reset();
         $('#modal_upload').modal('hide');
-        
+
         user_editing = true;
         params.local.gen_awg_refresh = parseInt(channel);
         sendParams();
@@ -1829,7 +1895,7 @@
     <div class="container">
       <a id="btn_exit" class="pull-left" href="index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
-      <h2 class="page-title">eZvok</h2>
+      <h2 class="page-title"> eZvok </h2>
     </div>
   </div>
 
@@ -1919,11 +1985,8 @@
       </div>
         <div class="col-md-4 col-xs-12 col-sm-12" style="padding-top: 2em;">
           <ul class="nav nav-tabs">
-              <li class="active" style="width: 34%;"><a data-toggle="tab" href="#meritve" class="text-center"> MERITVE </a></li>
-              <li style="width: 33%;">
-                <a data-toggle="tab" href="#kviz" class="text-center"> KVIZ </a>
-              </li>
-              <li class="dropdown" style="width: 33%;">
+              <li class="active"><a data-toggle="tab" href="#meritve" class="text-center"> MERITVE </a></li>
+              <li class="dropdown">
                 <a class="dropdown-toggle text-center" data-toggle="dropdown"> NAVODILA
                 <span class="caret"></span></a>
                 <ul class="dropdown-menu">
@@ -2372,11 +2435,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="tab-pane fade" id="kviz" style="padding: 0 2em;">
-      <div class="col-xs-12">
-
       </div>
     </div>
     <div class="tab-pane fade" id="navodila1">
