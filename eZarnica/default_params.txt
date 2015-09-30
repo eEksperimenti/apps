@@ -1,5 +1,5 @@
-xmin:0.000000
-xmax:200.000000
+xmin:-0.10
+xmax:0.30
 trig_mode:1.000000
 trig_source:0.000000
 trig_edge:0.000000
@@ -7,7 +7,7 @@ trig_delay:0.000000
 trig_level:0.500000
 single_btn:0.000000
 time_range:0.000000
-time_units:1.000000
+time_units:2.000000
 en_avg_at_dec:0.000000
 auto_flag:0.000000
 min_y:0.000000
@@ -60,9 +60,9 @@ velicina-y1: Tok
 enota-y1:A
 faktor-y1:[0.1, 0, 0]
 ymin-y1:-0.01
-ymax-y1:0.03
+ymax-y1:0.02
 velicina-y2:Osvetljenost
 enota-y2:lx
-faktor-y2:[0, 18380, 250]
-ymin-y2:-500.0
-ymax-y2:2500.000000
+faktor-y2:[0, 18380, 100]
+ymin-y2:-100.000
+ymax-y2:300.000000

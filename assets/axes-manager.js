@@ -1,5 +1,6 @@
 (function (window, document, undefined) {
 	(function() {
+
 	      var proxied = $.plot;
 	      $.plot= function() {
 		var args = Array.prototype.slice.call(arguments);
@@ -8,15 +9,15 @@
 		{
 			if (y2.element==null)
 			{
-				var y2element=$('<div id="'+y2.title_id+'" class="y2title" style="display: block;"></div>');
+				var y2element = $('<div id="' + y2.title_id + '" class="y2title" style="display: block;"></div>');
 				args[0].parent().append(y2element);
 				y2.element=y2element;
 			}
 			
-			if (args[2]===undefined) args[2]={};
+			if (args[2] === undefined) args[2]={};
 			
 			var options=args[2];
-			if (options.yaxes===undefined) options.yaxes=[{},{}];
+			if (options.yaxes === undefined) options.yaxes=[{},{}];
 			options.yaxes[1].position='right';
 			options.yaxes[1].alignTicksWithAxis=y2.alignTicksWithAxis.prop("checked")?1:0;
 			
@@ -29,6 +30,7 @@
 		$('#y2title,.y2title').css('left',(am.plot.getPlaceholder().parent().width()+10)+'px')
 		
 		var _setupGrid=am.plot.setupGrid;
+
     am.plot.setupGrid=function()
     {
 			var data=am.plot.getData();
@@ -96,17 +98,46 @@
     
     window.am=am;
     
-    am.div_id='nastavitve';
-    am.yaxis1=true;
-		am.yaxis2=true;
-    var y={'id':'',title_id:'','velicina':'','enota':'','faktor':'[1, 0, 0]', 'ymin':-1,'ymax':1}
+	am.div_id='nastavitve';
+	am.yaxis1=true;
+	am.yaxis2=true;
+    var y={'id':'',title_id:'','velicina':'','enota':'','faktor': '[1, 0, 0]', 'ymin':-1,'ymax':1}
     var y1=$.extend(true, {}, y);
-    var y2=$.extend(true, {}, y);
-    y2.faktor='[0,1,0]';
-    y1.id='y1';
+	var y2=$.extend(true, {}, y);
+	y2.faktor='[0,1,0]';
+	y1.id='y1';
     y2.id='y2';
-    y1.title_id='ytitle';
+	y1.title_id='ytitle';
     y2.title_id='y2title';
+
+    var src = (window.location).toString();
+    var tezavnost = src.substring(src.lastIndexOf("#") + 1);
+
+    if(tezavnost == "lahko"){
+      
+	    var file = "default_params.txt";
+	    
+		$.get(file,function(txt){
+
+	    	var lines = txt.split("\n");
+		   
+		    y1["faktor"] = lines[60].split(":")[1];
+		    y2["faktor"] = lines[65].split(":")[1];
+
+		    y1["ymin"] = lines[61].split(":")[1];
+		    y1["ymax"] = lines[62].split(":")[1];
+
+		    y2["ymin"] = lines[66].split(":")[1];
+		    y2["ymax"] = lines[67].split(":")[1];
+
+		    y1["velicina"] = lines[58].split(":")[1];
+		    y1["enota"] = lines[59].split(":")[1];
+
+		    y2["velicina"] = lines[63].split(":")[1];
+		    y2["enota"] = lines[64].split(":")[1];
+
+		});
+	}
     
     function extractUnitFromLabel(label)
     {
@@ -139,13 +170,14 @@
     {
 	if (am.yaxis2==false) y2.title_id=null;
 	
-	var html="<form role='form' class='nastavitve'>\
+
+		var html="<form role='form' class='nastavitve'>\
 			<div class='form-group '>\
-			  <label for='velicina-y%1'>Veličina</label>\
+			  <label for='velicina-y%1'> Veličina </label>\
 			  <input type='text' class='form-control' id='velicina-y%1'>\
 			</div>\
 			<div class='form-group'>\
-			  <label for='enota-y%1'>Enota</label>\
+			  <label for='enota-y%1'> Enota </label>\
 			  <input type='text' class='form-control' id='enota-y%1'>\
 			</div>\
 			<div class='form-group'>\
@@ -168,8 +200,8 @@
 				poravnaj oznake obeh ordinat\
 		</label>\
 		</div>';
-	
-	$('#'+am.div_id).html('<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="left-axis" value="" checked><b>Leva Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '1')+
+
+		$('#'+am.div_id).html('<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="left-axis" value="" checked><b>Leva Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '1')+
 	'<hr><div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="right-axis" value="" checked><b>Desna Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '2')+cb);
 	$('#y2title,.y2title').css('right','0');
 	$('.nastavitve > .form-group > .form-control').keypress(function(event){
@@ -228,6 +260,7 @@
 			}
 		}
 	});
+	
 	}
     
     am.update=function(updateContainer)
@@ -278,6 +311,10 @@
 	}
     }
     
-    $( document ).ready(function(){am.init()});
+    $( document ).ready(function(){
+
+    	am.init()
+
+    });
     
 }(window, document));

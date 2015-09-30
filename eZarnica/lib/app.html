@@ -78,8 +78,8 @@
   var trigger_level_xdecimal_places = 4; // Number of decimal places for trigger level tooltip
   var range_offset = 1;                  // Percentages
     
-  var xmin = -1000000000;
-  var xmax = 1000000000;  
+  var xmin = -1000000;
+  var xmax = 1000000;  
 
   var time_range_max = [130, 1000, 8, 130, 1, 8];
   var range_steps = [0.5, 1, 2, 5, 10, 20, 50, 100];
@@ -126,62 +126,6 @@
   
   $(function() {
     
-    $('#zvok').on('click', function(){
-
-          $('#zvok').attr("disabled", true);
-          var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-          window.updateSig = function(freq, z, k){
-
-            var oscillator = audioContext.createOscillator();
-            oscillator.type = 'sine';
-            oscillator.frequency.value = freq;
-            oscillator.connect(audioContext.destination);
-            oscillator.start(audioContext.currentTime + z);
-            oscillator.stop(audioContext.currentTime + z + k);
-
-            if(z - 4 > 1 && z > 4 && z < 6 && !isNaN(z) && isFinite(z)){
-              $('#zvok').attr("disabled", false);
-              console.log(z);
-            }
-          };
-
-          var t = datasets[0].data.slice();
-          var min = 0;
-          var max = 0;
-
-          for(var i = 0; i < 1024; i++){
-
-            t[i][1] = t[i][1]*100;
-            
-            if(t[i][1] < min){
-                min = t[i][1];
-            }
-            if(t[i][1] > max){
-              max = t[i][1];
-            }
-          }
-
-          var fmin = 400;
-          var fmax = 2000;
-           
-          var k = (fmax - fmin)/(max - min);
-          var n = fmax - k*max;
-
-          var z = 0; 
-          var fr = 0;
-          
-          for (var i = 0; i < 1024; i = i + 10){
-
-            fr = k*t[i][1] + n;
-            fr = Math.round(fr);
-
-            z = z + 0.04;
-          
-            window.updateSig(fr, z, 0.04);    //predvajanje
-          }
-      });
-
      $("#shrani").on("click", function(){
       params.local.load_save_params = 3;
       sendParams();
@@ -192,6 +136,19 @@
       sendParams();
       updateGraphData();
     });
+    
+    var src = (window.location).toString();
+    var tezavnost = src.substring(src.lastIndexOf("#") + 1);
+
+    if(tezavnost == "lahko"){
+
+    }
+    else if(tezavnost == "srednje"){
+
+    }
+    else if(tezavnost == "pametno"){
+
+    }
     
     //////////////// preostala koda /////////////////////////
 
@@ -714,13 +671,6 @@
     }
     downloading = true;
     
-    if(params.local != null){
-      params.local.trig_level = 0.05;
-      params.local.trig_mode = 1;
-      //params.local.xmin = xminimum;
-      //params.local.time_units = 2;
-    }
-
     // Send params if there are any unsent changes
     sendParams();
     
@@ -770,6 +720,14 @@
           dresult.datasets.g1[i].label = t_channel + (i+1);          
           datasets.push(dresult.datasets.g1[i]);
         }
+
+        if(params.local != null){
+          params.local.xmin = - 250000;
+          params.local.xmax = 100000;
+          //sendParams();
+          //params.local.trig_level = 0.05;
+          //params.local.trig_mode = 1;
+        }
         
         if(! plot) {
           initPlot(dresult.datasets.params);
@@ -807,12 +765,6 @@
         }
         
         updateRanges();
-
-        if(params.local != null){
-          //params.local.xmin = - 10000;
-          //params.local.xmax = 100000;
-          //params.local.time_units = 2;
-        }
 
         if(autorun || dresult.status === 'AGAIN') {
           if(autorun) {
@@ -1109,7 +1061,7 @@
       
         loadParams(dresult.datasets.params);
         updateTriggerSlider();
-
+        
         if(refresh_data && !downloading) {
           updateGraphData();
         } 
@@ -1137,11 +1089,9 @@
       }
     });
   }
-
+  
   function getData(from, to) {
-
     var rangedata = new Array();
-
     for(var i=0; i<datasets.length; i++) {
       if(! $('#btn_ch' + (i+1)).data('checked')) {
         continue;
@@ -1895,7 +1845,6 @@
   <div class="container">
       <button class="btn btn-default btn-info" style="float: left; margin-top: 15px; color: white;" id="shrani"> SHRANI NASTAVITVE </button>
       <button class="btn btn-default btn-info" style="float: left; margin-top: 15px; color: white; margin-left: 15px;" id="nalozi"> NALOŽI NASTAVITVE </button>
-      <button id="zvok" class="btn btn-default" style="float: left; margin-top: 15px;"> ZVOK </button>
       <div class="dropdown dropdown-menu-right" style="float: right; margin-right: 70px; margin-top: 15px; color: #FFF; ">
           <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
           <span class="caret" ></span></button>
@@ -2253,7 +2202,7 @@
             </div>
           </div>
         </div>
-        <div class="panel panel-default" style="display: none;">
+        <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#generator">
