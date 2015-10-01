@@ -947,7 +947,7 @@
     var prvi = getFirstCookieName();
 
     if(tezavnost == "srednje"){
-      alert(42);
+
     }
 
     if(lenCookie() != 1){
@@ -984,7 +984,6 @@
 
         if(o != (resitve[i] - 1) || isNaN(o)){
 
-          alert(resitve[i] - 1);
           napaka = true;
           return false;
         }
@@ -1590,19 +1589,6 @@
     err_modal.find('.modal-body').html(err_msg);
     err_modal.modal('show');
   }   
-  
-
-    var file = "default_params.txt";
-    var xmini;
-
-    $.get(file,function(txt){
-
-      var lines = txt.split("\n");
-
-      xmini = lines[0].split(":")[1];
-
-
-    });
 
   function updateGraphData() {
     if(downloading) {
@@ -1613,16 +1599,6 @@
       update_timer = null;
     }
     downloading = true;
-
-    if(params.local != null){
-
-      if(xmini != null){
-
-        //alert("prva: " + xmini);
-        params.local.gui_xmin = xmini;
-        alert("druga: " + params.local.gui_xmin);
-      }
-    }
     
     // Send params if there are any unsent changes
     sendParams();
