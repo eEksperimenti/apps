@@ -126,6 +126,17 @@
   
   $(function() {
     
+    $("#shrani").on("click", function(){
+      params.local.load_save_params = 3;
+      sendParams();
+    });
+
+    $("#nalozi").on("click", function(){
+      params.local.load_save_params = 2;
+      sendParams();
+      updateGraphData();
+    });
+
 
     //////////////  remote  ////////////////////
 
@@ -2768,19 +2779,27 @@
   <div class="row" style="margin: 2em 2em 0 2em;">
     <div class="col-xs-1"></div>
     <div class="col-xs-4">
-      <button class="btn btn-default btn-info" id="preveri" style="color: white;"> PREVERI KVIZ </button>
-      <button class="btn btn-default btn-info" id="naslednji" style="color: white; display: none;"> NASLEDNJI ELEMENT </button>
+      <div class="col-xs-4">
+        <button class="btn btn-default btn-info" id="preveri" style="color: white;"> PREVERI KVIZ </button>
+        <button class="btn btn-default btn-info" id="naslednji" style="color: white; display: none;"> NASLEDNJI ELEMENT </button>
+      </div>
+      <div class="col-xs-8" id="naslednjiObvestilo">
+        <div class="alert alert-danger text-center" style="display: none;">
+          Kviz ni rešen pravilno.
+        </div>
+        <div class="alert alert-success text-center" style="display: none;">
+          Čestitke ! Kviz je rešen pravilno. 
+        </div>
+        <div class="alert alert-success text-center" style="display: none;">
+          Čestitke ! Uspešno ste ugotovili vse elemente. 
+        </div>
+      </div>
     </div>
 
-    <div class="col-xs-5" id="naslednjiObvestilo">
-      <div class="alert alert-danger text-center" style="display: none;">
-        Kviz ni rešen pravilno.
-      </div>
-      <div class="alert alert-success text-center" style="display: none;">
-        Čestitke ! Kviz je rešen pravilno. 
-      </div>
-      <div class="alert alert-success text-center" style="display: none;">
-        Čestitke ! Uspešno ste ugotovili vse elemente. 
+    <div class="col-xs-5">
+      <div class="row">
+        <button class="btn btn-default btn-info" style="float: left; color: white;" id="shrani"> SHRANI NASTAVITVE </button>
+        <button class="btn btn-default btn-info" style="float: left; color: white; margin-left: 15px;" id="nalozi"> NALOŽI NASTAVITVE </button>
       </div>
     </div>
 
