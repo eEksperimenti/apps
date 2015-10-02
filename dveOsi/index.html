@@ -1,4 +1,4 @@
-<!-- $Id$
+ <!-- $Id$
  *
  * Red Pitaya Generator & Oscilloscope client.
  *
@@ -125,6 +125,17 @@
   // On page loaded
   
   $(function() {
+
+    $("#shrani").on("click", function(){
+      params.local.load_save_params = 3;
+      sendParams();
+    });
+
+    $("#nalozi").on("click", function(){
+      params.local.load_save_params = 2;
+      sendParams();
+      updateGraphData();
+    });
     
     // Show different buttons on touch screens    
     if(window.ontouchstart === undefined) {
@@ -1818,6 +1829,10 @@
 
   <div class="container">
     <div class="row">
+      <div class="row">
+        <button class="btn btn-default btn-info" style="float: left; color: white;" id="shrani"> SHRANI NASTAVITVE </button>
+        <button class="btn btn-default btn-info" style="float: left; color: white; margin-left: 15px;" id="nalozi"> NALOŽI NASTAVITVE </button>
+      </div>
       <div id="btn_toolbar" class="col-xs-12" style="display:none">
         
         <div id="selzoompan" class="btn-group" data-toggle="buttons">
