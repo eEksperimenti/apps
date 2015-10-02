@@ -1,28 +1,28 @@
-xmin:0
-xmax:50
+xmin:-3.907700
+xmax:96.092300
 trig_mode:0.000000
 trig_source:0.000000
 trig_edge:0.000000
 trig_delay:0.000000
 trig_level:0.500000
 single_btn:0.000000
-time_range:0.000000
+time_range:3.000000
 time_units:1.000000
 en_avg_at_dec:0.000000
 auto_flag:0.000000
 min_y:0.000000
 max_y:0.000000
 forcex_flag:0.000000
-meas_min_ch1:0.001304
-meas_max_ch1:0.005345
-meas_amp_ch1:0.004042
-meas_avg_ch1:0.003280
+meas_min_ch1:-0.003781
+meas_max_ch1:0.001956
+meas_amp_ch1:0.005736
+meas_avg_ch1:-0.001337
 meas_freq_ch1:0.000000
 meas_per_ch1:0.000000
-meas_min_ch2:-0.009126
-meas_max_ch2:-0.005215
-meas_amp_ch2:0.003911
-meas_avg_ch2:-0.007099
+meas_min_ch2:-0.016036
+meas_max_ch2:-0.006388
+meas_amp_ch2:0.009648
+meas_avg_ch2:-0.012767
 meas_freq_ch2:0.000000
 meas_per_ch2:0.000000
 prb_att_ch1:0.000000
@@ -32,8 +32,8 @@ gain_ch2:0.000000
 gui_reset_y_range:2.136014
 gen_DC_offs_1:0.000000
 gen_DC_offs_2:0.000000
-gui_xmin:0.000000
-gui_xmax:2.000000
+gui_xmin:-3.907700
+gui_xmax:96.092300
 min_y_norm:0.000000
 max_y_norm:0.000000
 gen_DC_norm_1:0.000000
@@ -56,16 +56,6 @@ gen_sig_freq_ch2:111.000000
 gen_sig_dcoff_ch2:0.000000
 gen_awg_refresh:0.000000
 load_save_params:0.000000
-n_xmin:0.0
-n_xmax:0.0
-change_x:0.0
-velicina-y1: Napetost
-enota-y1:V
-faktor-y1:[-0.9, 1, 0]
-ymin-y1:-1.0
-ymax-y1:2.0
-velicina-y2: Tok
-enota-y2:A
-faktor-y2:[0.01, 0, 0]
-ymin-y2:-100.000
-ymax-y2:100.000000
+n_xmin:0.000000
+n_xmax:0.000000
+change_x:0.000000
