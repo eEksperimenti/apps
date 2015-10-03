@@ -94,11 +94,6 @@
     legend: { noColumns: 2, margin: [0, 0], backgroundColor: 'transparent' },
     touch: { autoWidth: false, autoHeight: false }
   };
-
-  var xmin_n = 0;
-  var xmax_n = 0;
-  var xMinimum = 0;
-  var xMaksimum = 0;
   
   // Settings which should not be modified
   
@@ -121,6 +116,8 @@
     original: null,
     local: null
   };
+
+  var naloziX = 0;
   
   // Default parameters - posted after server side app is started 
   var def_params = {
@@ -141,7 +138,6 @@
       sendParams();
       updateGraphData();
     });
-
 
     //////////////  remote  ////////////////////
 
@@ -1165,9 +1161,110 @@
         }
       });
     
+    function xMinimum(s){
+
+      if(plot) {
+
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+
+        var min = parseFloat(s.val());
+        
+        if(!isNaN(min) && min < params.local.xmax){
+
+          var unit = s.data('unit');
+          
+          // Convert nanoseconds to milliseconds.
+          if(unit == 'ns') {
+            nearest /= 1000;
+          }
+
+          options.xaxes[0].min = min;
+
+          plot.setupGrid();
+          plot.draw();
+          
+          params.local.xmin = min;
+          
+          updateRanges();
+
+          s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
+          sendParams(true);
+        }
+        else{
+
+          s.val(params.local.xmin);
+        }
+      }
+    }
+
+    function xMaksimum(s){
+
+      if(plot) {
+
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+
+        var max = parseFloat(s.val());
+        
+        if(!isNaN(max) && params.local.xmin < max){
+
+          var unit = s.data('unit');
+          
+          // Convert nanoseconds to milliseconds.
+          if(unit == 'ns') {
+            nearest /= 1000;
+          }
+
+          options.xaxes[0].max = max;
+
+          plot.setupGrid();
+          plot.draw();
+          
+          params.local.xmax = max;
+          
+          updateRanges();
+
+          s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
+          sendParams(true);
+        }
+        else{
+
+          s.val(params.local.xmax);
+        }
+      }
+    }
+
+    $('#sprememba_xmin').on('keypress', function(event) {
+      
+      if(event.keyCode == 13){
+
+        xMinimum($(this));
+      }
+    });
+
+    $('#sprememba_xmax').on('keypress', function(event) {
+      
+      if(event.keyCode == 13){
+
+        xMaksimum($(this));
+      }
+    });
+
+    $('#sprememba_xmin').on('blur', function() {
+      
+      xMinimum($(this));
+    });
+
+    $('#sprememba_xmax').on('blur', function() {
+      
+      xMaksimum($(this));
+    });
+
     // Events binding for range controls
     
     $('#range_x_minus, #range_x_plus').on('click', function() {
+
       var nearest = $(this).data('nearest');
       
       if(nearest && plot) {
@@ -1554,18 +1651,6 @@
     $('#range_x_minus, #range_x_plus, #range_y_minus, #range_y_plus').tooltip({
       container: 'body'
     });
-    
-    $("#sprememba_xmin").on("blur", function(){
-
-      xmin_n = 1;
-      xMinimum = parseFloat($(this).val());
-    });
-
-    $("#sprememba_xmax").on("blur", function(){
-
-      xmax_n = 1;
-      xMaksimum = parseFloat($(this).val());
-    });
 
     // Load first data
     updateGraphData();
@@ -1629,13 +1714,11 @@
     }
     downloading = true;
 
-    if(params.local != null && (xmin_n == 1 || xmax_n == 1 )){
-
-      params.local.n_xmin = xMinimum;
-      params.local.change_x = 1;
-      xmin_n = 0;
-
-      console.log(42);
+    if(params.local != null && naloziX == 0){
+      
+      $("#sprememba_xmin").val(params.local.xmin);
+      $("#sprememba_xmax").val(params.local.xmax);
+      naloziX = 1;
     }
 
     // Send params if there are any unsent changes
@@ -2928,16 +3011,16 @@
       </div>
         <div class="col-md-4 col-xs-12 col-sm-12" style="padding-top: 2em;">
           <ul class="nav nav-tabs">
-              <li class="active" style="width: 34%;"><a data-toggle="tab" href="#meritve" class="text-center"> MERITVE </a></li>
-              <li style="width: 33%;">
-                <a data-toggle="tab" href="#kviz" class="text-center"> KVIZ </a>
+              <li class="active" style="width: 34%; cursor: pointer;"><a data-toggle="tab" data-target="#meritve" class="text-center"> MERITVE </a></li>
+              <li style="width: 33%; cursor: pointer;">
+                <a data-toggle="tab" data-target="#kviz" class="text-center"> KVIZ </a>
               </li>
-              <li class="dropdown" style="width: 33%;">
+              <li class="dropdown" style="width: 33%; cursor: pointer;">
                 <a class="dropdown-toggle text-center" data-toggle="dropdown"> NAVODILA
                 <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                  <li><a data-toggle="tab" href="#navodila1"> LEKCIJA 1 </a></li>
-                  <li><a data-toggle="tab" href="#navodila2"> LEKCIJA 2 </a></li>
+                  <li><a data-toggle="tab" data-target="#navodila1"> LEKCIJA 1 </a></li>
+                  <li><a data-toggle="tab" data-target="#navodila2"> LEKCIJA 2 </a></li>
                 </ul>
               </li>
           </ul>
@@ -2945,30 +3028,45 @@
               <div class="tab-pane fade in active" id="meritve">
     <div class="panel-group col-xs-12" id="accordion">
       <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#settings">
-                Nastavitve 
-              </a>
-            </h4>
-          </div>
-          <div class="panel-collapse collapse in"> 
-            <form role="form">
-              <div id="settings">
-                <div class="container">
-                  <div class="form-group">
-                    <label for="sprememba_xmin"> x<sub>min</sub> </label>
-                    <input type="number" class="form-control" id="sprememba_xmin">
-                  </div>
-                  <div class="form-group">
-                    <label for="sprememba_xmax"> x<sub>max </sub> </label>
-                    <input type="number" class="form-control" id="sprememba_xmax">
+          <a data-toggle="collapse" data-target="#settings" style="cursor: pointer;">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                  Nastavitve 
+                </a>
+              </h4>
+            </div>
+          </a>
+          <div id="settings" class="panel-collapse collapse in"> 
+            <div class="container">
+              <div class="panel-group" style="margin-top: 1em;">
+                <div class="panel panel-default">
+                  <a data-toggle="collapse" data-target="#osX" style="color: black; text-decoration: none; cursor: pointer;">
+                    <div class="panel panel-heading" style="background-color: rgb(242, 242, 242);">
+                      <h4 class="panel-title">
+                        X os
+                      </h4>
+                    </div>
+                  </a>
+                  <div class="panel-collapse collapse" id="osX" style="padding: 0 1em;">
+                    <div class="panel-body" style="border: none;">
+                      <label for="sprememba_xmin"> X<sub>min</sub> </label>
+                      <input type="number" class="form-control" id="sprememba_xmin">
+                      <label for="sprememba_xmax" style="padding-top: 1em;"> X<sub>max </sub> </label>
+                      <input type="number" class="form-control" id="sprememba_xmax">
+                    </div>
                   </div>
                 </div>
-                <div class="container" id="nastavitve">
+                <div class="panel panel-default" id="nastavitve1">
+                  
+                </div>
+                <div class="panel panel-default" id="nastavitve2">
+                  
+                </div>
+                <div id="nastavitve3">
+                  
                 </div>
               </div>
-            </form>
+            </div>
           </div>
       </div>
 		  <div class="panel panel-default">
