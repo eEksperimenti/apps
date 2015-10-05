@@ -27,6 +27,8 @@
 #include "fpga.h"
 #include "calib.h"
 #include "generate.h"
+#include "load_save_params.h"
+#include "read_element.h"
 
 /* Describe app. parameters with some info/limitations */
 pthread_mutex_t rp_main_params_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -217,9 +219,21 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
        *     2 - Refresh Channel 2
        */
         "gen_awg_refresh",   0, 0, 0, 0, 2 },
+    { /* load_save_params - to load default values or save/load params from previous mesurments
+      *       0 - do nothing
+      *       1 - load default params
+      *       2 - load previous saved params, if empty load default
+      *       3 - save params from current measuments
+      */
+        "load_save_params", 1, 1, 0, 0, 3},
+    { /* read_element */
+        "read_element", -1, 1, 0, -1, 7},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
+
+/* Pointers for module read_element.c */
+float *pread_ele = &rp_main_params[READ_ELEMENT].value;
 /* params initialized */
 static int params_init = 0;
 
@@ -242,8 +256,7 @@ const char *rp_app_desc(void)
 
 int rp_app_init(void)
 {
-    fprintf(stderr, "Loading scope (with gen+pid extensions) version %s-%s.\n", VERSION_STR, REVISION_STR);
-
+    fprintf(stderr, "Loading ugotoviElement version %s-%s.\n", VERSION_STR, REVISION_STR);
     rp_default_calib_params(&rp_main_calib_params);
     if(rp_read_calib_params(&rp_main_calib_params) < 0) {
         fprintf(stderr, "rp_read_calib_params() failed, using default"
@@ -259,6 +272,7 @@ int rp_app_init(void)
 
     rp_set_params(&rp_main_params[0], PARAMS_NUM);
 
+    rp_init_API();
 
     return 0;
 }
@@ -269,6 +283,7 @@ int rp_app_exit(void)
 
     rp_osc_worker_exit();
     generate_exit();
+    rp_stop_API();
 
     return 0;
 }
@@ -587,7 +602,38 @@ int rp_set_params(rp_app_params_t *p, int len)
             p[i].value = rp_main_params[p_idx].max_val;
         }
         rp_main_params[p_idx].value = p[i].value;
+    } 
+
+    float read_ele = rp_main_params[READ_ELEMENT].value;
+
+    /* See if load/save params buttons have been pressed.
+    We load the params before the worker so we give him the right values*/
+    if( p[LOAD_SAVE_PARAMS].value != 0 )
+    {
+        if( rp_main_params[LOAD_SAVE_PARAMS].value == 1 )
+        {
+            load_params(rp_main_params, 1);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 2 )
+        {
+           load_params(rp_main_params, 0);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 3 )
+        {
+          save_params(rp_main_params);
+        }
+          
+      /*This code was for testing purposes
+      char comma[256];
+      sprintf(comma,"echo SET:%f >> /opt/www/apps/dveOsi/load_save_val.txt", rp_main_params[LOAD_SAVE_PARAMS].value);
+      system(comma);*/
+
+      rp_main_params[LOAD_SAVE_PARAMS].value = 0;
     }
+    /* In case  */
+    rp_main_params[READ_ELEMENT].value = read_ele;
+    read_element();
+
     transform_from_iface_units(&rp_main_params[0]);
     pthread_mutex_unlock(&rp_main_params_mutex);
     
@@ -788,6 +834,30 @@ int rp_set_params(rp_app_params_t *p, int len)
         }
     }
 
+    /* See if load/save params buttons have been pressed */
+    /*if( p[LOAD_SAVE_PARAMS].value != 0 )
+    {
+        if( rp_main_params[LOAD_SAVE_PARAMS].value == 1 )
+        {
+            load_params(rp_main_params, 1);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 2 )
+        {
+           load_params(rp_main_params, 0);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 3 )
+        {
+          save_params(rp_main_params);
+        }
+          
+       This code was for testing purposes
+      char comma[256];
+      sprintf(comma,"echo SET:%f >> /opt/www/apps/dveOsi/load_save_val.txt", rp_main_params[LOAD_SAVE_PARAMS].value);
+      system(comma);
+
+      rp_main_params[LOAD_SAVE_PARAMS].value = 0;
+    }*/
+    
     return 0;
 }
 

@@ -94,11 +94,6 @@
     legend: { noColumns: 2, margin: [0, 0], backgroundColor: 'transparent' },
     touch: { autoWidth: false, autoHeight: false }
   };
-
-  var xmin_n = 0;
-  var xmax_n = 0;
-  var xMinimum = 0;
-  var xMaksimum = 0;
   
   // Settings which should not be modified
   
@@ -121,9 +116,10 @@
     original: null,
     local: null
   };
-
-  var naloziX = 0;
   
+  var stariXmin = 0;
+  var stariXmax = 0;
+
   // Default parameters - posted after server side app is started 
   var def_params = {
     en_avg_at_dec: 0
@@ -132,13 +128,66 @@
   // On page loaded
   
   $(function() {
+
+    function getDocHeight() {
+
+        var D = document;
+
+        return Math.max(
+            D.body.scrollHeight, D.documentElement.scrollHeight,
+            D.body.offsetHeight, D.documentElement.offsetHeight,
+            D.body.clientHeight, D.documentElement.clientHeight, 
+            $(document).height(), document.height, window.innerHeight
+        );
+    }
+
+    var desno = $("#desno");
+    var visina1 = desno.find("#meritve");
+    var visina2 = desno.find("form");
+    var visina3 = desno.find("#navodila1");
+    var visina4 = desno.find("#navodila2");
+
+    var visina1H;
+    var visina2H;
+    var visina3H;
+    var visina4H;
+    var visina5H;
+    var visinaH;
+
+    function visina(){
+
+      visina1H = visina1.height();
+      visina2H = visina2.height();
+      visina3H = visina3.height();
+      visina4H = visina4.height();
+      visina5H = getDocHeight();
+
+      visinaH = Math.max(visina1H, visina2H, visina3H, visina4H/*, visina5H*/);
+
+      desno.height(visinaH);
+
+    }
+
+    desno.css("min-height", document.height);
+
+    /*$("div").on("click", function(){
+
+      visina();
+    });
+
+    $("a").on("click", function(){
+
+      visina();
+    });*/
     
     $("#shrani").on("click", function(){
+
       params.local.load_save_params = 3;
       sendParams();
     });
 
     $("#nalozi").on("click", function(){
+
       params.local.load_save_params = 2;
       sendParams();
       updateGraphData();
@@ -1168,38 +1217,69 @@
     
     function xMinimum(s){
 
-      if(plot) {
-
+      if(plot){
+        
         var options = plot.getOptions();
         var axes = plot.getAxes();
 
         var min = parseFloat(s.val());
-        
-        if(!isNaN(min) && min < params.local.xmax){
+        var max = parseFloat($('#sprememba_xmax').val());
 
-          var unit = s.data('unit');
-          
-          // Convert nanoseconds to milliseconds.
-          if(unit == 'ns') {
-            nearest /= 1000;
+        if(stariXmin != min){
+
+          var enote = parseFloat(params.local.time_units);
+          var premajhno = false;
+
+          if(enote == 0){
+
+            if((min <= 0.001 && min > 0) || (min >= -0.001 && min < 0)){
+
+              premajhno = true;
+            }
           }
 
-          options.xaxes[0].min = min;
+          if(!isNaN(min) && (min < max || isNaN(max)) && !premajhno){
 
-          plot.setupGrid();
-          plot.draw();
-          
-          params.local.xmin = min;
-          
-          updateRanges();
+            //var unit = s.data('unit');
+            
+            // Convert nanoseconds to milliseconds.
+            /*if(unit == 'ns') {
+              nearest /= 1000;
+            }*/
 
-          s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
-          sendParams(true);
+            options.xaxes[0].min = min;
+
+            plot.setupGrid();
+            plot.draw();
+            
+            params.local.xmin = min;
+            
+            updateRanges();
+
+            s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
+            sendParams(true);
+          }
+          else if(!premajhno){
+
+            if(enote == 0){
+              s.val(stariXmin);
+            }
+            else if(enote == 2){
+              s.val(stariXmin);
+            }
+          }
+          else if(premajhno){
+
+            if(enote == 0){
+              s.val(stariXmin);
+            }
+            else if(enote == 2){
+              s.val(stariXmin);
+            }
+            premajhno = false;
+          }
         }
-        else{
-
-          s.val(params.local.xmin);
-        }
+        stariXmin = min;
       }
     }
 
@@ -1210,33 +1290,65 @@
         var options = plot.getOptions();
         var axes = plot.getAxes();
 
+        var min = parseFloat($('#sprememba_xmin').val());
         var max = parseFloat(s.val());
         
-        if(!isNaN(max) && params.local.xmin < max){
+        if(stariXmax != max){
 
-          var unit = s.data('unit');
-          
-          // Convert nanoseconds to milliseconds.
-          if(unit == 'ns') {
-            nearest /= 1000;
+          var enote = parseFloat(params.local.time_units);
+          var premajhno = false;
+
+          if(enote == 0){
+
+            if((max <= 0.001 && max > 0) || (max >= -0.001 && max < 0)){
+
+              premajhno = true;
+            }
           }
 
-          options.xaxes[0].max = max;
+          if(!isNaN(max) && (min < max || isNaN(min)) ){
 
-          plot.setupGrid();
-          plot.draw();
-          
-          params.local.xmax = max;
-          
-          updateRanges();
+            //var unit = s.data('unit');
+            
+            // Convert nanoseconds to milliseconds.
+            /*if(unit == 'ns') {
+              nearest /= 1000;
+            }*/
 
-          s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
-          sendParams(true);
+            options.xaxes[0].max = max;
+
+            plot.setupGrid();
+            plot.draw();
+            
+            params.local.xmax = max;
+            
+            updateRanges();
+
+            s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
+            sendParams(true);
+          }
+          else if(!premajhno){
+
+            if(enote == 0){
+              s.val(stariXmax);
+            }
+            else if(enote == 2){
+              s.val(stariXmax);
+            }
+          }
+          else if(premajhno){
+
+            if(enote == 0){
+              s.val(stariXmax);
+            }
+            else if(enote == 2){
+              s.val(stariXmax);
+            }
+            premajhno = false;
+          }
         }
-        else{
 
-          s.val(params.local.xmax);
-        }
+        stariXmax = max;
       }
     }
 
@@ -1656,25 +1768,16 @@
     $('#range_x_minus, #range_x_plus, #range_y_minus, #range_y_plus').tooltip({
       container: 'body'
     });
-<<<<<<< HEAD
-    
-    $("#sprememba_xmin").on("blur", function(){
-
-      xmin_n = 1;
-      xMinimum = parseFloat($(this).val());
-    });
-
-    $("#sprememba_xmax").on("blur", function(){
-
-      xmax_n = 1;
-      xMaksimum = parseFloat($(this).val());
-    });
-=======
->>>>>>> origin/master
 
     // Load first data
     updateGraphData();
     
+    if(params.local != null){
+
+      stariXmin = params.local.xmin;
+      stariXmax = params.local.xmax;
+    }
+
     // Stop the application when page is unloaded
     window.onbeforeunload = function() { 
       $.ajax({
@@ -1734,21 +1837,18 @@
     }
     downloading = true;
 
-<<<<<<< HEAD
-    if(params.local != null && (xmin_n == 1 || xmax_n == 1 )){
-
-      params.local.n_xmin = xMinimum;
-      params.local.change_x = 1;
-      xmin_n = 0;
-
-      console.log(42);
-=======
-    if(params.local != null && naloziX == 0){
+    if(true){
       
-      $("#sprememba_xmin").val(params.local.xmin);
-      $("#sprememba_xmax").val(params.local.xmax);
-      naloziX = 1;
->>>>>>> origin/master
+      $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "");
+    }
+    else{
+
+      $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");
+    }
+
+    if(params.local != null){
+
+      params.local.read_element = 1;
     }
 
     // Send params if there are any unsent changes
@@ -2933,6 +3033,9 @@
         <div class="alert alert-success text-center" style="display: none;">
           Čestitke ! Uspešno ste ugotovili vse elemente. 
         </div>
+        <div class="alert alert-danger text-center" style="display: none;">
+          Napetost na elementu je premajhna, da bi jo lahko dovolj natančno izmerili.
+        </div>
       </div>
     </div>
 
@@ -2956,7 +3059,7 @@
     </div>
   </div>
 
-  <div class="container">
+  <div class="container" style="padding-top: 0;">
     <div class="row">
       <div id="btn_toolbar" class="col-xs-12" style="display:none">
         
@@ -3054,36 +3157,10 @@
                 </ul>
               </li>
           </ul>
-            <div class="tab-content">
+            <div class="tab-content" id="desno">
               <div class="tab-pane fade in active" id="meritve">
     <div class="panel-group col-xs-12" id="accordion">
       <div class="panel panel-default">
-<<<<<<< HEAD
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#settings">
-                Nastavitve 
-              </a>
-            </h4>
-          </div>
-          <div class="panel-collapse collapse in"> 
-            <form role="form">
-              <div id="settings">
-                <div class="container">
-                  <div class="form-group">
-                    <label for="sprememba_xmin"> x<sub>min</sub> </label>
-                    <input type="number" class="form-control" id="sprememba_xmin">
-                  </div>
-                  <div class="form-group">
-                    <label for="sprememba_xmax"> x<sub>max </sub> </label>
-                    <input type="number" class="form-control" id="sprememba_xmax">
-                  </div>
-                </div>
-                <div class="container" id="nastavitve">
-                </div>
-              </div>
-            </form>
-=======
           <a data-toggle="collapse" data-target="#settings" style="cursor: pointer;">
             <div class="panel-heading">
               <h4 class="panel-title">
@@ -3123,7 +3200,6 @@
                 </div>
               </div>
             </div>
->>>>>>> origin/master
           </div>
       </div>
 		  <div class="panel panel-default">

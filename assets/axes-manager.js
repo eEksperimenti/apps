@@ -130,26 +130,26 @@
 	y1.title_id = 'ytitle';
     y2.title_id = 'y2title';
 
-    function preberi(file){
+    function preberi(file, zamik){
 	    
 		$.get(file,function(txt){
 
 	    	var lines = txt.split("\n");
 		   
-		    y1["faktor"] = lines[63].split(":")[1];
-		    y2["faktor"] = lines[68].split(":")[1];
+		    y1["faktor"] = lines[63 + zamik].split(":")[1];
+		    y2["faktor"] = lines[68 + zamik].split(":")[1];
 
-		    y1["ymin"] = lines[64].split(":")[1];
-		    y1["ymax"] = lines[65].split(":")[1];
+		    y1["ymin"] = lines[64 + zamik].split(":")[1];
+		    y1["ymax"] = lines[65 + zamik].split(":")[1];
 
-		    y2["ymin"] = lines[69].split(":")[1];
-		    y2["ymax"] = lines[70].split(":")[1];
+		    y2["ymin"] = lines[69 + zamik].split(":")[1];
+		    y2["ymax"] = lines[70 + zamik].split(":")[1];
 
-		    y1["velicina"] = lines[61].split(":")[1];
-		    y1["enota"] = lines[62].split(":")[1];
+		    y1["velicina"] = lines[61 + zamik].split(":")[1];
+		    y1["enota"] = lines[62 + zamik].split(":")[1];
 
-		    y2["velicina"] = lines[66].split(":")[1];
-		    y2["enota"] = lines[67].split(":")[1];
+		    y2["velicina"] = lines[66 + zamik].split(":")[1];
+		    y2["enota"] = lines[67 + zamik].split(":")[1];
 
 		});
     }
@@ -160,12 +160,12 @@
     var remote = src.indexOf("ugotoviElement");
 
     if(remote != -1){
-
-   		preberi("default_params.txt");
+    	
+   		preberi("default_params.txt", -2);
     }
     else if(tezavnost == "lahko" && remote == -1){
       
-   		preberi("default_params.txt");
+   		preberi("default_params.txt", 0);
 	}
     
     function extractUnitFromLabel(label)

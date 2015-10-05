@@ -1,5 +1,5 @@
-xmin:0
-xmax:50
+xmin:-50.0
+xmax:80.00
 trig_mode:0.000000
 trig_source:0.000000
 trig_edge:0.000000
@@ -56,9 +56,7 @@ gen_sig_freq_ch2:111.000000
 gen_sig_dcoff_ch2:0.000000
 gen_awg_refresh:0.000000
 load_save_params:0.000000
-n_xmin:0.0
-n_xmax:0.0
-change_x:0.0
+read_element:-1.000000
 velicina-y1: Napetost
 enota-y1:V
 faktor-y1:[-0.9, 1, 0]
