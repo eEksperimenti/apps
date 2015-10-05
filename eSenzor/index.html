@@ -170,7 +170,7 @@
 
       $("#senzorji_graf").highcharts().reflow();
 
-      params.local.delta_T = parseInt(cas);
+      params.local.delta_T = parseFloat(cas);
       params.local.num_of_meas = parseInt(st_meritev);
       params.local.trig_mode = 0;
 
@@ -240,7 +240,7 @@
         return false;
       }
 
-      if(cas >= 1 && cas <= 10000000000){
+      if(cas >= 0.01 && cas <= 10000000000){
         $(".cas_warning").css("display", "none");
 
         return true;
@@ -849,7 +849,7 @@
   function getData(from, to) {
 
     var z = 0;
-    var cas = parseInt($('#cas').val());
+    var cas = parseFloat($('#cas').val());
     var ustavi = false;
 
     for(var i = 0; i < 4; i++){
