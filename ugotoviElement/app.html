@@ -119,6 +119,10 @@
   
   var stariXmin = 0;
   var stariXmax = 0;
+  var prvic = 1;
+  var najmanjsaFrekvenca = -2;
+  var najvecjaFrekvenca = -1;
+  var privzetaFrekvenca = 0;
 
   // Default parameters - posted after server side app is started 
   var def_params = {
@@ -128,57 +132,6 @@
   // On page loaded
   
   $(function() {
-
-    function getDocHeight() {
-
-        var D = document;
-
-        return Math.max(
-            D.body.scrollHeight, D.documentElement.scrollHeight,
-            D.body.offsetHeight, D.documentElement.offsetHeight,
-            D.body.clientHeight, D.documentElement.clientHeight, 
-            $(document).height(), document.height, window.innerHeight
-        );
-    }
-
-    var desno = $("#desno");
-    var visina1 = desno.find("#meritve");
-    var visina2 = desno.find("form");
-    var visina3 = desno.find("#navodila1");
-    var visina4 = desno.find("#navodila2");
-
-    var visina1H;
-    var visina2H;
-    var visina3H;
-    var visina4H;
-    var visina5H;
-    var visinaH;
-
-    function visina(){
-
-      visina1H = visina1.height();
-      visina2H = visina2.height();
-      visina3H = visina3.height();
-      visina4H = visina4.height();
-      visina5H = getDocHeight();
-
-      visinaH = Math.max(visina1H, visina2H, visina3H, visina4H/*, visina5H*/);
-
-      desno.height(visinaH);
-
-    }
-
-    desno.css("min-height", document.height);
-
-    /*$("div").on("click", function(){
-
-      visina();
-    });
-
-    $("a").on("click", function(){
-
-      visina();
-    });*/
     
     $("#shrani").on("click", function(){
 
@@ -196,6 +149,7 @@
     //////////////  remote  ////////////////////
 
     function setCookie(cname, cvalue, exdays){
+
       var d = new Date();
       d.setTime(d.getTime() + (exdays*24*60*60*1000));
       var expires = "expires="+d.toUTCString();
@@ -210,22 +164,6 @@
       document.cookie = cname + "=" + "42" + "; " + expires;
     }
 
-    function getFirstCookie(){
-
-      var ca = document.cookie.split(';');
-      var c = ca[0];
-        
-      c = c.split(" ").toString();
-      
-      var s = c[c.length - 2] + c[c.length - 1];
-
-      if(s[0] == "="){
-        s = c[c.length - 1];
-      }
-
-      return s;
-    }
-
     function getFirstCookieName(){
 
       var ca = document.cookie.split(';');
@@ -237,23 +175,17 @@
         s = c[0];
       }
 
-      return s;
-    }
+      if(isNaN(s)){
 
-    function lenCookie(){
+        c = ca[1];
+        s = c[0] + c[1];
 
-      var ca = document.cookie.split(';');
-      var n = 0;
-
-      for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-
-        while (c.charAt(0)==' ') 
-          c = c.substring(1);
-
-        n++;
+        if(c[1] == "="){
+          s = c[0];
+        }
       }
-        return n;
+
+      return s;
     }
 
     function getCookie(cname){
@@ -337,7 +269,7 @@
 
           sinusni:
             [
-              [ "Ali je pri sinusnem napetostnem signalu enake oblike kot tokovni signal?", "da", "ne", 1], 
+              [ "Ali je pri sinusnem napetostnem signalu napetostni signal enake oblike kot tokovni signal?", "da", "ne", 1], 
 
               [ "Napetostni in tokovni signal sta:", "Enake oblike vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka.", 1], 
 
@@ -408,9 +340,7 @@
 
               [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka podobna sinusni obliki.", "Ostane oblika toka sinusne oblike", 1],
 
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2],
-
-              [ "Ali je izbrani element:", "Upor.", "Kondenzator.", "Tuljava.", "Dioda.", 4]
+              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2]
           ],
 
           pravokotni:
@@ -432,9 +362,7 @@
 
               [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka podobna sinusni obliki.", "Ostane oblika toka sinusne oblike", 1],
 
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2],
-
-              [ "Ali je izbrani element:", "Upor.", "Kondenzator.", "Tuljava.", "Dioda.", 4]
+              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2]
           ],
 
           sinusni: 
@@ -456,9 +384,7 @@
 
               [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka podobna sinusni obliki.", "Ostane oblika toka sinusne oblike", 1],
 
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2],
-
-              [ "Ali je izbrani element:", "Upor.", "Kondenzator.", "Tuljava.", "Dioda.", 4]
+              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2]
           ]
         }
       },
@@ -508,7 +434,7 @@
 
           sinusni:
             [
-              [ "Ali je pri sinusnem napetostnem signalu enake oblike kot tokovni signal?", "da", "ne", 1], 
+              [ "Ali je pri sinusnem napetostnem signalu napetostni signal enake oblike kot tokovni signal?", "da", "ne", 1], 
 
               [ "Napetostni in tokovni signal sta:", "Enake oblike vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka.", 1], 
 
@@ -722,7 +648,7 @@
 
           sinusni:
             [
-              [ "Ali je pri sinusnem napetostnem signalu enake oblike kot tokovni signal ?", "da", "ne", 1], 
+              [ "Ali je pri sinusnem napetostnem signalu napetostni signal enake oblike kot tokovni signal ?", "da", "ne", 1], 
 
               [ "Napetostni in tokovni signal sta:", "Enake oblike vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka.", 1], 
 
@@ -963,6 +889,7 @@
     function resitve(r){
       
       var re = [];
+
       for(var i = 0; i < r.length; i++){
         re[i] = r[i][ r[i].length - 1 ];
       }
@@ -972,7 +899,7 @@
 
     function sestaviKviz(s){
 
-      var kviz = "";
+      var kviz = "<div class='row text-center' style='padding: 0 0 2em 0;'> Rešite spodnji kviz in pritisnite gumb 'Preveri kviz' v zgornjem levem kotu aplikacije. </div>";
       var vprasanje = "";
 
       var imena = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "z", "x", "c", "v", "b", "n", "m"];
@@ -989,10 +916,10 @@
 
           if(j != 0){
             if(j == s[i].length - 2){
-              vprasanje += "' style='margin-bottom: 20px;'><input type='radio' name='" + imena[i] + "' value='" + (imena_i - 1) + "'>";
+              vprasanje += " alert' style='margin: 0 0 20px 0; padding: 0;'><input type='radio' name='" + imena[i] + "' value='" + (imena_i - 1) + "'>";
             }
             else{
-              vprasanje += "'><input type='radio' name='" + imena[i] + "' value='" + (imena_i - 1) + "'>";
+              vprasanje += " alert' style='padding: 0; margin:0;'><input type='radio' name='" + imena[i] + "' value='" + (imena_i - 1) + "'>";
             }
           }
           else{
@@ -1012,8 +939,38 @@
     var konec = false;
     var prvi = getFirstCookieName();
 
-    if(tezavnost == "srednje"){
+    /*
+    
+      1-3 tuljava
+      4-6 kondenzator
+      7-9 upor
+      10-12 dioda
+      
+    */
 
+    if(tezavnost == "srednje" || tezavnost == "lahko"){
+
+      var cookie = getFirstCookie();
+      var div = Math.ceil(cookie/3) - 1;
+
+      if(div == 0){
+
+        najmanjsaFrekvenca = 5000;
+        najvecjaFrekvenca = 100000;
+        privzetaFrekvenca = 20000;
+      }
+      else if(div == 1){
+
+        najmanjsaFrekvenca = 1000;
+        najvecjaFrekvenca = 20000;
+        privzetaFrekvenca = 10000;
+      }
+      else if(div == 2){
+
+        najmanjsaFrekvenca = 10;
+        najvecjaFrekvenca = 100000;
+        privzetaFrekvenca = 1000;
+      }
     }
 
     if(lenCookie() != 1){
@@ -1039,6 +996,7 @@
 
       var el = $("#kviz").find("form .vprasanje");
       var o;
+      var od;
       var i = 0;
 
       var resitve = odgovori(parseInt(getFirstCookie()));
@@ -1046,24 +1004,30 @@
 
       el.each(function(){
 
-        o = parseInt($(this).nextUntil(".vprasanje").find("input:checked").val()) % 10;
+        od = $(this).nextUntil(".vprasanje").find("input:checked");
+        o = parseInt(od.val()) % 10;
 
         if(o != (resitve[i] - 1) || isNaN(o)){
 
           napaka = true;
-          return false;
+
+          od.parent().removeClass("alert-success");
+          od.parent().addClass("alert-danger");
+        }
+        else if(o == (resitve[i] - 1) && !isNaN(o)){
+          od.parent().addClass("alert-success");
+          od.parent().removeClass("alert-danger");
         }
 
         i++;
       });
 
-      if(napaka){
-        $("#naslednjiObvestilo .alert").first().css("display", "");
-      }
-      else if(!konec){
+      if(!konec && !napaka){
+
         naprej = true;
 
         $("#naslednjiObvestilo .alert").first().css("display", "none");
+        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");
         $("#naslednjiObvestilo .alert:eq(1)").css("display", "");
         $("#naslednji").css("display", "");
       }
@@ -1077,8 +1041,11 @@
 
         prvi = getFirstCookieName();
         eraseCookie(prvi);
+        prviVrednost = parseInt(getFirstCookie());
 
-        var kviz = elementi(parseInt(getFirstCookie()));
+        nastaviElement(prviVrednost);
+
+        var kviz = elementi(prviVrednost);
 
         var k = $("#kviz")
         k.html(kviz);
@@ -1171,13 +1138,13 @@
     });
     
     autorun = false;
- /*   $('#trig_mode').on('change', function() {
+    $('#trig_mode').on('change', function() {
       onDropdownChange($(this), 'trig_mode', true);
       
       // Autorun if trigger mode is Auto(0) or Normal(1), stop if it is Single(2).
       autorun = (params.local.trig_mode == 2 ? 0 : 1); 
       runStop();
-    });*/
+    });
     
     $('#trig_source').on('change', function() { onDropdownChange($(this), 'trig_source'); });
     $('#trig_edge').on('change', function() { onDropdownChange($(this), 'trig_edge'); });
@@ -1555,7 +1522,6 @@
           params.local.gen_sig_amp_ch1 = 0;
           sendParams();
 
-          console.log(42);
         }
       })
       .on('keypress', function(e) {
@@ -1569,7 +1535,6 @@
           params.local.gen_sig_amp_ch1 = 0;
           sendParams();
           
-          console.log(42);
         }
       });
       
@@ -1837,18 +1802,36 @@
     }
     downloading = true;
 
-    if(true){
-      
-      $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "");
-    }
-    else{
-
-      $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");
-    }
-
     if(params.local != null){
 
-      params.local.read_element = 1;
+      if(params.local.gen_enable_ch1 != 0 || params.local.gen_enable_ch2 != 0){
+
+        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "");
+      }
+      else{
+
+        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");
+      }
+
+      if(prvic == 1){
+
+        prviVrednost = getFirstCookie();
+        nastaviElement(prviVrednost);
+
+        params.local.gen_sig_freq_ch1 = privzetaFrekvenca;
+        $('#gen_ch1_freq')[0].value = privzetaFrekvenca;
+
+        prvic = 0;
+      }
+
+      if(params.local.gen_sig_freq_ch1 < najmanjsaFrekvenca){
+
+        params.local.gen_sig_freq_ch1 = najmanjsaFrekvenca;
+      }
+      else if(params.local.gen_sig_freq_ch1 > najvecjaFrekvenca){
+
+        params.local.gen_sig_freq_ch1 = najvecjaFrekvenca;
+      }
     }
 
     // Send params if there are any unsent changes
@@ -2176,6 +2159,7 @@
   }
   
   function sendParams(refresh_data, force_send, single_btn) {
+
     if(sending || (force_send !== true && !isParamChanged())) {
       send_que = sending;
       return;
@@ -3000,6 +2984,79 @@
     value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
     return value + unit;
   }
+
+  /*
+    
+    1-3 tuljava
+    4-6 kondenzator
+    7-9 upor
+    10-12 dioda
+
+    a) trikotni
+    b) pravokotni
+    c) sinusni
+    
+    */
+
+  function nastaviElement(cookie){
+
+    var div = Math.ceil(cookie/3) - 1;
+    var ostanek = cookie - 3*div - 1;
+
+    ostanek = 2 - ostanek;
+
+    if(params.local != null){
+
+      params.local.read_element = div; 
+      params.local.gen_sig_type_ch1 = ostanek;
+
+      $('#gen_ch1_sigtype').val(ostanek);
+    }
+  }
+
+  function getFirstCookie(){
+
+    var ca = document.cookie.split(';');
+    var c = ca[0];
+      
+    c = c.split(" ").toString();
+    
+    var s = c[c.length - 2] + c[c.length - 1];
+
+    if(s[0] == "="){
+      s = c[c.length - 1];
+    }
+
+    if(isNaN(parseInt(s))){
+
+      c = ca[1];
+      c = c.split(" ").toString();
+      
+      s = c[c.length - 2] + c[c.length - 1];
+
+      if(s[0] == "="){
+        s = c[c.length - 1];
+      }
+    }
+
+    return s;
+  }
+
+  function lenCookie(){
+
+    var ca = document.cookie.split(';');
+    var n = 0;
+
+    for(var i=0; i<ca.length; i++) {
+      var c = ca[i];
+
+      while (c.charAt(0)==' ') 
+        c = c.substring(1);
+
+      n++;
+    }
+      return (n-1);
+  }
   
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
@@ -3018,12 +3075,12 @@
   
   <div class="row" style="margin: 2em 2em 0 2em;">
     <div class="col-xs-1"></div>
-    <div class="col-xs-4">
-      <div class="col-xs-4">
+    <div class="col-xs-5">
+      <div class="col-xs-5">
         <button class="btn btn-default btn-info" id="preveri" style="color: white;"> PREVERI KVIZ </button>
         <button class="btn btn-default btn-info" id="naslednji" style="color: white; display: none;"> NASLEDNJI ELEMENT </button>
       </div>
-      <div class="col-xs-8" id="naslednjiObvestilo">
+      <div class="col-xs-7" id="naslednjiObvestilo" style="padding: 0;">
         <div class="alert alert-danger text-center" style="display: none;">
           Kviz ni rešen pravilno.
         </div>
@@ -3046,7 +3103,7 @@
       </div>
     </div>
 
-    <div class="col-xs-2">
+    <div class="col-xs-1">
       <div class="cdropdown dropdown-menu-right">
         <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
         <span class="caret" ></span></button>
@@ -3453,7 +3510,7 @@
             </div>
           </div>
         </div>
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="margin-bottom: 15em;">
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#generator">
@@ -3630,7 +3687,7 @@
     </div>
     <div class="tab-pane fade" id="kviz" style="padding: 0 2em;">
       <div class="col-xs-12">
-
+        
       </div>
     </div>
     <div class="tab-pane fade" id="navodila1">
