@@ -8,6 +8,10 @@
 #define LOAD_SAVE_BUFF_SIZE 256
 #define LOAD_SAVE_PATH_SIZE 512
 
+#define DEFAULT_PARAMS_PATH		"/opt/www/apps/ugotoviElement/default_params.txt"
+#define SAVED_PARAMS_PATH		"/opt/www/apps/ugotoviElement/saved_params.txt"
+
+
 void load_params(rp_app_params_t *p_copy, int load_default);
 void save_params(rp_app_params_t *p_copy);
 

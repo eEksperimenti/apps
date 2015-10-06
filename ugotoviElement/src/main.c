@@ -227,13 +227,14 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
       */
         "load_save_params", 1, 1, 0, 0, 3},
     { /* read_element */
-        "read_element", -1, 1, 0, -1, 7},
+        "read_element", 0, 1, 0, -1, 7},
     { /* Must be last! */
         NULL, 0.0, -1, -1, 0.0, 0.0 }     
 };
 
 /* Pointers for module read_element.c */
 float *pread_ele = &rp_main_params[READ_ELEMENT].value;
+float read_ele = 0;
 /* params initialized */
 static int params_init = 0;
 
@@ -604,7 +605,7 @@ int rp_set_params(rp_app_params_t *p, int len)
         rp_main_params[p_idx].value = p[i].value;
     } 
 
-    float read_ele = rp_main_params[READ_ELEMENT].value;
+    float tmp_read_ele = rp_main_params[READ_ELEMENT].value;
 
     /* See if load/save params buttons have been pressed.
     We load the params before the worker so we give him the right values*/
@@ -630,9 +631,15 @@ int rp_set_params(rp_app_params_t *p, int len)
 
       rp_main_params[LOAD_SAVE_PARAMS].value = 0;
     }
-    /* In case  */
-    rp_main_params[READ_ELEMENT].value = read_ele;
-    read_element();
+    /* In case we have saved a different param */
+    rp_main_params[READ_ELEMENT].value = tmp_read_ele;
+    
+    if( tmp_read_ele != read_ele )
+    {
+      read_element();
+      read_ele = tmp_read_ele;
+    }
+    
 
     transform_from_iface_units(&rp_main_params[0]);
     pthread_mutex_unlock(&rp_main_params_mutex);
