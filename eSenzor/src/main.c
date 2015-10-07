@@ -231,7 +231,7 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
       *       2 - load previous saved params, if empty load default
       *       3 - save params from current measuments
       */
-      "load_save_params", 1, 1, 0, 0, 3},
+      "load_save_params", 1, 0, 0, 0, 3},
     {/* newdata */
       "change", 0, 1, 0, 0, 100e3},
     { /* Must be last! */
@@ -264,6 +264,7 @@ const char *rp_app_desc(void)
 
 int rp_app_init(void)
 {
+    enable_RW();
     fprintf(stderr, "Loading scope (with gen+pid extensions) version %s-%s.\n", VERSION_STR, REVISION_STR);
     rp_default_calib_params(&rp_main_calib_params);
     if(rp_read_calib_params(&rp_main_calib_params) < 0) {
@@ -611,6 +612,31 @@ int rp_set_params(rp_app_params_t *p, int len)
         }
         rp_main_params[p_idx].value = p[i].value;
     }
+
+    /* See if load/save params buttons have been pressed */
+    if( p[LOAD_SAVE_PARAMS].value != 0 )
+    {
+        if( rp_main_params[LOAD_SAVE_PARAMS].value == 1 )
+        {
+            load_params(rp_main_params, 1);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 2 )
+        {
+           load_params(rp_main_params, 0);
+        }
+        else if( rp_main_params[LOAD_SAVE_PARAMS].value == 3 )
+        {
+          save_params(rp_main_params);
+        }
+          
+      /* This code was for testing purposes
+      char comma[256];
+      sprintf(comma,"echo SET:%f >> /opt/www/apps/dveOsi/load_save_val.txt", rp_main_params[LOAD_SAVE_PARAMS].value);
+      system(comma);*/
+
+      rp_main_params[LOAD_SAVE_PARAMS].value = 0;
+    }
+
     transform_from_iface_units(&rp_main_params[0]);
     pthread_mutex_unlock(&rp_main_params_mutex);
     
@@ -843,25 +869,6 @@ int rp_get_params(rp_app_params_t **p)
     /* Return the original public Xmin & Xmax to client (not the internally modified ones). */
     p_copy[MIN_GUI_PARAM].value = p_copy[GUI_XMIN].value;
     p_copy[MAX_GUI_PARAM].value = p_copy[GUI_XMAX].value;
-
-    /* See if load/save params buttons were pressed */
-    if( p_copy[LOAD_SAVE_PARAMS].value != 0 )
-    {
-        if( p_copy[LOAD_SAVE_PARAMS].value == 1 )
-        {
-          load_params(p_copy, 1);
-        }
-        else
-          if( p_copy[LOAD_SAVE_PARAMS].value == 2 )
-          {
-            load_params(p_copy, 0);
-          }
-        else
-          if( p_copy[LOAD_SAVE_PARAMS].value == 3 )
-          {
-            save_params(p_copy);
-          }
-    }
 
     transform_to_iface_units(p_copy);
     *p = p_copy;

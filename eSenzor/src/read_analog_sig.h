@@ -3,6 +3,7 @@
 #define NUM_ANA_SIG_LEN 512
 #define SIG_LENGTH 1024
 #define SEND_MS	200
+#define DEBUG_PATH		"/opt/www/apps/eSenzor/debug.txt"
 
 extern float *pdelta_T;
 extern float *pnum_of_meas;

@@ -8,6 +8,11 @@
 
 #include "load_save_params.h"
 
+void enable_RW(void)
+{
+  system("rw");
+}
+
 void load_params(rp_app_params_t *p_copy, int load_default)
 {
   FILE *fd = NULL;
@@ -21,21 +26,22 @@ void load_params(rp_app_params_t *p_copy, int load_default)
   file_path[0] = '\0';
 
   if( load_default == 1 )
-    strcpy(file_path, "/opt/www/apps/eSenzor/default_params.txt");
+    strcpy(file_path, DEFAULT_PARAMS_PATH);
   else
-    strcpy(file_path, "/opt/www/apps/eSenzor/saved_params.txt");
+    strcpy(file_path, SAVED_PARAMS_PATH);
 
   fd = fopen(file_path, mode);
 
   if( fd != NULL )
   {
-    
     char *buff = NULL;
     buff = (char*)malloc(sizeof(char)*LOAD_SAVE_BUFF_SIZE);
 
     if( buff == NULL )
+    {
+      free(file_path);
       return;
-
+    }
     buff[0] = '\0';
 
     char *delimeter = ":";
@@ -49,14 +55,11 @@ void load_params(rp_app_params_t *p_copy, int load_default)
       token = strtok(NULL, delimeter);
       p_copy[i].value = strtof(token, NULL);
     } 
-
     p_copy[LOAD_SAVE_PARAMS].value = 0;
     fclose(fd);
     free(buff);
     free(file_path);
   }
-  else
-    system("echo can't open file >> /opt/www/apps/eSenzor/err.txt");
 }
 
 void save_params(rp_app_params_t *p_copy)
@@ -70,25 +73,26 @@ void save_params(rp_app_params_t *p_copy)
       return;
 
   file_path[0] = '\0';
-  strcpy(file_path, "/opt/www/apps/eSenzor/saved_params.txt");
+  strcpy(file_path, SAVED_PARAMS_PATH);
 
   fd = fopen(file_path, mode);
 
   if( fd != NULL )
   {
-    
     char *buff = NULL;
     buff = (char*)malloc(sizeof(char)*LOAD_SAVE_BUFF_SIZE);
 
     if( buff == NULL )
+    {
+      free(file_path);
       return;
+    }
 
     buff[0] = '\0';
     char *delimeter = ":";
-
     int i;
-
     p_copy[LOAD_SAVE_PARAMS].value = 0;
+
     for( i = 0; i < PARAMS_NUM; ++i)
     {
       buff[0] = '\0';
@@ -98,7 +102,6 @@ void save_params(rp_app_params_t *p_copy)
       strcat(buff, file_path);
       fprintf(fd, "%s\n", buff);
     }
-
     fclose(fd);
     free(buff);
     free(file_path);
