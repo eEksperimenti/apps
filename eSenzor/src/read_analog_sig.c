@@ -192,6 +192,7 @@ panalog_sig3 addr:%p\n", panalog_sig0, panalog_sig1, panalog_sig2, panalog_sig3)
 
         if( send_ms >= SEND_MS )
         {
+          ++i;
           for( ; i < NUM_ANA_SIG_LEN; ++i)
           {
             *pcurr_sig0 = -100;
