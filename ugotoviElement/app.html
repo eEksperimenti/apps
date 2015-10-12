@@ -124,6 +124,15 @@
   var najvecjaFrekvenca = -1;
   var privzetaFrekvenca = 0;
 
+  var faktor1 = $("#faktor-y1");
+  var gen_ch1;
+
+  var faktor2 = $("#faktor-y2");
+  var vrednostF2;
+
+  var napetost1;
+  var napetost2;
+
   // Default parameters - posted after server side app is started 
   var def_params = {
     en_avg_at_dec: 0
@@ -1487,28 +1496,24 @@
     
     $('#gen_ch1_ampl')
       .on('focus paste', function() {
+
         $(this).parent().addClass('input-group');
         $('#apply_gen_ch1_ampl').show();
 
       })
       .on('blur', function() {
+
         $('#apply_gen_ch1_ampl').hide();
         $(this).parent().removeClass('input-group');
         
         var val = parseLocalFloat($(this).val());
+
         if(! isNaN(val)) {
-          params.local.gen_sig_amp_ch1 = val;
+          params.local.gen_sig_amp_ch1 = val/4;
           sendParams();
         }
         else {
           $(this).val(params.local.gen_sig_amp_ch1)
-        }
-
-        if( parseFloat($(this).val()) <= 0.1 && parseFloat($(this).val()) != 0 ){
-
-          $(this).val("0");
-          params.local.gen_sig_amp_ch1 = 0;
-          sendParams();          
         }
 
         user_editing = false;
@@ -1516,29 +1521,34 @@
       .on('change', function() {
         $(this).blur();
 
-        if( parseFloat($(this).val()) <= 0.1 && parseFloat($(this).val()) != 0){
-
-          $(this).val("0");
-          params.local.gen_sig_amp_ch1 = 0;
+        var val = parseLocalFloat($(this).val());
+        
+        if(! isNaN(val)) {
+          params.local.gen_sig_amp_ch1 = val/4;
           sendParams();
-
+        }
+        else {
+          $(this).val(params.local.gen_sig_amp_ch1)
         }
       })
       .on('keypress', function(e) {
         if(e.keyCode == 13) {
           $(this).blur();
-        }
-
-        if( parseFloat($(this).val()) <= 0.1 && parseFloat($(this).val()) != 0){
-
-          $(this).val("0");
-          params.local.gen_sig_amp_ch1 = 0;
-          sendParams();
-          
-        }
+        
+          var val = parseLocalFloat($(this).val());
+        
+          if(! isNaN(val)) {
+            params.local.gen_sig_amp_ch1 = val/4;
+            sendParams();
+          }
+          else {
+            $(this).val(params.local.gen_sig_amp_ch1)
+          }
+        }      
       });
       
     $('#gen_ch1_freq')
+
       .on('focus paste', function() {
         $(this).parent().addClass('input-group');
         $('#apply_gen_ch1_freq').show();
@@ -1548,8 +1558,21 @@
         $(this).parent().removeClass('input-group');
         
         var val = parseLocalFloat($(this).val());
+
         if(! isNaN(val)) {
+
           params.local.gen_sig_freq_ch1 = val;
+
+          if(tezavnost != "pametno"){
+
+            if(val < parseFloat(najmanjsaFrekvenca)){
+              params.local.gen_sig_freq_ch1 = parseFloat(najmanjsaFrekvenca);
+            }
+            else if(val > parseFloat(najvecjaFrekvenca)){
+              params.local.gen_sig_freq_ch1 = parseFloat(najvecjaFrekvenca);
+            }
+          }
+
           sendParams();
         }
         else {
@@ -1806,7 +1829,7 @@
 
       if(params.local.gen_enable_ch1 != 0 || params.local.gen_enable_ch2 != 0){
 
-        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "");
+        premajhnaNapetost();
       }
       else{
 
@@ -1822,15 +1845,6 @@
         $('#gen_ch1_freq')[0].value = privzetaFrekvenca;
 
         prvic = 0;
-      }
-
-      if(params.local.gen_sig_freq_ch1 < najmanjsaFrekvenca){
-
-        params.local.gen_sig_freq_ch1 = najmanjsaFrekvenca;
-      }
-      else if(params.local.gen_sig_freq_ch1 > najvecjaFrekvenca){
-
-        params.local.gen_sig_freq_ch1 = najvecjaFrekvenca;
       }
     }
 
@@ -1875,10 +1889,16 @@
         var arun_after_ajax = autorun;
         
         datasets = [];
-		var t_channel=$('#t-channel').text();
+
+		    var t_channel = $('#t-channel').text();
+
+        var imena = [];
+        imena.push($("#velicina-y1").val());
+        imena.push($("#velicina-y2").val());
+        
         for(var i=0; i<dresult.datasets.g1.length; i++) {
           dresult.datasets.g1[i].color = i;
-          dresult.datasets.g1[i].label = t_channel + (i+1);          
+          dresult.datasets.g1[i].label = imena[i];          
           datasets.push(dresult.datasets.g1[i]);
         }
         
@@ -2079,6 +2099,20 @@
     autorun = (params.original.trig_mode == 2 ? 0 : 1);
     
     // Enable the Single button when not in autorun mode
+
+    if(parseFloat(params.local.time_units) == 0){
+      $("#sprememba_xmin").val(params.local.xmin*1000);
+      $("#sprememba_xmax").val(params.local.xmax*1000);
+    }
+    else if(parseFloat(params.local.time_units) == 1){
+      $("#sprememba_xmin").val(params.local.xmin);
+      $("#sprememba_xmax").val(params.local.xmax);
+    }
+    else if(parseFloat(params.local.time_units) == 2){
+      $("#sprememba_xmin").val(params.local.xmin/1000);
+      $("#sprememba_xmax").val(params.local.xmax/1000);
+    }
+
     $('#btn_single').prop('disabled', autorun);
     
     $('#trig_mode').val(params.original.trig_mode);
@@ -2998,6 +3032,24 @@
     
     */
 
+  function premajhnaNapetost(){
+
+    vrednostF1 = $("#faktor-y1").val().replace(" ","").replace("[", "").replace("]", "").split(","); 
+
+    vrednostF2 = $("#faktor-y2").val().replace(" ","").replace("[", "").replace("]", "").split(","); 
+
+    napetost1 = params.local.meas_amp_ch1*parseFloat(vrednostF1[0]) + params.local.meas_amp_ch2*parseFloat(vrednostF1[1]) + parseFloat(vrednostF1[2]);
+
+    napetost2 = params.local.meas_amp_ch1*parseFloat(vrednostF2[0]) + params.local.meas_amp_ch2*parseFloat(vrednostF2[1]) + parseFloat(vrednostF2[2]);
+
+    if( Math.abs((napetost1 - napetost2)) < 0.01 || napetost1 < 0.01){
+      $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "");
+    }
+    else{
+      $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");      
+    }
+  }
+
   function nastaviElement(cookie){
 
     var div = Math.ceil(cookie/3) - 1;
@@ -3239,6 +3291,7 @@
                   </a>
                   <div class="panel-collapse collapse" id="osX" style="padding: 0 1em;">
                     <div class="panel-body" style="border: none;">
+                      <div class="text-center" style="padding-bottom: 1em;"> Vrednosti morajo biti vedno v milisekundah. </div>
                       <label for="sprememba_xmin"> X<sub>min</sub> </label>
                       <input type="number" class="form-control" id="sprememba_xmin">
                       <label for="sprememba_xmax" style="padding-top: 1em;"> X<sub>max </sub> </label>

@@ -160,11 +160,11 @@
     var remote = src.indexOf("ugotoviElement");
 
     if(remote != -1){
-    	
+
    		preberi("default_params.txt", -2);
     }
     else if(tezavnost == "lahko" && remote == -1){
-      
+      	
    		preberi("default_params.txt", 0);
 	}
     
