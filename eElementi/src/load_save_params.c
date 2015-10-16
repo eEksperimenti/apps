@@ -21,14 +21,15 @@ void load_params(rp_app_params_t *p_copy, int load_default)
   file_path[0] = '\0';
 
   if( load_default == 1 )
-    strcpy(file_path, DEFAULT_PARAMS_PATH);
+    strcpy(file_path, "/opt/www/apps/ugotoviElement/default_params.txt");
   else
-    strcpy(file_path, SAVED_PARAMS_PATH);
+    strcpy(file_path, "/opt/www/apps/ugotoviElement/saved_params.txt");
 
   fd = fopen(file_path, mode);
 
   if( fd != NULL )
   {
+    
     char *buff = NULL;
     buff = (char*)malloc(sizeof(char)*LOAD_SAVE_BUFF_SIZE);
 
@@ -37,6 +38,8 @@ void load_params(rp_app_params_t *p_copy, int load_default)
       free(file_path);
       return;
     }
+      
+
     buff[0] = '\0';
 
     char *delimeter = ":";
@@ -50,6 +53,7 @@ void load_params(rp_app_params_t *p_copy, int load_default)
       token = strtok(NULL, delimeter);
       p_copy[i].value = strtof(token, NULL);
     } 
+
     p_copy[LOAD_SAVE_PARAMS].value = 0;
     fclose(fd);
     free(buff);
@@ -59,6 +63,7 @@ void load_params(rp_app_params_t *p_copy, int load_default)
 
 void save_params(rp_app_params_t *p_copy)
 {
+
   FILE *fd = NULL;
   char *mode = "w";
   char *file_path = NULL;
@@ -68,12 +73,13 @@ void save_params(rp_app_params_t *p_copy)
       return;
 
   file_path[0] = '\0';
-  strcpy(file_path, SAVED_PARAMS_PATH);
+  strcpy(file_path, "/opt/www/apps/ugotoviElement/saved_params.txt");
 
   fd = fopen(file_path, mode);
 
   if( fd != NULL )
   {
+    
     char *buff = NULL;
     buff = (char*)malloc(sizeof(char)*LOAD_SAVE_BUFF_SIZE);
 
@@ -85,11 +91,13 @@ void save_params(rp_app_params_t *p_copy)
 
     buff[0] = '\0';
     char *delimeter = ":";
-    int i;
-    p_copy[LOAD_SAVE_PARAMS].value = 0;
 
+    int i;
+
+    p_copy[LOAD_SAVE_PARAMS].value = 0;
     for( i = 0; i < PARAMS_NUM; ++i)
     {
+      //if( strcmp(p_copy[i].name, "force_flag") == 0 )
       buff[0] = '\0';
       strcat(buff, p_copy[i].name);
       strcat(buff, delimeter);
@@ -97,6 +105,7 @@ void save_params(rp_app_params_t *p_copy)
       strcat(buff, file_path);
       fprintf(fd, "%s\n", buff);
     }
+
     fclose(fd);
     free(buff);
     free(file_path);

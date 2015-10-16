@@ -44,26 +44,26 @@ gen_trig_mod_ch1:0.000000
 gen_sig_type_ch1:0.000000
 gen_enable_ch1:1.000000
 gen_single_ch1:0.000000
-gen_sig_amp_ch1:1.000000
-gen_sig_freq_ch1:100.000000
+gen_sig_amp_ch1:0.100000
+gen_sig_freq_ch1:0.000000
 gen_sig_dcoff_ch1:0.000000
 gen_trig_mod_ch2:0.000000
 gen_sig_type_ch2:0.000000
 gen_enable_ch2:0.000000
 gen_single_ch2:0.000000
 gen_sig_amp_ch2:0.000000
-gen_sig_freq_ch2:111.000000
+gen_sig_freq_ch2:0.000000
 gen_sig_dcoff_ch2:0.000000
 gen_awg_refresh:0.000000
 load_save_params:0.000000
 read_element:-1.000000
 velicina-y1: Napetost
 enota-y1:V
-faktor-y1:[1, -0.9, 0]
-ymin-y1:-8.0
-ymax-y1:8.0
+faktor-y1:[-1.45, 1, 0]
+ymin-y1:-1.0
+ymax-y1:0.5
 velicina-y2: Tok
 enota-y2:A
 faktor-y2:[0.01, 0, 0]
-ymin-y2:-0.020
-ymax-y2:0.0020
+ymin-y2:-0.0064
+ymax-y2:0.0060

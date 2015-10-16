@@ -34,11 +34,50 @@ int rp_init_API(void)
   return 0;
 }
 
+/*int rp_start_API(void)
+{
+  ptime = (float*)calloc(SIG_LENGTH, sizeof(*ptime));
+
+  int i;
+
+  for( i = 0; i < SIG_LENGTH; ++i)
+  {
+    ptime[i] = i;
+  }
+
+  panalog_signals = (float*)calloc(NUM_ANA_SIG * NUM_ANA_SIG_LEN, sizeof(*panalog_signals));
+  ana_sig_array = panalog_signals;
+
+  return 0;
+}*/
+
 int rp_stop_API(void)
 {
   rp_Release();
   return 0;
 }
+
+/*int rp_copy_analog_signals(float ***signals, int *sig_idx)
+{
+  float **s = *signals;
+
+  if( last_ind < 511 )
+  {
+    *sig_idx = 1;
+    return -1;
+  }
+  else
+  {
+    *sig_idx = SIG_LENGTH - 1;
+    last_ind = 0;
+  }
+
+  memcpy(&s[0][0], ptime, sizeof(float) * SIG_LENGTH);
+  memcpy(&s[1][0], ana_sig_array, sizeof(float) * SIG_LENGTH);
+  memcpy(&s[2][0], &ana_sig_array[SIG_LENGTH], sizeof(float) * SIG_LENGTH);
+
+  return 0;
+}*/
 
 void read_element(void)
 {
