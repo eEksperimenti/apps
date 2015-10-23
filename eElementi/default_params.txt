@@ -1,13 +1,13 @@
 xmin:0.0
-xmax:200.0
+xmax:5.0
 trig_mode:0.000000
-trig_source:0.000000
+trig_source:1.000000
 trig_edge:0.000000
 trig_delay:0.000000
-trig_level:0.500000
+trig_level:0.00000
 single_btn:0.000000
 time_range:0.000000
-time_units:1.000000
+time_units:0.000000
 en_avg_at_dec:0.000000
 auto_flag:0.000000
 min_y:0.000000
@@ -59,11 +59,11 @@ load_save_params:0.000000
 read_element:-1.000000
 velicina-y1: Napetost
 enota-y1:V
-faktor-y1:[-1.45, 1, 0]
-ymin-y1:-1.0
-ymax-y1:0.5
+faktor-y1:[-1.45, 1, 0.1]
+ymin-y1:-2.0
+ymax-y1:2.0
 velicina-y2: Tok
 enota-y2:A
 faktor-y2:[0.01, 0, 0]
-ymin-y2:-0.0064
-ymax-y2:0.0060
+ymin-y2:-0.002
+ymax-y2:0.002
