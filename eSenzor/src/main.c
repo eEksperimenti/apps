@@ -223,8 +223,12 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
       "delta_T", -1, 1, 0, -1, 50e6},
     {/* num_of_meas */
       "num_of_meas", -1, 1, 0, -1, 50e6},
-    {/* num_of_meas */
-      "N", 0, 1, 0, 0, 50e6},
+    {/* meas_control:   0 - do nothing
+      *                 1 - pause measurment
+      *                 2 - continue measurment
+      *                 3 - stop measurment     
+     */
+      "meas_control", 0, 1, 0, 0, 3},
     {/* load_save_params - to load default values or save/load params from previous mesurments
       *       0 - do nothing
       *       1 - load default params
@@ -242,7 +246,7 @@ float *pdelta_T = &rp_main_params[DELTA_T].value;
 float *pnum_of_meas = &rp_main_params[NUM_OF_MEAS].value;
 float *ptrig_mode = &rp_main_params[TRIG_MODE_PARAM].value;
 float *pchange = &rp_main_params[CHANGE].value;
-float *pN = &rp_main_params[N].value;
+float *pmeas_control = &rp_main_params[MEAS_CONTROL].value;
 /* params initialized */
 static int params_init = 0;
 

@@ -106,7 +106,7 @@ typedef struct rp_osc_meas_res_s {
 #define GEN_AWG_REFRESH   56
 #define DELTA_T           57
 #define NUM_OF_MEAS       58
-#define N                 59
+#define MEAS_CONTROL      59
 #define LOAD_SAVE_PARAMS  60
 #define CHANGE            61
  

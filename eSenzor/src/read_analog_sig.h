@@ -9,7 +9,7 @@ extern float *pdelta_T;
 extern float *pnum_of_meas;
 extern float *ptrig_mode;
 extern float *pchange;
-extern float *pN;
+extern float *pmeas_control;
 extern int api_running;
 extern int api_wait;
 extern pthread_mutex_t rp_analog_sig_mutex;

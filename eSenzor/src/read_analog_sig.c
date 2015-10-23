@@ -118,7 +118,6 @@ int rp_copy_analog_signals(float ***signals, int *sig_idx)
 void *read_analog_sig(void *ptr)
 {
   unsigned int i;
-  float n = 0;
   int send_ms = 0;
   
   float *panalog_sig0 = panalog_signals;
@@ -126,10 +125,10 @@ void *read_analog_sig(void *ptr)
   float *panalog_sig2 = &panalog_signals[(NUM_ANA_SIG_LEN*2)];
   float *panalog_sig3 = &panalog_signals[(NUM_ANA_SIG_LEN*3)];
 
-  fprintf(fd, "panalog_sig0 addr:%p\npanalog_sig1 addr:%p\npanalog_sig2 addr:%p\n\
-panalog_sig3 addr:%p\n", panalog_sig0, panalog_sig1, panalog_sig2, panalog_sig3);
+ /* fprintf(fd, "panalog_sig0 addr:%p\npanalog_sig1 addr:%p\npanalog_sig2 addr:%p\n\
+panalog_sig3 addr:%p\n", panalog_sig0, panalog_sig1, panalog_sig2, panalog_sig3);*/
 
-  fflush(fd);
+  //fflush(fd);
 
   float *pcurr_sig0 = NULL;
   float *pcurr_sig1 = NULL;
@@ -146,8 +145,19 @@ panalog_sig3 addr:%p\n", panalog_sig0, panalog_sig1, panalog_sig2, panalog_sig3)
 
     i = 0;
 
-    for( ; num_of_meas > 0; )
+    while(num_of_meas > 0)
     {
+
+      if( *pmeas_control == 3 )
+      {
+          *pdelta_T = -1;
+          *pnum_of_meas = -1;
+          break;
+      }
+
+      while( *pmeas_control == 1 )
+        usleep(2000);
+
       pcurr_sig0 = panalog_sig0;
       pcurr_sig1 = panalog_sig1;
       pcurr_sig2 = panalog_sig2;
@@ -157,7 +167,7 @@ panalog_sig3 addr:%p\n", panalog_sig0, panalog_sig1, panalog_sig2, panalog_sig3)
       {
         if( num_of_meas == 0)
         {
-          n = last_ind;
+          //n = last_ind;
 
           for( ; i < NUM_ANA_SIG_LEN; ++i)
           {
@@ -205,7 +215,6 @@ panalog_sig3 addr:%p\n", panalog_sig0, panalog_sig1, panalog_sig2, panalog_sig3)
             ++pcurr_sig2;
             ++pcurr_sig3;
           }
-          n = last_ind;
           last_ind = 511;
           send_ms = 0;
           break;
@@ -223,7 +232,7 @@ panalog_sig3 addr:%p\n", panalog_sig0, panalog_sig1, panalog_sig2, panalog_sig3)
       }
       
       ++(*pchange);
-      *pN = n;
+      
     
       if( *pchange == 100e3 )
         *pchange = 1;
