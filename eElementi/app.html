@@ -142,6 +142,8 @@
 
   var indeks = -1;
 
+  var i_vprasanje = 0;
+
   // Default parameters - posted after server side app is started 
   var def_params = {
     en_avg_at_dec: 0
@@ -398,178 +400,6 @@
           ]
         }
       },
-
-      srednje: {
-
-        tuljava: {
-          trikotni:
-            [ 
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka podobna sinusni obliki.", "Ostane oblika toka sinusne oblike", 2]
-            ],
-
-          pravokotni:
-            [
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka", "Postane tok trikotne oblike", "Ostane oblika toka sinusne oblike.", 3]
-            ],
-
-          sinusni: 
-          [
-
-            [ "Ali je napetostni signal enake oblike kot tokovni ?", "da", "ne", 1], 
-
-            [ "Napetostni in tokovni signal sta:", "Enake oblike, vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka.", 1],
-
-            [ "Tokovni in napetostni signal sta zamaknjena za približno:", "Pol periode signala.", "Celo periodo signala", "Eno četrtino periode signala.", "Nista zamaknjena.", 3], 
-
-            [ "Če amplitudo napetostnega signala povečamo za 2x ( na 1 V), se amplituda toka:", "Poveča približno za 2x.", "Ne spremeni.", "Zmanjša za 2x.", "Poveča za 3x.", "Zmanjša za 3x.", 3],
-
-            [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 50 kHz):", "Ostane frekvenca toka enaka kot prej (5 kHz).", "Se enako poveča tudi frekvenca tokovnega signala.", 2], 
-
-            [ "Pri povišani frekvenci signala je amplituda toka:", "Večja kot pri prejšnji (nižji) frekvenci.", "Enaka kot pri prejšnji frekvenci.", "Manjša kot pri prejšnji frekvenci.", 3]
-
-          ]
-        },
-        // srednje
-        kondenzator: {
-
-          trikotni:
-            [
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka bolj pravokotne oblike.", "Ostane oblika toka sinusne oblike.", 2]
-          ],
-
-          pravokotni:
-            [
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka.", "Ostane oblika toka sinusne oblike.", 1]
-          ],
-
-          sinusni:
-            [
-              [ "Ali je pri sinusnem napetostnem signalu napetostni signal enake oblike kot tokovni signal?", "da", "ne", 1], 
-
-              [ "Napetostni in tokovni signal sta:", "Enake oblike vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka.", 1], 
-
-              [ "Tokovni in napetostni signal sta zamaknjena za:", "Približno pol periode signala.", "Celo periodo signala.", "Eno četrtino periode signala.", "Nista zamaknjena.", 3],
-
-              [ "Če amplitudo napetostnega signala povečamo za 2x (na 1 V), se amplituda toka:", "Poveča približno za 2x.", "Ne spremeni.", "Zmanjša za 2x.", "Poveča za 3x.", "Zmanjša za 3x.", 1],
-
-              [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 50 kHz):", "Ostane frekvenca toka enaka kot prej (5 kHz).", "Se enako poveča tudi frekvenca tokovnega signala.", 2],
-
-              [ "Pri povišani frekvenci signala je amplituda toka:", "Večja kot pri prejšnji (nižji) frekvenci.", "Enaka kot pri prejšnji frekvenci.", "Manjša kot pri prejšnji frekvenci.", 1]
-          ]
-        },
-        // srednje
-        upor: {
-
-          trikotni:
-            [
-              [ "Ali je napetostni signal enake oblike kot tokovni ?", "da", "ne", 1],
-
-              [ "Če amplitudo napetostnega signala povečamo za 2x (na 1 V), se amplituda toka:", "Poveča za 2x.", "Ne spremeni.", "Zmanjša za 2x.", "Poveča za 3x.", "Zmanjša za 3x.", 1],
-
-              [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 10 kHz):", "Ostane frekvenca toka enaka kot prej (1 kHz)", "Se enako poveča tudi frekvenca tokovnega signala.", 2],
-
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Ostane oblika toka sinusne oblike.", "Je oblika toka bolj pravokotne oblike.", 1]
-          ],
-
-          pravokotni:
-            [
-              [ "Ali je napetostni signal enake oblike kot tokovni ?", "da", "ne", 1],
-
-              [ "Če amplitudo napetostnega signala povečamo za 2x (na 1 V), se amplituda toka:", "Poveča za 2x.", "Ne spremeni.", "Zmanjša za 2x.", "Poveča za 3x.", "Zmanjša za 3x.", 1],
-
-              [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 10 kHz):", "Ostane frekvenca toka enaka kot prej (1 kHz)", "Se enako poveča tudi frekvenca tokovnega signala.", 2],
-
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Ostane oblika toka sinusne oblike.", "Je oblika toka bolj pravokotne oblike.", 1]
-          ],
-
-          sinusni:
-            [
-              [ "Ali je napetostni signal enake oblike kot tokovni ?", "da", "ne", 1],
-
-              [ "Če amplitudo napetostnega signala povečamo za 2x (na 1 V), se amplituda toka:", "Poveča za 2x.", "Ne spremeni.", "Se zmanjša za 2x.", "Se poveča za 3x.", "Se zmanjša za 3x.", 1],
-
-              [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 10 kHz):", "Ostane frekvenca toka enaka kot prej (1 kHz)", "Se enako poveča tudi frekvenca tokovnega signala.", 2],
-
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Ostane oblika toka sinusne oblike.", "Je oblika toka bolj pravokotne oblike.", 1]
-          ],
-        },
-        // srednje
-        dioda: {
-
-          trikotni:
-
-            [
-              [ "Ali je napetostni signal enake oblike kot tokovni ?", "da", "ne", 1],
-
-              [ "Napetostni in tokovni signal sta:", "Enake oblike, vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka.", 1],
-
-              [ "Tok prevaja skozi diodo:", "Enako v obe smeri.", "Le v eni smeri, v drugi pa ne.", 1], 
-
-              [ "Tokovni in napetostni signal sta zamaknjena za približno:", "Pol periode signala.", "Celo periodo signala.", "Eno četrtino periode signala.", "Nista zamaknjena.", 4],
-
-              [ "Če amplitudo napetostnega signala povečamo za 2x (na 1 V), se amplituda toka ob prevajanju:", "Poveča približno za 2x.", "Ne spremeni.", "Zmanjša za 2x.", "Poveča za 3x.", "Zmanjša za 3x.", 2],
-
-              [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 50 kHz):", "Ostane frekvenca toka enaka kot prej (5 kHz).", "Se enako poveča tudi frekvenca tokovnega signala.", 2], 
-
-              [ "Pri povišani frekvenci signala je amplituda toka:", "Večja kot pri prejšnji (nižji) frekvenci.", "Enaka kot pri prejšnji frekvenci.", "Manjša kot pri prejšnji frekvenci.", 2],
-
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka podobna sinusni obliki.", "Ostane oblika toka sinusne oblike", 1],
-
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2],
-
-              [ "Ali je izbrani element:", "Upor.", "Kondenzator.", "Tuljava.", "Dioda.", 4]
-          ],
-
-          pravokotni:
-
-            [
-              [ "Ali je napetostni signal enake oblike kot tokovni ?", "da", "ne", 1],
-
-              [ "Napetostni in tokovni signal sta:", "Enake oblike, vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka."],
-
-              [ "Tok prevaja skozi diodo:", "Enako v obe smeri.", "Le v eni smeri, v drugi pa ne."], 
-
-              [ "Tokovni in napetostni signal sta zamaknjena za približno:", "Pol periode signala.", "Celo periodo signala.", "Eno četrtino periode signala.", "Nista zamaknjena.", 4],
-
-              [ "Če amplitudo napetostnega signala povečamo za 2x (na 1 V), se amplituda toka ob prevajanju:", "Poveča približno za 2x.", "Ne spremeni.", "Zmanjša za 2x.", "Poveča za 3x.", "Zmanjša za 3x.", 2],
-
-              [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 50 kHz):", "Ostane frekvenca toka enaka kot prej (5 kHz).", "Se enako poveča tudi frekvenca tokovnega signala.", 2], 
-
-              [ "Pri povišani frekvenci signala je amplituda toka:", "Večja kot pri prejšnji (nižji) frekvenci.", "Enaka kot pri prejšnji frekvenci.", "Manjša kot pri prejšnji frekvenci.", 2],
-
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka podobna sinusni obliki.", "Ostane oblika toka sinusne oblike", 1],
-
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2],
-
-              [ "Ali je izbrani element:", "Upor.", "Kondenzator.", "Tuljava.", "Dioda.", 4]
-          ],
-
-          sinusni: 
-
-          [
-              [ "Ali je napetostni signal enake oblike kot tokovni ?", "da", "ne", 1],
-
-              [ "Napetostni in tokovni signal sta:", "Enake oblike, vendar zamaknjena v času.", "Različne oblike, vendar ne zamaknjena.", "Enaka."],
-
-              [ "Tok prevaja skozi diodo:", "Enako v obe smeri.", "Le v eni smeri, v drugi pa ne."], 
-
-              [ "Tokovni in napetostni signal sta zamaknjena za približno:", "Pol periode signala.", "Celo periodo signala.", "Eno četrtino periode signala.", "Nista zamaknjena.", 4],
-
-              [ "Če amplitudo napetostnega signala povečamo za 2x (na 1 V), se amplituda toka ob prevajanju:", "Poveča približno za 2x.", "Ne spremeni.", "Zmanjša za 2x.", "Poveča za 3x.", "Zmanjša za 3x.", 2],
-
-              [ "Če povečamo frekvenco vzbujalnega (napetostnega) signala za 10x (na 50 kHz):", "Ostane frekvenca toka enaka kot prej (5 kHz).", "Se enako poveča tudi frekvenca tokovnega signala.", 2], 
-
-              [ "Pri povišani frekvenci signala je amplituda toka:", "Večja kot pri prejšnji (nižji) frekvenci.", "Enaka kot pri prejšnji frekvenci.", "Manjša kot pri prejšnji frekvenci.", 2],
-
-              [ "Če spremenimo vzbujalni napetostni signal na trikotnega:", "Se enako spremeni tudi oblika toka.", "Postane oblika toka podobna sinusni obliki.", "Ostane oblika toka sinusne oblike", 1],
-
-              [ "Če spremenimo vzbujalni napetostni signal na pravokotnega:", "Je tok velik le ob spremembah napetostnega signala.", "Se enako spremeni tudi oblika toka, le prevaja le v eno smer.", "Postane tok trikotne oblike.", "Se enako spremeni tudi oblika toka in prevaja v obe smeri.", 2],
-
-              [ "Ali je izbrani element:", "Upor.", "Kondenzator.", "Tuljava.", "Dioda.", 4]
-          ]
-        }
-      },
-
       pametno: {
         // pametno
         tuljava: {
@@ -906,45 +736,36 @@
 
     function sestaviKviz(s){
 
-      var kviz = "<div class='row text-center' style='padding: 0 0 2em 0;'> Rešite spodnji kviz in pritisnite gumb 'Preveri kviz' v zgornjem levem kotu aplikacije. </div>";
       var vprasanje = "";
+      var j = 0;
+      
+      i_vprasanje = parseInt(localStorage.getItem("i_vprasanje"));
 
-      var imena = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "z", "x", "c", "v", "b", "n", "m"];
-      var imena_i = 0;
+      for(j = 0; j < ( s[i_vprasanje].length - 1); j++){
 
-      for(var i = 0; i < s.length; i++){
+        vprasanje += "<div class='row"
 
-        vprasanje = "";
-        imena_i = i*10;
-
-        for(var j = 0; j < ( s[i].length - 1); j++){
-
-          vprasanje += "<div class='row"
-
-          if(j != 0){
-            if(j == s[i].length - 2){
-              vprasanje += " alert' style='margin: 0 0 20px 0; padding: 0;'><input type='radio' name='" + imena[i] + "' value='" + (imena_i - 1) + "'>";
-            }
-            else{
-              vprasanje += " alert' style='padding: 0; margin:0;'><input type='radio' name='" + imena[i] + "' value='" + (imena_i - 1) + "'>";
-            }
+        if(j != 0){
+          if(j == s[i_vprasanje].length - 2){
+            vprasanje += " alert' style='margin: 0 0 20px 0; padding: 0;'><input type='radio' name='vprasanje' value='" + j + "'>";
           }
           else{
-            vprasanje += " vprasanje'>";
+            vprasanje += " alert' style='padding: 0; margin:0;'><input type='radio' name='vprasanje' value='" + j + "'>";
           }
-
-          imena_i += 1;
-          vprasanje += s[i][j] + "</div>";
+        }
+        else{
+          vprasanje += " vprasanje'>";
         }
 
-        kviz += vprasanje;
+        vprasanje += s[i_vprasanje][j] + "</div>";
       }
 
-      return kviz;
+      return vprasanje;
     }
 
     var konec = false;
-    var prvi = getFirstCookieName();
+    var prvi = parseInt(getFirstCookieName());
+    var prviVrednost = parseInt(getFirstCookie());
 
     /*
     
@@ -955,156 +776,157 @@
       
     */
 
-    if(tezavnost == "srednje"){
+    function narisiKviz(){
 
-      var cookie = getFirstCookie();
-      var div = Math.ceil(cookie/3) - 1;
+      var kviz = elementi(parseInt(getFirstCookie()));
 
-      if(div == 0){
-
-        najmanjsaFrekvenca = 5000;
-        najvecjaFrekvenca = 100000;
-        privzetaFrekvenca = 20000;
-      }
-      else if(div == 1){
-
-        najmanjsaFrekvenca = 1000;
-        najvecjaFrekvenca = 20000;
-        privzetaFrekvenca = 10000;
-      }
-      else if(div == 2){
-
-        najmanjsaFrekvenca = 10;
-        najvecjaFrekvenca = 100000;
-        privzetaFrekvenca = 1000;
-      }
+      var k = $("#kviz .col-xs-12");
+      
+      k.html(kviz);
+      k.find("input").css("margin-right", "15px");
+      k.find(".vprasanje").css("margin-bottom", "10px");
     }
 
-    if(tezavnost != "lahko"){
+    if(tezavnost == "pametno"){
 
-      if(lenCookie() != 1){
+      if(lenCookie() != 0){
 
-        var kviz = elementi(parseInt(getFirstCookie()));
+        if(odgovori(prviVrednost).length <= (parseInt(localStorage.getItem("i_vprasanje")) + 1)){
 
-        var k = $("#kviz");
-        k.html(kviz);
-        k.find("input").css("margin-right", "15px");
-        k.find(".vprasanje").css("margin-bottom", "10px");
+          $("#preveri").html("NASLEDNJI ELEMENT");
+          localStorage.setItem("i_vprasanje", 0);
+        }
+        else if(odgovori(prviVrednost).length > (parseInt(localStorage.getItem("i_vprasanje")) + 1)){
 
+          narisiKviz();
+        }
       }
       else{
+
         konec = true;
 
         $("#preveri").css("display", "none");
-        $("#naslednjiObvestilo .alert:eq(2)").css("display", "");
       } 
     }     
 
     var naprej = false; 
 
+    localStorage.setItem("pravilni", 0);
+
     $("#preveri").on("click", function(){
-
-      if(!$("#kviz").hasClass("active")){
-
-        $("#desno").find(".active").removeClass("active in");
-        $("#zavihki").find(".active").removeClass("active");
-        $("#zavihki").find("li:eq(1)").addClass("active");
-        $("#kviz").addClass("active in");
-      }
       
-      var el = $("#kviz").find("form .vprasanje");
-      var o;
-      var od;
-      var i = 0;
-      
-      if(tezavnost != "lahko"){
+      i_vprasanje = parseInt(localStorage.getItem("i_vprasanje"));
+      var resitve = odgovori(parseInt(getFirstCookie()));
 
-        var resitve = odgovori(parseInt(getFirstCookie()));
-        var napaka = false;
+      if(!naprej && !konec){
 
-        el.each(function(){
+        var el = $("#kviz .col-xs-12").find("form .alert").find("input:checked");
+        var odgovor = resitve[i_vprasanje];
 
-          od = $(this).nextUntil(".vprasanje").find("input:checked");
-          o = parseInt(od.val()) % 10;
+        if(parseInt(el.val()) != odgovor || isNaN(parseInt(el.val()))){
 
-          if(o != (resitve[i] - 1) || isNaN(o)){
+          el.parent().addClass("alert-danger");
+        }
+        else if(parseInt(el.val()) == odgovor && !isNaN(parseInt(el.val()))){
 
-            napaka = true;
+          el.parent().addClass("alert-success");
+          var pravilni = parseInt(localStorage.getItem("pravilni")) + 1;
+          localStorage.setItem("pravilni", pravilni);
+        }
 
-            od.parent().removeClass("alert-success");
-            od.parent().addClass("alert-danger");
+        if(el.length != 0){
+
+          $("#kviz .col-xs-12").find("form .alert").find("input").prop("disabled", "true");
+
+          $("#kviz").find(".alert-warning").css("display", "none");
+          $(this).removeClass();
+          $(this).addClass("btn");
+          $(this).css("background-color", "#337ab7");
+
+          if(resitve.length > (i_vprasanje + 1)){
+
+            $("#kviz").find(".alert-danger:last").css("display", "none");
+            $("#kviz").find(".alert-success:last").css("display", "none");
+            $(this).html("NAPREJ");
+
+            naprej = true;
+
+            i_vprasanje = i_vprasanje + 1;
+            localStorage.setItem("i_vprasanje", i_vprasanje);
           }
-          else if(o == (resitve[i] - 1) && !isNaN(o)){
+          else if(resitve.length <= (i_vprasanje + 1)){
 
-            od.parent().addClass("alert-success");
-            od.parent().removeClass("alert-danger");
+            if(parseInt(localStorage.getItem("pravilni")) >= Math.round(resitve.length/2)){
+
+              $("#kviz").find(".alert-success:last").html(
+                "Čestitamo ! Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj, zato lahko nadaljujete z naslednjim elementom."
+              );
+              $("#kviz").find(".alert-success:last").css("display", "");
+              $(this).html("NASLEDNJI ELEMENT");
+              
+              naprej = true;
+
+              eraseCookie(parseInt(getFirstCookieName()));
+              nastaviElement();
+
+              i_vprasanje = 0;
+              localStorage.setItem("i_vprasanje", i_vprasanje);
+              localStorage.setItem("pravilni", 0);
+            }
+            else{
+
+              var meja = "";
+
+              if(Math.round(resitve.length/2) == 1){
+                meja = "vprašanje";
+              }
+              else if(Math.round(resitve.length/2) == 2){
+                meja = "vprašanji";
+              }
+              else if(Math.round(resitve.length/2) == 3 || Math.round(resitve.length/2) == 4){
+                meja = "vprašanja";
+              }
+              else if(Math.round(resitve.length/2) > 3){
+                meja = "vprašanj"
+              }
+
+              $("#kviz").find(".alert-danger:last").html(
+                "Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj. Za nadaljevanje morate pravilno odgovoriti na vsaj " + Math.round(resitve.length/2) + " " + meja + ". Prosimo ponovite kviz."
+              );
+              $("#kviz").find(".alert-danger:last").css("display", "");
+
+              $(this).html("PONOVITE KVIZ");
+
+              naprej = true;
+              i_vprasanje = 0;
+
+              localStorage.setItem("i_vprasanje", i_vprasanje);
+              localStorage.setItem("pravilni", 0);
+            }
           }
-
-          i++;
-        });
-
-        if(!konec && !napaka){
-
-          naprej = true;
-
-          $("#naslednjiObvestilo .alert").first().css("display", "none");
-          $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");
-          $("#naslednjiObvestilo .alert:eq(1)").css("display", "");
-          $("#naslednji").css("display", "");
+        }
+        else{
+          $("#kviz").find(".alert-warning").html("Odgovorite na vprašanje.");
+          $("#kviz").find(".alert-warning").css("display", "");
         }
       }
-      else{
+      else if(naprej && !konec){
 
-        if(indeks != -1){
+        $("#kviz").find(".alert-danger:last").css("display", "none");
+        $("#kviz").find(".alert-success:last").css("display", "none");
 
-          var resitve = odgovori(indeks);
-          var napaka = false;
-
-          el.each(function(){
-
-            od = $(this).nextUntil(".vprasanje").find("input:checked");
-            o = parseInt(od.val()) % 10;
-
-            if(o != (resitve[i] - 1) || isNaN(o)){
-
-              napaka = true;
-
-              od.parent().removeClass("alert-success");
-              od.parent().addClass("alert-danger");
-            }
-            else if(o == (resitve[i] - 1) && !isNaN(o)){
-
-              od.parent().addClass("alert-success");
-              od.parent().removeClass("alert-danger");
-            }
-
-            i++;
-          });
-        }
-      }
-    });
-
-    $("#naslednji").on( "click", function(){
-
-      if(naprej  && !konec){
-
-        $("#naslednji").css("display", "none");
-        $("#naslednjiObvestilo .alert:eq(1)").css("display", "none");
-
-        prvi = getFirstCookieName();
-        eraseCookie(prvi);
-        prviVrednost = parseInt(getFirstCookie());
-
-        nastaviElement(prviVrednost);
-
-        var kviz = elementi(prviVrednost);
-
-        var k = $("#kviz")
-        k.html(kviz);
-        k.find("input").css("margin-right", "15px");
-        k.find(".vprasanje").css("margin-bottom", "10px");
+        $(this).removeClass();
+        $(this).addClass("btn btn-info");
+        $(this).css("background-color", "");
+        $(this).html("PREVERI");
 
         naprej = false;
+
+        narisiKviz()
+      }
+      else if(konec){
+
+
       }
     });
 
@@ -1118,6 +940,8 @@
       10-12 dioda
       
     */
+
+    //lahek način
 
     function nastavitveElementov(el, minF, maxF, defF, amp, y1min, y1max, y2min, y2max, xmax){
 
@@ -1148,6 +972,8 @@
     }
 
     $("#izberiElement").on("change", function(){
+
+      $(this).prop("disabled", "true");
 
       var element = $(this).find(":selected").text().replace(/^\s+|\s+$/g, '');
       var i_kviz = -1;
@@ -1190,14 +1016,14 @@
 
         var kviz = elementi(i_kviz*3);
 
-        var k = $("#kviz");
+        var k = $("#kviz .col-xs-12");
         k.html(kviz);
         k.find("input").css("margin-right", "15px");
         k.find(".vprasanje").css("margin-bottom", "10px");
       }
       else{
 
-        var k = $("#kviz");
+        var k = $("#kviz .col-xs-12");
         k.html("");
       }
     });
@@ -1943,22 +1769,18 @@
 
     if(params.local != null && stevec % 10 == 0){
 
-      if(params.local.gen_enable_ch1 != 0 || params.local.gen_enable_ch2 != 0){
+      if(params.local.gen_enable_ch1 != 0){
 
         premajhnaNapetost();
       }
       else{
 
-        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");
+        $("#naslednjiObvestilo").find(".alert").eq(0).css("display", "none");
       }
 
-      if(prvic == 1 && (tezavnost == "srednje" || tezavnost == "pametno")){
+      if(prvic == 1 && tezavnost == "pametno"){
 
-        prviVrednost = getFirstCookie();
-        nastaviElement(prviVrednost);
-
-        params.local.gen_sig_freq_ch1 = privzetaFrekvenca;
-        $('#gen_ch1_freq')[0].value = privzetaFrekvenca;
+        nastaviElement();
 
         prvic = 0;
       }
@@ -3166,34 +2988,36 @@
 
       if( ((napetost1 - napetost2) < 0.04 || napetost1 < 0.04) && ((napetost1 - napetost2) > 0 || napetost1 > 0)){
 
-        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "");
+        $("#naslednjiObvestilo").find(".alert").eq(0).css("display", "");
       }
       else if( ((napetost1 - napetost2) > -0.04 || napetost1 > -0.04) && ((napetost1 - napetost2) < 0 || napetost1 < 0)){
 
-        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "");
+        $("#naslednjiObvestilo").find(".alert").eq(0).css("display", "");
       }
       else{
 
-        $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none");      
+        $("#naslednjiObvestilo").find(".alert").eq(0).css("display", "none");      
       }
 
       if((params.local.meas_amp_ch1 > 2 && params.local.meas_amp_ch1 > 0) || (params.local.meas_amp_ch1 < -2 && params.local.meas_amp_ch1 < 0)){
 
-        $("#naslednjiObvestilo").find(".alert").eq(4).css("display", "");
+        $("#naslednjiObvestilo").find(".alert").eq(1).css("display", "");
       }
       else{
 
-        $("#naslednjiObvestilo").find(".alert").eq(4).css("display", "none");
+        $("#naslednjiObvestilo").find(".alert").eq(1).css("display", "none");
       }
     }
     else{
 
-      $("#naslednjiObvestilo").find(".alert").eq(3).css("display", "none"); 
-      $("#naslednjiObvestilo").find(".alert").eq(4).css("display", "none");     
+      $("#naslednjiObvestilo").find(".alert").eq(0).css("display", "none"); 
+      $("#naslednjiObvestilo").find(".alert").eq(1).css("display", "none");     
     }
   }
 
-  function nastaviElement(cookie){
+  function nastaviElement(){
+
+    var cookie = getFirstCookie();
 
     var div = Math.ceil(cookie/3) - 1;
     var ostanek = cookie - 3*div - 1;
@@ -3303,7 +3127,16 @@
     <div class="container">
       <a id="btn_exit" class="pull-left" href="index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
-      <h2 class="page-title"> eElementi </h2>
+      <h2 class="page-title pull-left"> eElementi </h2>
+      <div class="cdropdown dropdown-menu-right pull-right" style="margin-top: 1em;">
+        <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
+        <span class="caret" ></span></button>
+        </button>
+        <ul class="dropdown-menu">
+        <li><a href="#en" class='translate' >en</a></li>
+        <li><a href="#sl" class='translate' >sl</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -3312,33 +3145,9 @@
   
   <div class="row" style="margin: 2em 2em 0 2em;">
     <div class="col-xs-1"></div>
-    <div class="col-xs-7">
-      <div class="col-xs-7">
-        <button class="btn btn-default btn-info" id="preveri" style="color: white;"> PREVERI KVIZ </button>
-        <button class="btn btn-default btn-info" id="naslednji" style="color: white; display: none;"> NASLEDNJI ELEMENT </button>
-      </div>
-      <div class="col-xs-5" id="naslednjiObvestilo" style="padding: 0; height: 1em;">
-        <div class="alert alert-danger text-center" style="display: none; padding: 0 1em;">
-          Kviz ni rešen pravilno.
-        </div>
-        <div class="alert alert-success text-center" style="display: none; padding: 0 1em;">
-          Čestitke ! Kviz je rešen pravilno. 
-        </div>
-        <div class="alert alert-success text-center" style="display: none; padding: 0 1em;">
-          Čestitke ! Uspešno ste ugotovili vse elemente. 
-        </div>
-        <div class="alert alert-danger text-center" style="display: none; padding: 0 1em;">
-          Napetost na elementu je premajhna, da bi jo lahko dovolj natančno izmerili.
-        </div>
-        <div class="alert alert-danger text-center" style="display: none; padding: 0 1em;">
-          Tok skozi element je prevelik, da bi ga lahko dovolj natančno izmerili.
-        </div>
-      </div>
-    </div>
-
-    <div class="col-xs-3">
+    <div class="col-xs-4">
       <div class="row">
-        <select id="izberiElement" style="display: none;">
+        <select id="izberiElement" class="input-sm" style="display: none;">
           <option selected="selected">
             Izberite element
           </option>
@@ -3357,17 +3166,18 @@
         </select>
       </div>
     </div>
-
-    <div class="col-xs-1">
-      <div class="cdropdown dropdown-menu-right">
-        <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
-        <span class="caret" ></span></button>
-        </button>
-        <ul class="dropdown-menu">
-        <li><a href="#en" class='translate' >en</a></li>
-        <li><a href="#sl" class='translate' >sl</a></li>
-        </ul>
+    <div class="col-xs-6">
+      <div class="col-xs-12" id="naslednjiObvestilo" style="padding: 0; height: 1em;">
+        <div class="alert alert-danger text-center" style="display: none; padding: 0 1em;">
+          Napetost na elementu je premajhna, da bi jo lahko dovolj natančno izmerili.
+        </div>
+        <div class="alert alert-danger text-center" style="display: none; padding: 0 1em;">
+          Tok skozi element je prevelik, da bi ga lahko dovolj natančno izmerili.
+        </div>
       </div>
+    </div>
+    <div class="col-xs-1">
+      
     </div>
   </div>
 
@@ -3858,14 +3668,14 @@
                   </div>
                 </div>
               </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
                 <div class="checkbox" style="padding-top: 15px; padding-bottom: 12px;">
                   <label class="group-label">
                     <input type="checkbox" id="gen_enable_ch2" checked> Kanal 2
                   </label>
                 </div>
               </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
                 <div class="form-group">
                   <label for="gen_ch2_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
                   <div class="col-xs-4 col-sm-7">
@@ -3878,7 +3688,7 @@
                   </div>
                 </div>
               </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
                 <div class="form-group">
                   <label for="gen_ch2_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
                   <div class="col-xs-4 col-sm-5">
@@ -3890,7 +3700,7 @@
                   <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_ampl_units">Vpp</div>
                 </div>
               </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
                 <div class="form-group">
                   <label for="gen_ch2_freq" class="col-xs-4 control-label"> Frekvenca:</label>
                   <div class="col-xs-4 col-sm-5">
@@ -3902,7 +3712,7 @@
                   <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_freq_units">Hz</div>
                 </div>
               </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
                 <div class="form-group">
                   <label for="gen_ch2_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
                   <div class="col-xs-4 col-sm-5">
@@ -3914,7 +3724,7 @@
                   <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_dc_units">V</div>
                 </div>
               </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
                 <div class="form-group">
                   <label for="gen_ch2_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
                   <div class="col-xs-4 col-sm-7">
@@ -3926,7 +3736,7 @@
                   </div>
                 </div>
               </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
                 <div class="row">
                   <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
                     <button id="gen_ch2_single" class="btn btn-primary" onclick="return postGenSingle(2)">
@@ -3944,9 +3754,13 @@
       </div>
     </div>
     <div class="tab-pane fade" id="kviz" style="padding: 0 2em;">
-      <div class="col-xs-12">
-        
+      <div class="col-xs-12"></div>
+      <div class="row text-center">
+        <button class="btn btn-default btn-info" id="preveri" style="color: white;"> PREVERI </button>
       </div>
+      <div class="alert alert-danger text-center" style="display: none; margin: 1em 0 0 0;"> </div>
+      <div class="alert alert-warning text-center" style="display: none; margin: 1em 0 0 0;"> </div>
+      <div class="alert alert-success text-center" style="display: none; margin: 1em 0 0 0;"> </div>
     </div>
     <div class="tab-pane fade" id="navodila1">
         <div class="col-xs-12">

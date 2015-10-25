@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
     <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
-    <title>My Red Pitaya</title>
+    <title> eEksperimenti </title>
   </head>
 
   <body>
@@ -31,34 +31,28 @@
           </div>
         </div>
         <div class="row" style="padding: 2em 0;">
-          <script type="text/javascript">
-            document.write("<div class='col-md-4 text-center'> <a href='");
-
-            var e = location.hash.concat("app.html#sl/#lahko");
-
-            document.write(e);
-            document.write("' style='color: white;'> <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'>ENOSTAVEN NAČIN </button> </a> </div>");
-
-
-            document.write("<div class='col-md-4 text-center'> <a href='");
-
-            var e = location.hash.concat("app.html#sl/#srednje");
-
-            document.write(e);
-            document.write("' style='color: white;'> <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> SREDNJE ZAHTEVEN NAČIN </button> </a></div>");
-
-            document.write("<div class='col-md-4 text-center'> <a href='");
-
-            var e = location.hash.concat("app.html#sl/#pametno");
-
-            document.write(e);
-            document.write("' style='color: white;'> <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ZAHTEVNEJŠI NAČIN </button> </a> </div>");
-          </script>
+          <div class='col-md-4 text-center'> 
+            <a href="app.html#sl/#lahko"  style='color: white;'> 
+              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ENOSTAVEN NAČIN </button> 
+            </a>
+          </div> 
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl/#pametno"  style='color: white;'> 
+              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ZAHTEVNEJŠI NAČIN </button> 
+            </a>
+          </div>
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl/#ugani"  style='color: white;'> 
+              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> UGANI ELEMENT </button> 
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </body>
   <script type="text/javascript">
+
+    localStorage.setItem("i_vprasanje", 0);
 
     var elementi = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
