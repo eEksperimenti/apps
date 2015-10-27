@@ -135,7 +135,7 @@
 		$.get(file,function(txt){
 
 	    	var lines = txt.split("\n");
-		   
+
 		    y1["faktor"] = lines[63 + zamik].split(":")[1];
 		    y2["faktor"] = lines[68 + zamik].split(":")[1];
 
@@ -157,7 +157,7 @@
     var src = (window.location).toString();
     var tezavnost = src.substring(src.lastIndexOf("#") + 1);
 
-    var remote = src.indexOf("ugotoviElement");
+    var remote = src.indexOf("eElementi");
 
     if(remote != -1){
 
@@ -165,7 +165,7 @@
     }
     else if(tezavnost == "lahko" && remote == -1){
       	
-   		preberi("default_params.txt", 0);
+   		preberi("default_params.txt", -3);
 	}
     
     function extractUnitFromLabel(label)
@@ -254,9 +254,17 @@
 
         var y_S5 = '</div></div>';                
 
-		$('#' + am.div_id1).html( y_S1 + "levaY" + y_S2 + "leva Y os" + y_S3 + "levaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="left-axis" value="" checked><b>Leva Y os (ordinata)</b></label></div>' + html.replace(/%1/g, '1') + y_S5);
+        var leva = "Leva ordinata";
+        var desna = "Desna ordinata";
+
+        if(src.indexOf("eElementi") != -1){
+        	leva = "Leva ordinata = Napetost";
+        	desna = "Desna ordinata = Tok";
+        }
+
+		$('#' + am.div_id1).html( y_S1 + "levaY" + y_S2 + leva + y_S3 + "levaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="left-axis" value="" checked><b> Leva Y os (ordinata)</b></label></div>' + html.replace(/%1/g, '1') + y_S5);
 		
-		$('#' + am.div_id2).html( y_S1 + "desnaY" + y_S2 + "desna Y os" + y_S3 + "desnaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="right-axis" value="" checked><b>Desna Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '2') + y_S5);
+		$('#' + am.div_id2).html( y_S1 + "desnaY" + y_S2 + desna + y_S3 + "desnaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="right-axis" value="" checked><b> Desna Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '2') + y_S5);
 
 		$('#' + am.div_id3).html(cb);
 
@@ -277,6 +285,10 @@
 			am.updateLabels();
 
 		});
+			
+			//am.update(true);
+			//am.updateLabels();
+
 		
 		$.each([y1,y2], function(index, value) {addElement(value)});
 		$.each([y1,y2], function(index, value) {am.initContainer(value)});
