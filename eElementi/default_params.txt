@@ -1,6 +1,6 @@
 xmin:0.0
 xmax:5.0
-trig_mode:0.000000
+trig_mode:1.000000
 trig_source:1.000000
 trig_edge:0.000000
 trig_delay:0.000000

@@ -157,6 +157,14 @@
 
       $("#izberiElement").css("display", "");
     }
+    else if(tezavnost == "ugani"){
+
+      $("#uganiElement").css("display", "");
+      $("#generator").parent().css("display", "none");
+      $("#gain").parent().css("display", "none");
+      $("#trigger").parent().css("display", "none");
+      $("#zavihki").find("li").eq(1).css("display", "none");
+    }
 
     //////////////  remote  ////////////////////
 
@@ -778,7 +786,14 @@
 
     function narisiKviz(){
 
-      var kviz = elementi(parseInt(getFirstCookie()));
+      var kviz;
+
+      if(tezavnost == "pametno"){
+        kviz = elementi(parseInt(getFirstCookie()));
+      }
+      else if(tezavnost == "lahko"){
+        kviz = elementi(parseInt(localStorage.getItem("kviz")));
+      }
 
       var k = $("#kviz .col-xs-12");
       
@@ -791,15 +806,7 @@
 
       if(lenCookie() != 0){
 
-        if(odgovori(prviVrednost).length <= (parseInt(localStorage.getItem("i_vprasanje")) + 1)){
-
-          $("#preveri").html("NASLEDNJI ELEMENT");
-          localStorage.setItem("i_vprasanje", 0);
-        }
-        else if(odgovori(prviVrednost).length > (parseInt(localStorage.getItem("i_vprasanje")) + 1)){
-
-          narisiKviz();
-        }
+        narisiKviz();
       }
       else{
 
@@ -807,7 +814,15 @@
 
         $("#preveri").css("display", "none");
       } 
-    }     
+    }   
+    else if(tezavnost == "lahko"){
+
+      $("#preveri").css("display", "none");
+    } 
+    else if("ugani"){
+
+      //nastavitveElementov(1, 0, 100000, 20000, 1/11, -2, 2, -0.015, 0.015, 500);
+    } 
 
     var naprej = false; 
 
@@ -816,7 +831,17 @@
     $("#preveri").on("click", function(){
       
       i_vprasanje = parseInt(localStorage.getItem("i_vprasanje"));
-      var resitve = odgovori(parseInt(getFirstCookie()));
+
+      var resitve;
+
+      if(tezavnost == "pametno"){
+        resitve = odgovori(parseInt(getFirstCookie()));
+      }
+      else if(tezavnost == "lahko"){
+        resitve = odgovori(parseInt(localStorage.getItem("kviz")));
+      }
+
+      $("#izberiElement").prop("disabled", true);
 
       if(!naprej && !konec){
 
@@ -856,18 +881,33 @@
           }
           else if(resitve.length <= (i_vprasanje + 1)){
 
+            $("#izberiElement").prop("disabled", false);
+
             if(parseInt(localStorage.getItem("pravilni")) >= Math.round(resitve.length/2)){
 
-              $("#kviz").find(".alert-success:last").html(
-                "Čestitamo ! Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj, zato lahko nadaljujete z naslednjim elementom."
-              );
-              $("#kviz").find(".alert-success:last").css("display", "");
-              $(this).html("NASLEDNJI ELEMENT");
-              
-              naprej = true;
+              if(tezavnost == "pametno"){
 
-              eraseCookie(parseInt(getFirstCookieName()));
-              nastaviElement();
+                $("#kviz").find(".alert-success:last").html(
+                  "Čestitamo ! Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj, zato lahko nadaljujete z naslednjim elementom."
+                );
+                $("#kviz").find(".alert-success:last").css("display", "");
+                $(this).html("NASLEDNJI ELEMENT");
+                
+                naprej = true;
+
+                eraseCookie(parseInt(getFirstCookieName()));
+                nastaviElement();
+              }
+              else if(tezavnost == "lahko"){
+
+                $("#kviz").find(".alert-success:last").html(
+                  "Čestitamo ! Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj. Če želite izboljšati svoj rezultat svoj rezultat, kviz ponovite, sicer pa nadaljujte z izbiro naslednjega elementa."
+                );
+                $("#kviz").find(".alert-success:last").css("display", "");
+                $(this).html("PONOVITE KVIZ");
+                
+                naprej = true;
+              }
 
               i_vprasanje = 0;
               localStorage.setItem("i_vprasanje", i_vprasanje);
@@ -890,9 +930,19 @@
                 meja = "vprašanj"
               }
 
-              $("#kviz").find(".alert-danger:last").html(
-                "Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj. Za nadaljevanje morate pravilno odgovoriti na vsaj " + Math.round(resitve.length/2) + " " + meja + ". Prosimo ponovite kviz."
-              );
+              if(tezavnost == "pametno"){
+
+                $("#kviz").find(".alert-danger:last").html(
+                  "Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj. Za nadaljevanje morate pravilno odgovoriti na vsaj " + Math.round(resitve.length/2) + " " + meja + ". Prosimo ponovite kviz."
+                );
+              }
+              else if(tezavnost == "lahko"){
+
+                $("#kviz").find(".alert-danger:last").html(
+                  "Pravilno ste odgovorili na " + localStorage.getItem("pravilni") + " od " + resitve.length + " vprašanj. Če želite izboljšati svoj rezultat svoj rezultat, kviz ponovite, sicer pa nadaljujte z izbiro naslednjega elementa."
+                );
+              }
+
               $("#kviz").find(".alert-danger:last").css("display", "");
 
               $(this).html("PONOVITE KVIZ");
@@ -973,7 +1023,7 @@
 
     $("#izberiElement").on("change", function(){
 
-      $(this).prop("disabled", "true");
+      $(this).prop("disabled", true);
 
       var element = $(this).find(":selected").text().replace(/^\s+|\s+$/g, '');
       var i_kviz = -1;
@@ -1016,15 +1066,72 @@
 
         var kviz = elementi(i_kviz*3);
 
+        localStorage.setItem("kviz", i_kviz*3);
+        localStorage.setItem("i_vprasanje", 0);
+
+        var prev = $("#preveri");
+
+        prev.html("PREVERI");
+        prev.css("display", "");
+        prev.css("background-color", "");
+        prev.addClass("btn-info");
+
         var k = $("#kviz .col-xs-12");
         k.html(kviz);
         k.find("input").css("margin-right", "15px");
         k.find(".vprasanje").css("margin-bottom", "10px");
+
+        $("#kviz").find(".alert-danger:last").css("display", "none");
+        $("#kviz").find(".alert-success:last").css("display", "none");
       }
       else{
 
         var k = $("#kviz .col-xs-12");
         k.html("");
+      }
+    });
+
+    var naslednji = false;
+
+    $("#ugani").on("click", function(){
+
+      if(naslednji){
+
+        $(this).html("PREVERI");
+        $(this).css("background-color", "");
+        $("#uganiElement").find("input[name=x]:checked").parent().html($("#uganiElement").find("input[name=x]:checked").parent().html());
+        $("#uganiElement").find("label").removeClass("alert-success");
+
+        naslednji = false;
+      }
+
+      if(params.local != null){
+
+        var el = $("#uganiElement").find("input[name=x]:checked");
+        var e = el.val();
+
+        el = el.parent();
+
+        if(typeof e != "undefined"){
+
+          $("#uganiElement").find("label").removeClass("alert-danger");
+
+          if(params.local.read_element == 0 && e == "u" || params.local.read_element == 1 && e == "k" || params.local.read_element == 2 && e == "t" || params.local.read_element == 3 && e == "d" ){
+
+            el.addClass("alert-success");
+            $(this).html("NASLEDNJI ELEMENT");
+            $(this).css("background-color", "#337ab7");
+
+            eraseCookie(parseInt(getFirstCookieName()));
+            nastaviElement();
+            nastavitveElementov(1, 0, 100000, 20000, 1/11, -2, 2, -0.015, 0.015, 500);
+
+            naslednji = true;
+          }
+          else{
+            el.addClass("alert-danger");
+          }
+        }
       }
     });
 
@@ -1778,7 +1885,7 @@
         $("#naslednjiObvestilo").find(".alert").eq(0).css("display", "none");
       }
 
-      if(prvic == 1 && tezavnost == "pametno"){
+      if(prvic == 1 && (tezavnost == "pametno" || tezavnost == "ugani")){
 
         nastaviElement();
 
@@ -3145,7 +3252,35 @@
   
   <div class="row" style="margin: 2em 2em 0 2em;">
     <div class="col-xs-1"></div>
-    <div class="col-xs-4">
+    <div class="col-xs-6">
+      <div class="row" style="display: none;" id="uganiElement">
+        <div class="col-xs-3">
+          Kateri element je povezan ?
+        </div>
+        <div class="col-xs-7">
+          <form role="form">
+            <label class="radio-inline" class="alert">
+              <input type="radio" class="radio" name="x" value="u" /> 
+              Upor
+            </label>
+            <label class="radio-inline" class="alert">
+              <input type="radio" class="radio" name="x" value="k" /> 
+              Kondenzator
+            </label>
+            <label class="radio-inline" class="alert">
+              <input type="radio" class="radio" name="x" value="t" /> 
+              Tuljava
+            </label>
+            <label class="radio-inline" class="alert">
+              <input type="radio" class="radio" name="x" value="d" /> 
+              Dioda
+            </label>
+          </form>
+        </div>
+        <div class="col-xs-2">
+          <button class="btn btn-info" id="ugani"> PREVERI </button>
+        </div>
+      </div>
       <div class="row">
         <select id="izberiElement" class="input-sm" style="display: none;">
           <option selected="selected">
@@ -3166,7 +3301,7 @@
         </select>
       </div>
     </div>
-    <div class="col-xs-6">
+    <div class="col-xs-4">
       <div class="col-xs-12" id="naslednjiObvestilo" style="padding: 0; height: 1em;">
         <div class="alert alert-danger text-center" style="display: none; padding: 0 1em;">
           Napetost na elementu je premajhna, da bi jo lahko dovolj natančno izmerili.
@@ -3176,9 +3311,7 @@
         </div>
       </div>
     </div>
-    <div class="col-xs-1">
-      
-    </div>
+    <div class="col-xs-1"></div>
   </div>
 
   <div class="container" style="padding-top: 0;">
