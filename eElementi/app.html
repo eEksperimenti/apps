@@ -812,6 +812,7 @@
 
         konec = true;
 
+        $("#konec").css("display", "");
         $("#preveri").css("display", "none");
       } 
     }   
@@ -821,6 +822,7 @@
     }
 
     var naprej = false; 
+    var naslednji = false;
 
     localStorage.setItem("pravilni", 0);
 
@@ -831,13 +833,18 @@
       var resitve;
 
       if(tezavnost == "pametno"){
-        resitve = odgovori(parseInt(getFirstCookie()));
+
+        if(lenCookie() == 0){
+          konec = true;
+        }
+        else{
+          resitve = odgovori(parseInt(getFirstCookie()));
+        }
       }
       else if(tezavnost == "lahko"){
         resitve = odgovori(parseInt(localStorage.getItem("kviz")));
+        $("#izberiElement").prop("disabled", true);
       }
-
-      $("#izberiElement").prop("disabled", true);
 
       if(!naprej && !konec){
 
@@ -890,9 +897,11 @@
                 $(this).html("NASLEDNJI ELEMENT");
                 
                 naprej = true;
+                naslednji = true;
 
-                eraseCookie(parseInt(getFirstCookieName()));
-                nastaviElement(true);
+                if(lenCookie() == 0){
+                  konec = true;
+                }
               }
               else if(tezavnost == "lahko"){
 
@@ -958,6 +967,13 @@
       }
       else if(naprej && !konec){
 
+        if(naslednji){
+
+          eraseCookie(parseInt(getFirstCookieName()));
+          nastaviElement(true);
+          naslednji = false;
+        }
+
         $("#kviz").find(".alert-danger:last").css("display", "none");
         $("#kviz").find(".alert-success:last").css("display", "none");
 
@@ -972,7 +988,10 @@
       }
       else if(konec){
 
+        $("#preveri").css("display", "none");
+        $("#konec").css("display", "");
 
+        $("#kviz").html("");
       }
     });
 
@@ -1065,46 +1084,74 @@
 
     $("#ugani").on("click", function(){
 
-      if(naslednji){
+      if(lenCookie() != 0){
 
-        $(this).html("PREVERI");
-        $(this).css("background-color", "");
-        $("#uganiElement").find("input[name=x]:checked").parent().html($("#uganiElement").find("input[name=x]:checked").parent().html());
-        $("#uganiElement").find("label").removeClass("alert-success");
+        if(naslednji){
 
-        eraseCookie(parseInt(getFirstCookieName()));
+          $(this).html("PREVERI");
+          $(this).css("background-color", "");
 
-        nastavitveElementov(false, parseInt(getFirstCookie()), 0, 100000, 20000, 1/11, -2, 2, -0.015, 0.015, 500);
-
-        nastaviElement(true);
-
-        naslednji = false;
-      }
-
-      if(params.local != null){
-
-        var el = $("#uganiElement").find("input[name=x]:checked");
-        var e = el.val();
-
-        el = el.parent();
-
-        if(typeof e != "undefined"){
-
+          $("#uganiElement").find("input[name=x]:checked").parent().html($("#uganiElement").find("input[name=x]:checked").parent().html());
+          $("#uganiElement").find("label").removeClass("alert-success");
           $("#uganiElement").find("label").removeClass("alert-danger");
+          $("#uganiElement").find("input").prop("disabled", false);
 
-          if(params.local.read_element == 0 && e == "u" || params.local.read_element == 1 && e == "k" || params.local.read_element == 2 && e == "t" || params.local.read_element == 3 && e == "d" ){
+          eraseCookie(parseInt(getFirstCookieName()));
 
-            el.addClass("alert-success");
-            $(this).html("NASLEDNJI ELEMENT");
-            $(this).css("background-color", "#337ab7");
+          if(lenCookie() != 0){
 
-            naslednji = true;
+            nastavitveElementov(false, parseInt(getFirstCookie()), 0, 100000, 20000, 1/11, -2, 2, -0.015, 0.015, 500);
+
+            nastaviElement(true);
           }
-          else{
-            el.addClass("alert-danger");
+
+          naslednji = false;
+        }
+
+        if(params.local != null){
+
+          var el = $("#uganiElement").find("input[name=x]:checked");
+          var e = el.val();
+
+          el = el.parent();
+
+          if(typeof e != "undefined"){
+
+            $("#uganiElement").find("label").removeClass("alert-danger");
+
+            if(params.local.read_element == 0 && e == "u" || params.local.read_element == 1 && e == "k" || params.local.read_element == 2 && e == "t" || params.local.read_element == 3 && e == "d" ){
+
+              el.addClass("alert-success");
+              $(this).html("NASLEDNJI ELEMENT");
+              $(this).css("background-color", "#337ab7");
+
+              $("#uganiElement").find("input").prop("disabled", "true");
+
+              naslednji = true;
+            }
+            else{
+              el.addClass("alert-danger");
+
+              $(this).html("NASLEDNJI ELEMENT");
+              $(this).css("background-color", "#337ab7");
+
+              $("#uganiElement").find("input").prop("disabled", "true");
+
+              naslednji = true;
+            }
           }
         }
       }
+      else{
+
+        $("#uganiElement").css("display", "none");
+        $("#konecUgibanja").css("display", "");
+      }
+    });
+
+    $("#konecUgibanja").find(".col-xs-3 button").on("click", function(){
+
+
     });
 
 
@@ -1813,7 +1860,7 @@
 
     if(params.local != null && stevec % 10 == 0){
 
-      if(params.local.gen_enable_ch1 != 0){
+      if(params.local.gen_enable_ch1 != 0 && tezavnost != "ugani"){
 
         premajhnaNapetost();
       }
@@ -1829,10 +1876,8 @@
         if(tezavnost == "ugani"){
           nastavitveElementov(false, 2, 0, 1000000, 10000, 2/11, -2, 2, -0.015, 0.015, 500);
         }
-
         prvic = 0;
       }
-
     }
 
     // Send params if there are any unsent changes
@@ -3269,6 +3314,13 @@
   <div class="row" style="margin: 2em 2em 0 2em;">
     <div class="col-xs-1"></div>
     <div class="col-xs-6">
+      <div class="text-center row alert alert-success" id="konec" style="display: none;">
+        Čestitamo ! Pravilno ste ugotovili vse elemente.
+      </div>
+      <div class="text-center row" id="konecUgibanja" style="display: none;">
+        <div class="col-xs-9"></div>
+        <div class="col-xs-3"><button class="btn btn-info"> ZAČNI ZNOVA </button></div>
+      </div>
       <div class="row" style="display: none;" id="uganiElement">
         <div class="col-xs-3">
           Kateri element je povezan ?
@@ -3487,13 +3539,13 @@
           <div  id="autoscale"  class="panel-collapse collapse"> 
             <div class="container">
 				<div class="row" style="margin: 4px">
-					<button id="btn_autoscale_y" class="btn btn-primary btn-block" data-autozoom="false" onclick="autoscaleY()">
+					<button id="btn_autoscale_y" class="btn btn-primary btn-block" data-autozoom="false" onclick="serverAutoScale()">
 						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
 					</button>
 				</div>
 				
 				<div class="row" style="margin: 4px">
-					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
+					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="autoscaleY()">
 						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
 					</button>
 				</div>
@@ -3612,7 +3664,7 @@
           </div>
         </div>
 		
-		<div class="panel panel-default">
+		    <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" href="#trigger">
