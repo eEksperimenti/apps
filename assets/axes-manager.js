@@ -158,8 +158,9 @@
     var tezavnost = src.substring(src.lastIndexOf("#") + 1);
 
     var remote = src.indexOf("eElementi");
+    var local = src.indexOf("eTok");
 
-    if(remote != -1){
+    if(remote != -1 || local != -1){
 
    		preberi("default_params.txt", -2);
     }
