@@ -204,16 +204,21 @@
 
 		if (am.yaxis2==false) y2.title_id=null;
 		
-		var html = "<form role='form' class='nastavitve'>\
-				<div class='form-group '>\
+		var imena = "";
+
+		if(src.indexOf("eElementi") == -1 && src.indexOf("eTok") == -1){
+        	
+        	imena += "<div class='form-group '>\
 				  <label for='velicina-y%1'> Veličina </label>\
 				  <input type='text' class='form-control' id='velicina-y%1'>\
 				</div>\
 				<div class='form-group'>\
 				  <label for='enota-y%1'> Enota </label>\
 				  <input type='text' class='form-control' id='enota-y%1'>\
-				</div>\
-				<div class='form-group'>\
+				</div>";
+        }
+
+		var html = "<form role='form' class='nastavitve'>" + imena + "<div class='form-group'>\
 				  <label for='faktor-y%1'>Faktor pretvorbe [a%1,b%1,c%1] (a%1*V1+b%1*V2+c%1)</label>\
 				  <input type='text' class='form-control' id='faktor-y%1'>\
 				</div>\
@@ -257,7 +262,7 @@
         var leva = "Leva ordinata";
         var desna = "Desna ordinata";
 
-        if(src.indexOf("eElementi") != -1){
+        if(src.indexOf("eElementi") != -1 || src.indexOf("eTok") != -1){
         	leva = "Leva ordinata = Napetost";
         	desna = "Desna ordinata = Tok";
         }
