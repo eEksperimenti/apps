@@ -16,15 +16,12 @@
 
   <body>
     <div class="headerwrapper">
-      <a style="padding: 10px 0 0 40px;" id="btn_exit" class="pull-left" href="/.."><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-      <a href="http://www.redpitaya.com">
-        <img src="/../assets/images/eEksperimenti_logo.png" class="logo"/>
-      </a>
+      <img src="/../assets/images/eEksperimenti_logo.png" class="logo"/>
     </div>
     <div class="bazaar-link">
     </div>
     <div class="pagewrapper">
-      <div class="appdescredpitaya container" >
+      <div class="appdescredpitaya container" id="linki">
         <div class="row">
           <div class="col-md-12 text-center">
             <h3> Izberite način izvajanja: </h3>
@@ -32,17 +29,17 @@
         </div>
         <div class="row" style="padding: 2em 0;">
           <div class='col-md-4 text-center'> 
-            <a href="app.html#sl/#lahko"  style='color: white;'> 
+            <a href="app.html#sl/#lahko"  style='color: white;' id="lahko"> 
               <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ENOSTAVEN NAČIN </button> 
             </a>
           </div> 
           <div class='col-md-4 text-center'>
-            <a href="app.html#sl/#pametno"  style='color: white;'> 
+            <a href="app.html#sl/#pametno"  style='color: white;' id="tezko"> 
               <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ZAHTEVNEJŠI NAČIN </button> 
             </a>
           </div>
           <div class='col-md-4 text-center'>
-            <a href="app.html#sl/#ugani"  style='color: white;'> 
+            <a href="app.html#sl/#ugani"  style='color: white;' id="ugani"> 
               <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> UGANI ELEMENT </button> 
             </a>
           </div>
@@ -52,69 +49,20 @@
   </body>
   <script type="text/javascript">
 
-    localStorage.setItem("i_vprasanje", 0);
+    var url = window.location.href.toString();
 
-    var elementi = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    if(url.indexOf("?") != -1){
 
-    if(getCookie("konec") == ""){
+      var index1 = url.indexOf("index");
+      var index2 = url.indexOf("?");
+    
 
-      setCookie("konec", "ne", 100);
-      shuffle(elementi);
+      var l = $("#linki").find(".col-md-4").find("a");
 
-      for(var i = 1; i <= elementi.length; i++){
-        setCookie(i, elementi[i - 1], 100);
+      for(var i = 0; i < l.length; i++){
+
+        l[i].href = url.substring(0, index1) + l[i].getAttribute("href") + url.substring(index2, url.length);
       }
-    }
-
-    if(getCookie("konec") == "da" || lenCookie() == 1){
-      shuffle(elementi);
-
-      for(var i = 1; i <= elementi.length; i++){
-        setCookie(i, elementi[i - 1], 100);
-      }
-    }
-
-    function getCookie(cname){
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i=0; i<ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0)==' ') 
-              c = c.substring(1);
-            if (c.indexOf(name) == 0) 
-              return c.substring(name.length, c.length);
-        }
-        return "";
-    }
-
-    function lenCookie(){
-
-      var ca = document.cookie.split(';');
-      var n = 0;
-
-      for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-
-        while (c.charAt(0)==' ') 
-          c = c.substring(1);
-
-        n++;
-      }
-        return n;
-    }
-
-    function setCookie(cname, cvalue, exdays){
-      var d = new Date();
-      d.setTime(d.getTime() + (exdays*24*60*60*1000));
-      var expires = "expires="+d.toUTCString();
-      document.cookie = cname + "=" + cvalue + "; " + expires;
-    }
-
-    function eraseCookie(cname){
-      var d = new Date();
-      d.setTime(d.getTime() - (2*24*60*60*1000));
-      var expires = "expires="+d.toUTCString();
-      document.cookie = cname + "=" + "42" + "; " + expires;
     }
 
     function shuffle(array){
@@ -135,6 +83,31 @@
 
       return array;
     }
+
+    localStorage.clear();
+    localStorage.setItem("i_vprasanje", 0);
+
+    $("#ugani").on("click", function(){
+
+      var elementi = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+      shuffle(elementi);
+
+      for(var i = 1; i <= elementi.length; i++){
+        localStorage.setItem(i, elementi[i - 1]);
+      }
+    });
+
+    $("#tezko").on("click", function(){
+
+      var elementi = [1, 2, 3, 4];
+
+      shuffle(elementi);
+
+      for(var i = 1; i <= elementi.length; i++){
+        localStorage.setItem(i, elementi[i - 1]);
+      }
+    });
 
   </script>
 </html>
