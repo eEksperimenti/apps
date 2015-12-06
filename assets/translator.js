@@ -30,6 +30,12 @@ $( document ).ready(function() {
 		{'sl':'Najmanjša napetost','en':'Min'},
 		{'sl':'Največja napetost','en':'Max'},
 		//{'sl':'Vršna napetost (Vpp)','en':'Amp (Vpp)'},
+		{'sl':'Spektralni analizator','en':'Spectrum Analyzer'},
+		{'sl':'Zadrži sliko kanala 1','en':'Freeze Ch1'},
+		{'sl':'Zadrži sliko kanala 2','en':'Freeze Ch2'},
+		{'sl':'Frekvenčni razpon','en':'Freq. range'},
+		{'sl':'Največja spektralna moč na kanalu 1','en':'Peak Ch1'},
+		{'sl':'Največja spektralna moč na kanalu 2','en':'Peak Ch2'},
 		{'sl':'Povprečna napetost','en':'Avg'},
 		{'sl':' Frekvenca','en':'Frequency'},
 		{'sl':'Frekvenca','en':'Freq'},
@@ -55,7 +61,7 @@ $( document ).ready(function() {
 		{'sl':'Napetostnega','en':'AUTO'},
 		{'sl':'Napetost','en':'Voltage'},
 		{'sl':'Jezik','en':'Language'},
-		{'sl':'','en':''},
+		{'sl':'Spektralna moč','en':'Power'},
 		{'sl':'','en':''},
     ];
     ///////////////////////////////////////////////////
