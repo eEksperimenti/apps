@@ -12,7 +12,7 @@
  * for more details on the languages used herein.
 -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -275,6 +275,8 @@
           ($('#btn_freezech2').data('checked') && datasets[1] !== undefined ? datasets[1] : null)
         ];
          
+
+        var label = $('#btn_ch1').text().split(" ");
         datasets = [];
         for(var i=0; i<dresult.datasets.g1.length; i++) {
           // Don't update data for frozen channels
@@ -283,7 +285,7 @@
           }
           else {
             dresult.datasets.g1[i].color = i;
-            dresult.datasets.g1[i].label = 'Channel ' + (i+1);          
+            dresult.datasets.g1[i].label = label[0]+ " " + (i+1);          
             datasets.push(dresult.datasets.g1[i]);
           }
         }
