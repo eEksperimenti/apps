@@ -1,1214 +1,160 @@
-<!-- $Id$
- *
- * Red Pitaya Generator & Oscilloscope client.
- *
- * Author: Dakus <info@eskala.eu>
- *         
- * (c) Red Pitaya  http://www.redpitaya.com
- *
- * This part of code is written in Javascript & HTML.
- * Please visit http://en.wikipedia.org/wiki/JavaScript
- *              http://en.wikipedia.org/wiki/HTML
- * for more details on the languages used herein.
--->
-<!DOCTYPE html>
-<html lang="sl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eSenzor</title>
-  <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
-  <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
-  <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
-  <script src="../assets/bootstrap-3.0.0/js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="../assets/highcharts.js"></script>
-  <script src="../assets/translator.js"></script>
-  <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-  </script>
-  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-  </script>
-  <script type="text/javascript">
-  
-  // Settings which can be modified
-   
-  var app_id = 'eSenzor';  
-  var root_url = '';
-  //var root_url = 'http://10.0.1.221';      // Test local
-  //var root_url = 'http://192.168.53.133';  // Test remote and local
-  //var root_url = 'http://192.168.1.100';   // Default RedPitaya IP
-  var start_app_url = root_url + '/bazaar?start=' + app_id;
-  var stop_app_url = root_url + '/bazaar?stop=';
-  var get_url = root_url + '/data';
-  var post_url = root_url + '/data';
-  var upload_url = root_url + '/upload_gen_ch';  // The channel number is added automatically
-  
-  var update_interval = 50;              // Update interval for PC, milliseconds
-  var update_interval_mobdev = 500;      // Update interval for mobile devices, milliseconds 
-  var request_timeout = 3000;            // Milliseconds
-  var long_timeout = 20000;              // Milliseconds
-  var meas_panel_dec = 5;                // Decimation for numerical measure panel to make it human readable
-  var meas_panel_dec_mobdev = 1;         // Decimation for numerical measure panel for mobile devices
-  var points_per_px = 5;                 // How many points per pixel should be drawn. Set null for unlimited (will disable client side decimation).
-  var xdecimal_places = 2;               // Number of decimal places for the xmin/xmax values. Maximum supported are 12.
-  var trigger_level_xdecimal_places = 4; // Number of decimal places for trigger level tooltip
-  var range_offset = 1;                  // Percentages
-  
-  var senzorji_podatki = [[],[],[],[]];
-  var t = 0;
-
-  // Settings which should not be modified
-  
-  var update_timer = null;
-  var zoompan_timer = null;
-  var downloading = false;
-  var sending = false;
-  var send_que = false;
-  var use_long_timeout = false;
-  var trig_dragging = false;
-  var touch_last_y = 0;
-  var user_editing = false;
-  var app_started = false;
-  var last_get_failed = false;
-  var refresh_counter = 0;
-  var autorun = 1;
-  var datasets = [];
-  var plot = null;
-  var params = {
-    original: null,
-    local: null
-  };
-  
-  // Default parameters - posted after server side app is started 
-  var def_params = {
-    en_avg_at_dec: 0
-  }; 
-
-
-  // On page loaded
-
-  $(function() {
-
-    // aplikacija s signali
-
-    $("#shrani").on("click", function(){
-      params.local.load_save_params = 3;
-
-      sendParams();
-    });
-
-    $("#nalozi").on("click", function(){
-      params.local.load_save_params = 2;
-
-      sendParams();
-    });
-
-    $('#senzorji_graf').highcharts({
-        chart: {
-          plotBackgroundColor: '#F2F2F2'
-        },
-        title: {
-          text: "",
-        },
-        xAxis: {
-            min: 0,
-            gridLineWidth: 1,
-            title: {
-                enabled: true,
-                useHTML: true,
-                text: '<h4> Čas [ms] </h4>'
-            },
-            showLastLabel: true
-        },
-        yAxis: {
-            plotLines: [{
-              value: 0,
-              width: 1,
-              color: '#808080'
-            }],
-            allowDecimals: true,
-            max: 4.0,
-            min: 0.0,
-            title: {
-              useHTML: true,
-              margin: 35,
-              text: '<h4> Vrednosti veličin </h4>'
-            }
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle'
-        },
-        series: [ {
-            useHTML: true,
-            name: '<h4> Veličina1 </h4>',
-            //type: 'scatter',
-            color: "#FF0000",
-            data: senzorji_podatki[0]
-        },
-        {
-            useHTML: true,
-            name: '<h4> Veličina2 </h4>',
-            //type: 'scatter',
-            color: "#FFFF00",
-            data: senzorji_podatki[1]
-        },
-        ],
-        tooltip: {
-            //headerFormat: '<b>{series[0].name}</b><br>',
-            pointFormat: 'x: {point.x}, y: {point.y}'
-        }
-    });
-
-    plot = true;
-
-    $('#start').on('click', function(){
-
-      var cas = $('#cas').val();
-      var st_meritev = $('#st_meritev').val();
-
-      $("#senzorji_graf").highcharts().reflow();
-
-      params.local.delta_T = parseFloat(cas);
-      params.local.num_of_meas = parseInt(st_meritev);
-      params.local.trig_mode = 0;
-
-      sendParams();
-
-    });
-
-    var formula = [];
-    var operatorji = [" + ", " - ", "\\cdot ", " / ", " ^ ", " \\log "];
-    var kanali = ["V_{1}", "V_{2}", "V_{3}", "V_{4}"];
-
-    var izpisFormule = function(){
-      var f = "$$ ";
-
-      for(var i = 0; i < formula.length; i++){
-        f += formula[i];
-      }
-      f += "$$";
-
-      $("#formula").empty();
-      $("#formula").text(f);
-      $("#formulaNapaka").css("display", "none");
-      $("#formulaNapaka .alert-danger").css("display", "none");
-
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    };
-
-    var opozorilo = function(vsebina){
-      $("#formulaNapaka").css("display", "");
-      $("#formulaNapaka .alert-danger").css("display", "");
-      $("#formulaNapaka .alert-danger").empty();
-      $("#formulaNapaka .alert-danger").append(vsebina);
-    };
-
-    var veljavnaFormula = function( formula ){
-      var uklepaji = 0;
-      var zaklepaji = 0;
-
-      for(var i = 0; i < formula.length; i++){
-        if(formula[i] == " ( "){
-          uklepaji++;
-        }
-        else if(formula[i] == " ) "){
-          zaklepaji++;
-        }
-      }
-
-      if(uklepaji == zaklepaji){
-        return 0;
-      }
-      else if( uklepaji < zaklepaji ){
-        return 1;
-      }
-      else if( uklepaji > zaklepaji){
-        return -1;
-      }
-      else{
-        return 99;
-      }
-    };
-
-    var veljavenCas = function(){
-      var cas = parseFloat($('#cas').val());
-
-      if(isNaN(cas)){
-        $(".cas_warning").css("display", "");
-        return false;
-      }
-
-      if(cas >= 0.01 && cas <= 10000000000){
-        $(".cas_warning").css("display", "none");
-
-        return true;
-      }
-      else{
-        $(".cas_warning").css("display", "");
-
-        return false;
-      }
-    };
-
-    var veljavneMeritve = function(){
-      var st_meritev = parseInt($('#st_meritev').val());
-
-      if(isNaN(st_meritev)){
-        $(".st_meritev_warning").css("display", "");
-        return false;
-      }
-
-      if(st_meritev >= 1 && st_meritev <= 10000000){
-        $(".st_meritev_warning").css("display", "none");
-
-        return true;
-      }
-      else{
-        $(".st_meritev_warning").css("display", "");
-
-        return false;
-      }
-    };
-
-    var veljavenKanal = function(){
-
-      if($("#izbiraKanala option:selected").attr("id") == "k0"){
-        $(".izbira_kanala_warning").css("display", "");
-        return false;
-      }
-      else{
-        $(".izbira_kanala_warning").css("display", "none");
-        return true;
-      }
-    };
-
-    $("#prikaz").hover(function(){
-
-      if(formula.length > 0 && $("#izbiraKanala option:selected").attr("id") != "k5"){
-        $("#izbiraKanala").value = "k5";
-      }
-
-      if($("#nastavitve").hasClass("active")){
-        if(veljavnaFormula(formula) == 0 && veljavenCas() && veljavneMeritve() && veljavenKanal()){
-          $("#opozoriloObMenjaviZavihka").css("display", "none");
-          $("#opozoriloObMenjaviZavihka").empty();
-          $("#prikaz a").attr("data-toggle", "tab");
-        }
-        else if(!veljavenCas() && !veljavneMeritve() && !veljavenKanal()){
-          $("#prikaz a").attr("data-toggle", "");
-        }
-        else if(!veljavenCas() && !veljavenKanal()){
-          $("#prikaz a").attr("data-toggle", "");
-        }
-        else if(!veljavenCas() && !veljavneMeritve()){
-          $("#prikaz a").attr("data-toggle", "");
-        }
-        else if(!veljavneMeritve() && veljavenKanal()){
-          $("#prikaz a").attr("data-toggle", "");
-        }
-        else if(!veljavenCas()){
-          $("#prikaz a").attr("data-toggle", "");
-        }
-        else if(!veljavneMeritve()){
-          $("#prikaz a").attr("data-toggle", "");
-        }
-        else if(!veljavenKanal()){
-          $("#prikaz a").attr("data-toggle", "");
-        }
-        else if(veljavnaFormula(formula) == 1){
-          $("#opozoriloObMenjaviZavihka").css("display", "");
-          $("#opozoriloObMenjaviZavihka").empty();
-          $("#opozoriloObMenjaviZavihka").text("V formuli je preveč zaklepajev ali pa premalo uklepajev. Pred začetkom meritev je potrebno formulo popraviti.");
-          $("#prikaz a").attr("data-toggle", "");
-
-          veljavneMeritve();
-          veljavnaFormula();
-        }
-        else if(veljavnaFormula(formula) == -1){
-          $("#opozoriloObMenjaviZavihka").css("display", "");
-          $("#opozoriloObMenjaviZavihka").empty();
-          $("#opozoriloObMenjaviZavihka").text("V formuli je premalo zaklepajev ali pa preveč uklepajev. Pred začetkom meritev je potrebno formulo popraviti.");
-          $("#prikaz a").attr("data-toggle", "");
-
-          veljavneMeritve();
-          veljavnaFormula();
-        }
-      }
-    });
-
-    $("#meritve").hover(function(){
-      if($("#nastavitve").hasClass("active")){
-        if(veljavnaFormula(formula) == 0 && veljavneMeritve() && veljavenCas() && veljavenKanal()){
-          $("#opozoriloObMenjaviZavihka").css("display", "none");
-          $("#opozoriloObMenjaviZavihka").empty();
-          $("#meritve a").attr("data-toggle", "tab");
-        }
-        else if(!veljavenCas() && !veljavneMeritve() && !veljavenKanal()){
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(!veljavenCas() && !veljavenKanal()){
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(!veljavenCas() && !veljavneMeritve()){
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(!veljavneMeritve() && veljavenKanal()){
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(!veljavenCas()){
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(!veljavneMeritve()){
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(!veljavenKanal()){
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(veljavnaFormula(formula) == 1){
-          $("#opozoriloObMenjaviZavihka").css("display", "");
-          $("#opozoriloObMenjaviZavihka").empty();
-          $("#opozoriloObMenjaviZavihka").text("V formuli je preveč zaklepajev ali pa premalo uklepajev. Pred začetkom meritev je potrebno formulo popraviti.");
-          $("#meritve a").attr("data-toggle", "");
-        }
-        else if(veljavnaFormula(formula) == -1){
-          $("#opozoriloObMenjaviZavihka").css("display", "");
-          $("#opozoriloObMenjaviZavihka").empty();
-          $("#opozoriloObMenjaviZavihka").text("V formuli je premalo zaklepajev ali pa preveč uklepajev. Pred začetkom meritev je potrebno formulo popraviti.");
-          $("#meritve a").attr("data-toggle", "");
-        }
-      }
-    });
-
-    $("#uklepaj").on("click", function(){
-      if(operatorji.indexOf(formula[formula.length - 1]) != -1 || formula.length == 0 || formula[formula.length - 1] == " ( "){
-
-        formula[formula.length] = " ( ";
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred uklepajem mora stati operator.");
-      }
-    });
-
-    $("#zaklepaj").on("click", function(){
-      if(kanali.indexOf(formula[formula.length - 1]) != -1 || !isNaN(formula[formula.length - 1]) || formula[formula.length - 1] == " ) "){
-
-        formula[formula.length] = " ) ";
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred zaklepajem mora stati kanal ali konstanta.");
-      }
-    });
-
-    $("#izbrisi").on("click", function(){
-      formula.pop();
-
-      izpisFormule();
-    });
-
-    $("#izbrisiVse").on("click", function(){
-      formula = [];
-
-      izpisFormule();
-    });
-
-    $("#logaritem").on("click", function(){
-      if(operatorji.indexOf(formula[formula.length - 1]) != -1 ){
-        formula[formula.length] = " \\log ";
-
-        izpisFormule();
-      }
-      else if( operatorji.indexOf(formula[formula.length - 2]) != -1 && !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " \\log ";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred logaritmom mora stati operator.");
-      }
-    });
-
-    $("#potenca").on("click", function(){
-      if(kanali.indexOf(formula[formula.length - 1]) != -1 || formula[formula.length - 1] == " ) " || !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " ^ ";
-
-        izpisFormule();
-      }
-      else if( operatorji.indexOf(formula[formula.length - 2]) != -1 && !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " ^ ";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro operatorja morate izbrati kanal.");
-      }
-    });
-
-    $("#deljeno").on("click", function(){
-      if(kanali.indexOf(formula[formula.length - 1]) != -1 || formula[formula.length - 1] == " ) " || !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " / ";
-
-        izpisFormule();
-      }
-      else if( operatorji.indexOf(formula[formula.length - 2]) != -1 && !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " / ";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro operatorja morate izbrati kanal.");
-      }
-    });
-
-    $("#krat").on("click", function(){
-      if(kanali.indexOf(formula[formula.length - 1]) != -1 || formula[formula.length - 1] == " ) " || !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = "\\cdot ";
-
-        izpisFormule();
-      }
-      else if( operatorji.indexOf(formula[formula.length - 2]) != -1 && !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = "\\cdot ";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro operatorja morate izbrati kanal.");
-      }
-    });
-
-    $("#minus").on("click", function(){
-      if(kanali.indexOf(formula[formula.length - 1]) != -1 || formula[formula.length - 1] == " ) " || !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " - ";
-
-        izpisFormule();
-      }
-      else if( operatorji.indexOf(formula[formula.length - 2]) != -1 && !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " - ";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro operatorja morate izbrati kanal.");
-      }
-    });
-
-    $("#plus").on("click", function(){
-      if(kanali.indexOf(formula[formula.length - 1]) != -1 || formula[formula.length - 1] == " ) " || !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " + ";
-
-        izpisFormule();
-      }
-      else if( operatorji.indexOf(formula[formula.length - 2]) != -1 && !isNaN(formula[formula.length - 1])){
-        formula[formula.length] = " + ";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro operatorja morate izbrati kanal.");
-      }
-    });
-
-    $("#kanal1").on("click", function(){
-      if(operatorji.indexOf(formula[formula.length - 1]) != -1 || !isNaN(formula[formula.length - 1]) || formula.length == 0 || formula[formula.length - 1] == " ( "){
-        formula[formula.length] = "V_{1}";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro kanala morate izbrati konstanto ali operator.");
-      }
-    });
-
-    $("#kanal2").on("click", function(){
-      if(operatorji.indexOf(formula[formula.length - 1]) != -1 || !isNaN(formula[formula.length - 1]) || formula.length == 0 || formula[formula.length - 1] == " ( "){
-        formula[formula.length] = "V_{2}";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro kanala morate izbrati konstanto ali operator.");
-      }
-    });
-
-    $("#kanal3").on("click", function(){
-      if(operatorji.indexOf(formula[formula.length - 1]) != -1 || !isNaN(formula[formula.length - 1]) || formula.length == 0 || formula[formula.length - 1] == " ( "){
-        formula[formula.length] = "V_{3}";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro kanala morate izbrati konstanto ali operator.");
-      }
-    });
-
-    $("#kanal4").on("click", function(){
-      if(operatorji.indexOf(formula[formula.length - 1]) != -1 || !isNaN(formula[formula.length - 1]) || formula.length == 0 || formula[formula.length - 1] == " ( "){
-        formula[formula.length] = "V_{4}";
-
-        izpisFormule();
-      }
-      else{
-        opozorilo("Pred izbiro kanala morate izbrati konstanto ali operator.");
-      }
-    });
-
-    $("#dodajKonstanto").on("click", function(){
-      $("#formulaNapaka .alert-danger").css("display", "none");
-
-      if(!isNaN(parseFloat($("#konstanta").val())) && (operatorji.indexOf(formula[formula.length - 1]) != -1 || formula.length == 0)){
-        formula[formula.length] = parseFloat($("#konstanta").val());
-
-        izpisFormule();
-      }
-      else if(formula[formula.length - 1] == " ( "){
-
-        formula[formula.length] = parseFloat($("#konstanta").val());
-        izpisFormule();
-      }
-      else if(isNaN(parseFloat($("#konstanta").val()))){
-        opozorilo("Vnesite veljavno konstanto.");
-      }
-      else if( operatorji.indexOf(formula[formula.length - 1]) == -1){
-        opozorilo("Pred konstanto vnesite operator.");
-      }
-      $("#konstanta").val("");
-    });
-
-
-
-
-    /////////////////////// osnovna aplikacija  ///////////////////////////
-    
-    // Show different buttons on touch screens    
-    if(window.ontouchstart === undefined) {}
-    else {
-      update_interval = update_interval_mobdev;
-      meas_panel_dec = meas_panel_dec_mobdev;
-    }
-    
-    // Add application ID in the message from modal popup
-    $('.app-id').text(app_id);
-    
-    // Disable all controls until the params state is loaded for the first time 
-    /*$('input, select, button', '.container').prop('disabled', true);*/
-          
-    // Modals
-    
-    $('#modal_err, #modal_app').modal({ show: false, backdrop: 'static', keyboard: false });
-    $('#modal_upload').modal({ show: false });
-    
-    // Load first data
-    updateGraphData();
-    
-    // Stop the application when page is unloaded
-    window.onbeforeunload = function() { 
-      $.ajax({
-        url: stop_app_url,
-        async: false
-      });
-    };
-            
-  });
-  
-  function startApp() {
-	
-    $.get(
-      start_app_url
-    )
-    .done(function(dresult) {
-      if(dresult.status == 'ERROR') {
-        showModalError((dresult.reason ? dresult.reason : 'Could not start the application.'), true);
-      }
-      else {
-        $.post(
-          post_url, 
-          JSON.stringify({ datasets: { params: def_params } })
-        )
-        .done(function(dresult) {
-          app_started = true;
-          updateGraphData();      
-        })
-        .fail(function() {
-          showModalError('Could not initialize the application with default parameters.', false, true);
-        });
-      }
-    })
-    .fail(function() {
-      showModalError('Could not start the application.', true);
-    });
-  }
-  
-  function showModalError(err_msg, retry_btn, restart_btn, ignore_btn) {
-    var err_modal = $('#modal_err');
-    
-    err_modal.find('#btn_retry_get')[retry_btn ? 'show' : 'hide']();
-    err_modal.find('.btn-app-restart')[restart_btn ? 'show' : 'hide']();
-    err_modal.find('#btn_ignore')[ignore_btn ? 'show' : 'hide']();
-    err_modal.find('.modal-body').html(err_msg);
-    err_modal.modal('show');
-  }   
-  
-  function updateGraphData() {
-  
-    if(downloading) {
-      return;
-    }
-    if(update_timer) {
-      clearTimeout(update_timer);
-      update_timer = null;
-    }
-    downloading = true;
-
-    // Send params if there are any unsent changes
-    sendParams();
-
-    var arun_before_ajax = autorun;
-    var long_timeout_used = use_long_timeout;
-    
-    var change1 = 0;
-
-    if(params.local != null){
-      change1 = params.local.change;
-    }
-
-    $.ajax({
-      url: get_url,
-      timeout: (use_long_timeout ? long_timeout : request_timeout),
-      cache: false
-    })
-    .done(function(dresult) {
-      last_get_failed = false;
-      
-      if(dresult.status === 'ERROR') {
-        if(! app_started) {
-          startApp();
-        }
-        else {
-          showModalError((dresult.reason ? dresult.reason : 'Application error.'), true, true);
-        }
-      }
-      else if(dresult.datasets !== undefined && dresult.datasets.params !== undefined) {
-        // Check if the application started on the server is the same as on client
-        if(app_id !== dresult.app.id) {
-          if(! app_started) {
-            startApp();
-          }
-          else {
-            $('#new_app_id').text(dresult.app.id);
-            $('#modal_app').modal('show');
-          }
-          return;
-        }
-        
-        app_started = true;
-      
-        // Check if trigger mode (which may switch autorun) was changed during ajax request
-        var arun_after_ajax = autorun;
-        
-        datasets = [];
-		    var t_channel=$('#t-channel').text();
-
-        for(var i = 0; i < dresult.datasets.g1.length; i++) {
-          dresult.datasets.g1[i].color = i;
-          dresult.datasets.g1[i].label = t_channel + (i+1);          
-          datasets.push(dresult.datasets.g1[i]);
-        }
-
-        // Apply the params state received from server if not in edit mode
-        if(! user_editing) {
-          loadParams(dresult.datasets.params);
-            
-            // Restore the autorun value modified by loadParams 
-          if(arun_before_ajax != arun_after_ajax) {
-              autorun = arun_after_ajax; 
-          }
-        }
-
-        // nova vrednost senzorja
-        if(params.local != null){
-          if(params.local.change != change1){
-            getData();
-          }
-        }
-        
-        if(autorun || dresult.status === 'AGAIN') {
-          
-          update_timer = setTimeout(function() {
-            updateGraphData();
-          }, update_interval);
-        }
-      }
-      else {
-        showModalError('Wrong application data received.', true, true);
-      }
-    })
-    .fail(function(jqXHR, textStatus, errorThrown) {
-      if(last_get_failed) {
-        showModalError('Data receiving failed.<br>Error status: ' + textStatus, true, true);
-        last_get_failed = false;
-      }
-      else {
-        last_get_failed = true;
-        downloading = false;
-        updateGraphData();  // One more try
-      }
-    })
-    .always(function() {
-      if(! last_get_failed) {
-        downloading = false;        
-      }
-      
-      if(long_timeout_used) {
-        use_long_timeout = false;
-      }
-    });
-  }
-  
-  function loadParams(orig_params) {
-    if(! $.isPlainObject(orig_params)) {
-      return;
-    }
-    
-    // Same data in local and original params
-    params.original = $.extend({}, orig_params);
-    params.local = $.extend({}, params.original);
-
-    // Autorun if trigger mode is Auto(0) or Normal(1), stop if it is Single(2)
-    autorun = (params.original.trig_mode == 2 ? 0 : 1);
-  }
-  
-  function isParamChanged() {
-    if(params.original) {
-      for(var key in params.original) {
-        if(params.original[key] != params.local[key]) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  
-  function sendParams(refresh_data, force_send, single_btn) {
-    if(sending || (force_send !== true && !isParamChanged())) {
-      send_que = sending;
-      return;
-    }
-    
-    var auto_flag = params.local.auto_flag;  // Keep the value of auto_flag, because in POST response it is always 0
-    sending = true;
-    params.local.single_btn = (single_btn === true ? 1 : 0);
-    use_long_timeout = !!auto_flag;
-  
-    $.ajax({
-      type: 'POST',
-      url: post_url,
-      data: JSON.stringify({ datasets: { params: params.local } }),
-      timeout: (use_long_timeout ? long_timeout : request_timeout),
-      cache: false
-    })
-    .done(function(dresult) {
-      // OK: Load the params received as POST result
-      if(dresult.datasets !== undefined && dresult.datasets.params !== undefined) {
-      
-        loadParams(dresult.datasets.params);
-        
-        if(refresh_data && !downloading) {
-          updateGraphData();
-        }
-
-      }
-      else if(dresult.status == 'ERROR') {
-        showModalError((dresult.reason ? dresult.reason : 'Error while sending data (E1).'), false, true, true);
-        send_que = false;
-      }
-      else {
-        showModalError('Error while sending data (E2).', false, true, true);
-      }
-
-
-    })
-    .fail(function() {
-      showModalError('Error while sending data (E3).', false, true, true);
-    })
-    .always(function() {
-      sending = false;
-      user_editing = false;
-      
-      if(send_que) {
-        send_que = false;
-        setTimeout(function(refresh_data) {
-          sendParams(refresh_data);
-        }, 100);
-      }
-    });
-  }
-  
-  function getData(from, to) {
-
-    var z = 0;
-    var cas = parseFloat($('#cas').val());
-    var ustavi = false;
-
-    for(var i = 0; i < 4; i++){
-
-      for(var j = 0; j < 512; j++) {
-
-        if(datasets[0].data[j][1] >= -50){
-          
-          if(i == 0){
-            senzorji_podatki[0].push([t, datasets[0].data[j][1]]);
-          }
-          else if(i == 1){
-            senzorji_podatki[1].push([t, datasets[0].data[j + 512][1]]);
-          }
-          else if(i == 2){
-            senzorji_podatki[2].push([t, datasets[1].data[j][1]]);
-          }
-          else if(i == 3){
-            senzorji_podatki[3].push([t, datasets[1].data[j + 512][1]]);
-          }
-
-          t += cas;
-        }
-        else{
-          ustavi = true;
-          break;
-        }
-
-        /*$('#tabela_signalov').append(
-
-          "<div class='row' style='border-bottom: solid 1px #D3D3D3;'> <div class='col-xs-3 text-center'>" + t + "</div><div class='col-xs-3 text-center'>" + datasets[0].data[i][1] + "</div><div class='col-xs-3 text-center'></div><div class='col-xs-3 text-center'></div>"
-        );*/
-      }
-
-      if(ustavi){
-        break;
-      }
-    }
-
-    $("#senzorji_graf").highcharts().series[0].setData(senzorji_podatki[0], true);
-    $("#senzorji_graf").highcharts().series[1].setData(senzorji_podatki[1], true);
-  }
-  
-  function initPlot(init_params) {}
-  function onDropdownChange(that, param_name, do_get) {}
-  function filterData(dsets, points) {}
-  function addTriggerDataSet(dsets) {}
-  function runStop() {}
-  function singleUpdate() {}
-  function redrawPlot() {}
-  function setVisibleChannels(btn) {}
-  function autoscaleY() {}
-  function setAvgAtDec() {}
-  function resetZoom() {}
-  function updateZoom() {}
-  function selectTool(toolname) {}
-  function enableZoomInSelection() {}
-  function enableZoomOut() {}
-  function enablePanning() {}
-  function mouseDownMove(that, evt) {}
-  function mouseUpOut(evt) {}
-  function updateTriggerSlider(y, update_input) {}
-  function updateRanges() {}
-  function getNearestRanges(number) {}
-  function serverAutoScale() {}
-  function postGenSingle(channel) {}  
-  function getLocalDecimalSeparator() {}
-  function parseLocalFloat(num) {}
-  function floatToLocalString(num) {}
-  function shortenFloat(value) {}
-  
-  </script>
-  <script src="../assets/redpitaya.custom.js"></script>
-</head>
-<body>
-  <div class="header">
-      <div class="container">
-        <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-        <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
-        <h2 class="page-title pull-left"> eSenzor </h2>
-        <!-- <a href='#sl' class='translate' style ="float: right"">sl</a>
-        <a href='#en' class='translate' style ="float: right">en</a> -->
-      </div>
-  </div>
-  
-  <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="modal_err_label">Application error</h4>
-        </div>
-        <div class="modal-body"></div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default btn-close-modal" id="btn_ignore">Ignore</button>
-          <button type="button" class="btn btn-default" id="btn_retry_get">Retry</button>
-          <button type="button" class="btn btn-primary btn-app-restart">Restart</button>
-        </div>
-      </div>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/../style.css" type="text/css" />
+    <link rel="stylesheet" href="../assets/bootstrap-3.0.0/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="../assets/style.css" type="text/css" />
+    <link rel="stylesheet" href="../assets/bootstrap-3.0.0/css/bootstrap.min.css" type="text/css" />
+    <!--[if IE]>
+      <link rel="stylesheet" href="./ie9.css" type="text/css" />
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+    <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
+    <title> eEksperimenti </title>
+  </head>
+
+  <body>
+    <div class="headerwrapper">
+      <img src="/../assets/images/eEksperimenti_logo.png" class="logo"/>
     </div>
-  </div>
-  <div id="modal_app" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_app_label" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="modal_app_label">Application stopped</h4>
-        </div>
-        <div class="modal-body">
-          The <strong><span class="app-id"></span></strong> application was stopped. The current started application is <strong><span id="new_app_id"></span></strong>.<br />
-          Do you want to switch to newly started application or to restart <strong><span class="app-id"></span></strong>?
-        </div>
-        <div class="modal-footer">
-          <a href="/index.html" class="btn btn-danger pull-left">Exit app</a>
-          <button type="button" class="btn btn-default" id="btn_switch_app">Switch</button>
-          <button type="button" class="btn btn-primary btn-app-restart">Restart</button>
-        </div>
-      </div>
+    <div class="bazaar-link">
     </div>
-  </div>
-
-    <div class="container">
-      <button class="btn btn-default btn-info" style="float: left; margin-top: 15px; color: white;" id="shrani"> SHRANI NASTAVITVE </button>
-      <button class="btn btn-default btn-info" style="float: left; margin-top: 15px; color: white; margin-left: 15px;" id="nalozi"> NALOŽI NASTAVITVE </button>
-      <div class="dropdown dropdown-menu-right" style="float: right; margin-right: 70px; margin-top: 15px; color: #FFF; ">
-          <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
-          <span class="caret" ></span></button>
-          </button>
-          <ul class="dropdown-menu">
-          <li><a href="#en" class='translate' >en</a></li>
-          <li><a href="#sl" class='translate' >sl</a></li>
-          </ul>
-        </div>
-    </div>
-
-    <div class="container" style="padding-top: 1em; padding-bottom: 5em; margin-bottom: 5em;">
-      <div class="row">
-        <ul class="nav nav-tabs">
-          <li class="active" id="nastavitve" style="width: 33%;" ><a class="text-center" href="#nastavi" aria-controls="nastavi" role="tab" data-toggle="tab"> NASTAVITVE </a></li>
-          <li id="prikaz" style="width: 33%;"><a class="text-center" href="#prikazi" aria-controls="prikazi" role="tab" data-toggle="tab"> GRAF </a></li>
-          <li id="meritve" style="width: 34%;"><a class="text-center" href="#meri" aria-controls="meri" role="tab" data-toggle="tab"> MERITVE </a></li>
-        </ul>
-      </div>
-      <div class="tab-content row" style="padding: 2em 5em 5em 5em; margin-bottom: 5em;">
-        <div role="tabpanel" class="tab-pane fade in active" id="nastavi" style="padding-top: 1em;">
-          <div class="panel-group">
-            <div class="panel panel-default">
-              <a data-toggle="collapse" data-target="#collapseOne" style="color: black; text-decoration: none; cursor: pointer;">
-                <div class="panel-heading" style="background-color: rgb(242, 242, 242);">
-                  <h4 class="panel-title text-center">
-                   Časovni potek merjenja 
-                  </h4>
-                </div>
-              </a>
-              <div id="collapseOne" class="panel-collapse collapse in">
-                <div class="panel-body" style="padding-bottom: 0;">
-                  <div class="row text-center alert alert-danger" id="opozoriloObMenjaviZavihka" style="display: none; margin: 0 2em 2em 2em;"></div>
-                  <div class="row form-inline" style="padding: 1em 1em 0 1em;">
-                    <div class="col-xs-6">
-                      ena meritev na vsakih
-                      <input type="number" id="cas" min="1" max="100000000000" style="margin: 0 2em;"> ms
-                    </div>
-                    <div class="col-xs-6">
-                      <span style="padding-left: 2em;"> povprečenje meritev: </span>
-                      <form class="form-group"> 
-                        <input type="radio" style="margin-left: 1em;"> DA 
-                        <input type="radio" style="margin-left: 1em;"> NE 
-                      </form>
-                    </div>
-                  </div>
-                  <div class="row" style="padding: 1em 1em 1em 1em;">
-                    <div class="col-xs-4 alert alert-warning cas_warning text-center" style="display: none; margin: 0 2em;">
-                        Vpisana vrednost ni pravilna.
-                    </div>
-                    <div class="col-xs-4"></div>
-                    <div class="col-xs-4"></div>
-                  </div>  
-                  <div class="row form-inline" style="padding: 0 1em 1em 1em;">
-                    <div class="col-xs-4"> 
-                      število meritev
-                      <input type="number" id="st_meritev" min="1" max="10000000" style="margin-left: 5em;"> 
-                    </div>
-                    <div class="col-xs-4"></div>
-                    <div class="col-xs-4"></div>
-                  </div>      
-                  <div class="row" style="padding: 1em 1em 1em 1em;">
-                    <div class="col-xs-4 alert alert-warning st_meritev_warning text-center" style="display: none; margin: 0 2em;">
-                        Vpisana vrednost ni pravilna.
-                    </div>
-                    <div class="col-xs-4"></div>
-                    <div class="col-xs-4"></div>
-                  </div>
-                </div>
-              </div>
-            </div>    <!--  panel1  -->
-            <div class="panel panel-default">
-              <a data-toggle="collapse" data-target="#collapseTwo" style="color: black; text-decoration: none; cursor: pointer;">
-                <div class="panel-heading" style="background-color: rgb(242, 242, 242);">
-                  <h4 class="panel-title text-center">
-                   Opis količine 
-                  </h4>
-                </div>
-              </a>
-              <div id="collapseTwo" class="panel-collapse collapse">
-                <div class="panel-body" style="padding-bottom: 2em;">
-                  <div class="row text-center" style="padding: 0 4em 2em 8em;">
-                    V polja ime, simbol in enota vpišite oznake za količino, ki bodo vidne na grafu in v tabeli, količino pa določite s pomočjo gumbov, ki se nahajajo v zavihku Izračun količine.  
-                  </div>
-                  <div class="row text-center" style="padding: 0 0 0 0;">
-                    <div class="col-xs-2"></div>
-                    <div class="col-xs-3 text-center"> ime </div>
-                    <div class="col-xs-2 text-center"> simbol </div>
-                    <div class="col-xs-3 text-center"> enota </div>
-                    <div class="col-xs-2"></div>
-                  </div>
-                  <div class="row text-center" style="padding: 1em 0 1em 0;">
-                    <div class="col-xs-2"></div>
-                    <div class="col-xs-3 text-center"> <input style="width: 80%;"> </div>
-                    <div class="col-xs-2 text-center"> <input style="width: 80%;"> </div>
-                    <div class="col-xs-3 text-center"> <input style="width: 80%;"> </div>
-                    <div class="col-xs-2"></div>
-                  </div>
-                  <div class="row text-center">
-                    <button class="btn btn-default"> DODAJ </button>
-                  </div>
-                </div>
-              </div>
-            </div>    <!-- panel2 -->
-            <div class="panel panel-default">
-              <a data-toggle="collapse" data-target="#collapseThree" style="color: black; text-decoration: none; cursor: pointer;">
-                <div class="panel-heading" style="background-color: rgb(242, 242, 242);">
-                  <h4 class="panel-title text-center">
-                   Izračun količine
-                  </h4>
-                </div>
-              </a>
-              <div id="collapseThree" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <div class="row" style="padding: 1em 0 0 8em;">
-                        <div class="col-xs-12" id="formulaNapaka" style="display: none; padding-right: 3em;"> 
-                          <div class="col-xs-2"></div>
-                          <div class="col-xs-8 alert alert-danger text-center"></div>
-                          <div class="col-xs-2"></div>
-                        </div>
-                    </div>
-                    <div class="row text-center" style="padding-bottom: 1em;">
-                      S pritiskanjem na spodnje gumbe določite formulo, ki bo predstavljala izračun zgoraj določene količine.
-                    </div>
-                    <div class="row"> 
-                      <div class="col-xs-12 text-center"> 
-                        <div id="formula" class="row text-center" style="height: 2em; border: 2px solid rgb(221, 221, 221); font-size: 1.5em; padding: 0 4em 3em 1em; margin: 0 2em;"> </div> 
-                        <div class="row text-center" style="padding-top: 0.5em; margin-right: 1em;">
-                          <button class="btn btn-default" id="izbrisi"> IZBRIŠI ZADNJI ZNAK </button>
-                          <button class="btn btn-default" id="izbrisiVse" style="padding-left: 2em;"> IZBRIŠI CELOTNO FORMULO </button>
-                        </div>
-                      </div> 
-                    </div>
-                    <div class="row" style="padding-top: 3em;">
-                      <div class="col-xs-2"></div>
-                      <div class="col-xs-8">
-                        <div class="row" style="padding-top: 0.5em;">
-                          <div class="col-xs-3">
-                            <button class="btn btn-default" id="kanal1"> IZHOD1 ( V<sub>1</sub> ) </button>
-                          </div>
-                          <div class="col-xs-3">
-                            <button class="btn btn-default" id="kanal2"> IZHOD2 ( V<sub>2</sub> ) </button>
-                          </div>
-                          <div class="col-xs-3">
-                            <button class="btn btn-default" id="kanal3"> IZHOD3 ( V<sub>3</sub> ) </button>
-                          </div>
-                          <div class="col-xs-3">
-                            <button class="btn btn-default" id="kanal4"> IZHOD4 ( V<sub>4</sub> ) </button>
-                          </div>
-                        </div>
-                        <div class="row text-center" style="padding-top: 0.5em;">
-                          <div class="row">
-                            Vnesite konstanto in pritisnite gumb dodaj:
-                          </div>
-                          <div class="row text-center" style="padding-top: 0.3em;">
-                            <input type="number" id="konstanta">
-                            <button class="btn btn-default" id="dodajKonstanto"> DODAJ </button>
-                          </div>
-                        </div>
-                        <div class="row text-center" style="padding-top: 1em;">
-                          <button class="btn btn-default" id="plus"> SEŠTEJ </button>
-                          <button class="btn btn-default" id="minus" style="margin-left: 1em;"> ODŠTEJ </button>
-                          <button class="btn btn-default" id="krat" style="margin-left: 1em;"> MNOŽI </button>
-                          <button class="btn btn-default" id="deljeno" style="margin-left: 1em;"> DELI </button>
-                          <button class="btn btn-default" id="potenca" style="margin-left: 1em;"> POTENCIRAJ </button>
-                          <button class="btn btn-default" id="logaritem" style="margin-left: 1em;"> LOGARITMIRAJ </button>
-                        </div>
-                        <div class="row text-center" style="padding-top: 1em;">
-                          <button class="btn btn-default" id="uklepaj" style="margin.left: 1em;"> UKLEPAJ </button>
-                          <button class="btn btn-default" id="zaklepaj" style="margin.left: 1em;"> ZAKLEPAJ </button>
-                        </div>
-                      </div>
-                      <div class="col-xs-2"></div>
-                  </div>
-                </div>
-              </div>
-            </div>    <!-- panel3 -->
-            <div class="panel panel-default">
-              <a data-toggle="collapse" data-target="#collapseFour" style="color: black; text-decoration: none; cursor: pointer;">
-                <div class="panel-heading" style="background-color: rgb(242, 242, 242);">
-                  <h4 class="panel-title text-center">
-                   Prikaz na grafu
-                  </h4>
-                </div>
-              </a>
-              <div id="collapseFour" class="panel-collapse collapse">
-                <div class="panel-body" style="padding-bottom: 1em;">
-                  <div class="row" style="padding: 2em 0;">
-                    <div class="col-xs-3"></div>
-                    <div class="col-xs-3 text-center"> 
-                      <div class="row"> os X: </div>
-                      <div class="row"> 
-                        <select id="osX">
-                          <option value="0"> Izberite </option>
-                          <option value="0"> Čas </option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-xs-3 text-center"> 
-                      <div class="row"> os Y: </div>  
-                      <div class="row">
-                        <select id="osY">
-                          <option value="0"> Izberite </option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-xs-3"></div>
-                  </div>
-                </div>
-              </div>
-            </div>    <!--  panel4  -->
+    <div class="pagewrapper">
+      <div class="appdescredpitaya container" id="linki">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <h3> Izberite senzor: </h3>
           </div>
         </div>
-        <div role="tabpanel" class="tab-pane fade row" id="meri" style="padding: 0;">
-          <div class="col-xs-2"></div>
-          <div class="col-xs-8" id="tabela_signalov" style="padding-top: 5em;">
-            <div class="row" style="border-bottom: solid 1px #D3D3D3; padding-bottom: 0.2em; font-size: 1em;">
-              <div class="col-xs-3 text-center"> ČAS (s) </div>
-              <div class="col-xs-3 text-center"> POSPEŠEK (m/s2) </div>
-              <div class="col-xs-3 text-center"> ULTRAZVOK </div>
-              <div class="col-xs-3 text-center"> MAGNETNO POLJE </div>
-            </div>
+        <div class="row" style="padding: 2em 0;">
+          <div class='col-md-4 text-center'> 
+            <a href="app.html#sl"  style='color: white;' id="pospesek"> 
+              <button style= 'height: 4em; width: 80%; background: #A5D3D8; border-radius:5%; border:none;'> SENZOR POSPEŠKA </button> 
+            </a>
+          </div> 
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl"  style='color: white;' id="magnet"> 
+              <button style= 'height: 4em; width: 80%; background: #A5D3D8; border-radius:5%; border:none;'> SENZOR MAGNETNEGA POLJA </button> 
+            </a>
           </div>
-          <div class="col-xs-2"></div>
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl"  style='color: white;' id="temperatura"> 
+              <button style= 'height: 4em; width: 80%; background: #A5D3D8; border-radius:5%; border:none;'> SENZOR TEMPERATURE </button> 
+            </a>
+          </div>
         </div>
-        <div role="tabpanel" class="tab-pane fade row" id="prikazi">
-          <div class="col-xs-12 text-center" style="padding: 1em 0 1em 0;">
-            <button class="btn btn-default" id="start" style="margin-left: 2em;"> ZAČNI </button>
-            <button class="btn btn-default" id="ustavi" style="margin-left: 2em;"> PAUZA </button>
-            <button class="btn btn-default" id="koncaj" style="margin-left: 2em;"> KONČAJ </button>
-            <button class="btn btn-default" id="zacni" style="margin-left: 2em;"> ZAČNI NOVO MERITEV </button>
+        <div class="row" style="padding: 0 0 2em 0;">
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl"  style='color: white;' id="ultrazvok"> 
+              <button style= 'height: 4em; width: 80%; background: #A5D3D8; border-radius:5%; border:none;'> SENZOR ULTRAZVOKA </button> 
+            </a>
           </div>
-          <div class="col-xs-12" style="padding: 0;">
-            <div id="senzorji_graf" class="center-block" style="width: 70em; height: 30em; min-width: 30em; padding-top: 2em; margin: 0 auto;"></div>
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl"  style='color: white;' id="svetloba"> 
+              <button style= 'height: 4em; width: 80%; background: #A5D3D8; border-radius:5%; border:none;'> SENZOR SVETLOBE </button> 
+            </a>
+          </div>
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl"  style='color: white;' id="tlak"> 
+              <button style= 'height: 4em; width: 80%; background: #A5D3D8; border-radius:5%; border:none;'> SENZOR TLAKA </button> 
+            </a>
           </div>
         </div>
       </div>
     </div>
   </body>
+  <script type="text/javascript">
+
+    sessionStorage.clear();
+
+    function dodajKolicinoVjson(prvic, lastnost, vrednost){
+
+      var kolicine = sessionStorage.kolicine;
+      var steviloKolicin;
+
+      if(kolicine == null){
+
+        kolicine = [];
+        kolicine[0] = {};
+        kolicine[0][lastnost] = vrednost;
+
+        sessionStorage.setItem("kolicine", JSON.stringify(kolicine));
+        sessionStorage.setItem("steviloKolicin", 1);
+      }
+      else{
+
+        kolicine = JSON.parse(kolicine);
+        steviloKolicin = parseInt(sessionStorage.steviloKolicin);
+
+        if(prvic){
+
+          kolicine[steviloKolicin - 1] = {};
+          kolicine[steviloKolicin - 1][lastnost] = vrednost;
+        }
+        else{
+          kolicine[steviloKolicin - 1][lastnost] = vrednost;
+
+          if(lastnost === "formula"){
+            sessionStorage.setItem("steviloKolicin", parseInt(sessionStorage.getItem("steviloKolicin")) + 1);
+          }
+        }
+        sessionStorage.setItem("kolicine", JSON.stringify(kolicine));
+      }
+    }
+
+    $("#pospesek").on("click", function(){
+
+      dodajKolicinoVjson(true, "ime", "Pospešek");
+      dodajKolicinoVjson(false, "oznaka", "a");
+      dodajKolicinoVjson(false, "enota", "m/s2");
+      dodajKolicinoVjson(false, "formula", "V1");
+    });
+
+    $("#magnet").on("click", function(){
+
+      dodajKolicinoVjson(true, "ime", "Magnetno polje");
+      dodajKolicinoVjson(false, "oznaka", "B");
+      dodajKolicinoVjson(false, "enota", "mT");
+      dodajKolicinoVjson(false, "formula", "V1");
+    });
+
+    $("#temperatura").on("click", function(){
+
+      dodajKolicinoVjson(true, "ime", "Temperatura");
+      dodajKolicinoVjson(false, "oznaka", "T");
+      dodajKolicinoVjson(false, "enota", "&#8451");
+      dodajKolicinoVjson(false, "formula", "V1");
+    });
+
+    $("#ultrazvok").on("click", function(){
+
+      dodajKolicinoVjson(true, "ime", "Ultrazvok");
+      dodajKolicinoVjson(false, "oznaka", "Napetost");
+      dodajKolicinoVjson(false, "enota", "mV");
+      dodajKolicinoVjson(false, "formula", "V1");
+    });
+
+    $("#svetloba").on("click", function(){
+
+      dodajKolicinoVjson(true, "ime", "Osvetljenost");
+      dodajKolicinoVjson(false, "oznaka", "E");
+      dodajKolicinoVjson(false, "enota", "lux");
+      dodajKolicinoVjson(false, "formula", "V1");
+    });
+
+    $("#tlak").on("click", function(){
+
+      dodajKolicinoVjson(true, "ime", "Tlak");
+      dodajKolicinoVjson(false, "oznaka", "p");
+      dodajKolicinoVjson(false, "enota", "mbar");
+      dodajKolicinoVjson(false, "formula", "V1");
+    });
+
+    $("#senzor").on("click", function(){
+
+      sessionStorage.setItem("poljubno", "1");
+    });
+
+  </script>
 </html>
