@@ -203,7 +203,7 @@
 		
     am.init=function(){
 
-		if (am.yaxis2==false) y2.title_id=null;
+		if (am.yaxis2 == false) y2.title_id = null;
 		
 		var imena = "";
 
@@ -268,9 +268,9 @@
         	desna = "Desna ordinata = Tok";
         }
 
-		$('#' + am.div_id1).html( y_S1 + "levaY" + y_S2 + leva + y_S3 + "levaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="left-axis" value="" checked><b> Leva Y os (ordinata)</b></label></div>' + html.replace(/%1/g, '1') + y_S5);
+		$('#' + am.div_id1).html( y_S1 + "levaY" + y_S2 + leva + y_S3 + "levaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="left-axis" value="" checked><b> Leva ordinata </b></label></div>' + html.replace(/%1/g, '1') + y_S5);
 		
-		$('#' + am.div_id2).html( y_S1 + "desnaY" + y_S2 + desna + y_S3 + "desnaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="right-axis" value="" checked><b> Desna Y os (ordinata)</b></label></div>'+html.replace(/%1/g, '2') + y_S5);
+		$('#' + am.div_id2).html( y_S1 + "desnaY" + y_S2 + desna + y_S3 + "desnaY" + y_S4 + '<div class="checkbox"><label><input type="checkbox" class="axis-toggler" id="right-axis" value="" checked><b> Desna ordinata </b></label></div>'+html.replace(/%1/g, '2') + y_S5);
 
 		$('#' + am.div_id3).html(cb);
 
@@ -299,8 +299,15 @@
 		$.each([y1,y2], function(index, value) {addElement(value)});
 		$.each([y1,y2], function(index, value) {am.initContainer(value)});
 
-		y2.velicina = y1.velicina;
-		y2.enota = y1.enota;
+		if(src.indexOf("eElementi") != -1 || src.indexOf("eTok") != -1){
+
+			y2.velicina = "Tok";
+			y2.enota = "A";
+		}
+		else{
+			y2.velicina = y1.velicina;
+			y2.enota = y1.enota;
+		}
 
 		y2.alignTicksWithAxis = $('#alignTicksWithAxis');
 		am.update();
