@@ -62,6 +62,7 @@ $( document ).ready(function() {
 		{'sl':'Napetost','en':'Voltage'},
 		{'sl':'Jezik','en':'Language'},
 		{'sl':'Spektralna moč','en':'Power'},
+		{'sl':'Nastavitve','en':'Controls'},
 		{'sl':'','en':''},
     ];
     ///////////////////////////////////////////////////
