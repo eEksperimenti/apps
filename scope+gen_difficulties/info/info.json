@@ -1,6 +1,6 @@
 {
     "name": "Signalni generator in osciloskop s težavnostmi",
-    "version": "alpha",
-    "revision": "d3751f9",
-    "description": "A two channel waveform generator with integrated two channel time domain signal visualization system."
+    "version": "",
+    "revision": "",
+    "description": "Aplikacija za generiranje in prikaz signalov v osciloskopskem načinu delovanja."
 }
