@@ -16,7 +16,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spectrum Analyzer</title>
+  <title>eSpektralniAnalizator</title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
   <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
@@ -849,7 +849,18 @@
           </div>
         </div>
       </div>
-      <div class="col-xs-12 col-sm-12 col-md-4">
+
+      <div class="col-md-4 col-xs-12 col-sm-12">
+          <ul class="nav nav-tabs">
+              <li class="active"><a data-toggle="tab" href="#meritve" > MERITVE </a></li>
+              <li>
+                <a data-toggle="tab" href="#navodila1"> NAVODILA </a>
+              </li>
+          </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade in active" id="meritve">
+
+      <div class="col-xs-12 col-sm-12 col-md-12">
         <div id="trigger_panel" class="panel panel-default">
           <div class="panel-heading">
             <strong>Nastavitve</strong>
@@ -894,8 +905,15 @@
         </div>
       </div>
     </div>
+    <div class="tab-pane fade" id="navodila1">
+        <div class="col-xs-12">
+               //vstavi besedilo  
+        </div>
+    </div>
+  </div>
+
     <div class="footer clearfix">
-      <p class="pull-right" style="margin: 4px 0 0">&copy; 2014 - Red Pitaya</p>
+      <p class="pull-right" style="margin: 4px 0 0"> 2015 - eEksperimenti </p>
     </div>
   </div>
   <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
