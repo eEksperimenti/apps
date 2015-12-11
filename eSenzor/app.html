@@ -41,9 +41,22 @@
   var t = 0;
   var j = 0;
 
+  var cas = 0;
+  var st_meritev = 0;
+  var dolzina_meritve = 0; 
+
   var ime = "";
   var oznaka = "";
   var enota = "";
+
+  var ustavi = 0;
+  var koncaj = 0;
+
+  if(sessionStorage.kolicine != null){
+    ime = JSON.parse(sessionStorage.kolicine)[0].ime;
+    oznaka = JSON.parse(sessionStorage.kolicine)[0].oznaka;
+    enota = JSON.parse(sessionStorage.kolicine)[0].enota;
+  }
 
   var change;
 
@@ -77,7 +90,7 @@
 
   $(function() {
 
-    /////////// aplikacija s signali /////////////////
+    ////////////// aplikacija s signali ////////////
 
     $("#obstojece").height($("#nastavi").height());
     $("#merjenje").height($("#obstojece").height());
@@ -89,24 +102,13 @@
       }
     } 
 
-    $("#shrani").on("click", function(){
-
-      params.local.load_save_params = 3;
-      sendParams();
-    });
-
-    $("#nalozi").on("click", function(){
-
-      params.local.load_save_params = 2;
-      sendParams();
-    });
-
-    var barve = [ "#E6E600", "#FF9900", "#006633", "#000099", "#CC66CC", "#CC9900", "#CCCCFF", "#99CC99", "#99CCFF", "#000000", "#FFCCCC"];
+    var barve = ["#E6E600", "#FF0000", "#006633", "#000099", "#CC66CC", "#CC9900", "#CCCCFF", "#99CC99", "#99CCFF", "#000000", "#FFCCCC"];
 
     var nastavitve = {
         chart: {
           plotBackgroundColor: '#F2F2F2',
           renderTo: 'senzorji_graf',
+          zoomType: 'x'
         },
         title: {
           text: "",
@@ -128,8 +130,8 @@
             color: '#808080'
           }],
           allowDecimals: true,
-          max: 4.0,
-          min: 0.0,
+          min: 0,
+          max: 4,
           title: {
             useHTML: true,
             margin: 35,
@@ -141,13 +143,57 @@
           align: 'right',
           verticalAlign: 'middle'
         },
+        plotOptions: {
+          line: {
+            marker: {
+                enabled: false,
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+          },
+          series: {
+                lineWidth: 2,
+            states: {
+              hover: {
+                enabled: true,
+                lineWidth: 2
+              }
+            }
+          }
+        },
         series: [],
         tooltip: {
-          enabled: true,
+          enabled: false,
           headerFormat: '<b>{series.name}</b><br>',
           pointFormat: 'x: {point.x}, y: {point.y}'
-        }
+        },
     };
+
+    if(oznaka == "a"){
+      nastavitve.yAxis.min = -200;
+      nastavitve.yAxis.max = 200;
+    }
+    else if(oznaka == "B"){
+
+    }
+    else if(oznaka == "T"){
+
+    }
+    else if(oznaka == "Napetost"){
+
+    }
+    else if(oznaka == "E"){
+
+    }
+    else if(oznaka == "p"){
+
+    }
+
+    nastavitve.yAxis.title.text = "<h4>" + JSON.parse(sessionStorage.kolicine)[0].ime + " [ " + JSON.parse(sessionStorage.kolicine)[0].enota + " ] </h4>";
+    var graf = new Highcharts.Chart(nastavitve);
 
     function ponovnoNarisiGraf(){
 
@@ -156,49 +202,19 @@
       nastavitve = graf.options;
     }
 
-    nastavitve.yAxis.title.text = "<h4>" + JSON.parse(sessionStorage.kolicine)[0].ime + " [" + JSON.parse(sessionStorage.kolicine)[0].enota + "] </h4>";
-    var graf = new Highcharts.Chart(nastavitve);
-
-    $("#tabela_signalov").find(".col-xs-6").eq(1).html(JSON.parse(sessionStorage.kolicine)[0].ime + " [" + JSON.parse(sessionStorage.kolicine)[0].enota + "]");
+    $("#tabela_signalov").find(".col-xs-6").eq(1).html(
+      JSON.parse(sessionStorage.kolicine)[0].ime + " [ " + JSON.parse(sessionStorage.kolicine)[0].enota + " ]"
+    );
 
     $('#start').on('click', function(){
 
-      var cas = parseFloat($('#cas').val());
-      var st_meritev = parseInt($('#st_meritev').val());
+      cas = parseFloat($('#cas').val());
+      st_meritev = parseInt($('#st_meritev').val());
+      dolzina_meritve = cas*st_meritev;
 
       if(veljavenCas() && veljavneMeritve()){
 
         $("#neveljavno").css("display", "none");
-
-        if(cas*st_meritev > 100){
-
-          nastavitve = graf.options;
-
-          // omogoceno -> onemogoci in ponovno narisi
-          /*if(nastavitve.tooltip.enabled == true){
-
-            nastavitve.tooltip.enabled = false;
-            
-            ponovnoNarisiGraf();
-            dodajFunkcijoVGraf();
-            dodajFunkcijoVGraf();
-
-          }*/
-        }
-        else{
-
-          // onemogoceno -> omogoci in ponovno narisi
-          /*if(nastavitve.tooltip.enabled == false){
-
-            nastavitve.tooltip.enabled = true;
-            
-            ponovnoNarisiGraf();
-            dodajFunkcijoVGraf();
-            dodajFunkcijoVGraf();
-          }*/
-        }
-
-        graf.reflow();
 
         if(params.local != null){
 
@@ -213,6 +229,15 @@
       else{
         $("#neveljavno").css("display", "");
       }
+
+      // zacetek meritev ali po pritisku koncaj
+      if(ustavi == 0 && t < dolzina_meritve){
+        t = cas;
+        graf.series[0].addPoint([0, 0], false);
+      }
+
+      ustavi = 0;
+      koncaj = 0;
     });
 
     $("#ustavi").on("click", function(){
@@ -229,6 +254,8 @@
         }
       }
 
+      ustavi = 1;
+
     });
 
     $("#koncaj").on("click", function(){
@@ -236,8 +263,25 @@
       if(params.local != null){
 
         params.local.meas_control = 3;
+        params.local.change = 0;
         sendParams();
       }
+
+      t = 0;
+      senzorji_podatki[0] = [];
+
+      graf.series[0].remove();
+      if(sessionStorage.kolicine != undefined){
+        dodajKolicine(true);
+      }
+
+      koncaj = 1;
+
+      $('#tabela_signalov').html("");
+
+      $('#tabela_signalov').append(
+        "<div class='row' style='border-bottom: solid 1px #D3D3D3;'> <div class='col-xs-6 text-center'> ČAS </div><div class='col-xs-6 text-center'>" + JSON.parse(sessionStorage.kolicine)[0].ime + " [ " + JSON.parse(sessionStorage.kolicine)[0].enota + " ]" + "</div>"
+      );
     });
 
     /////////// opozorila //////////
@@ -926,6 +970,7 @@
         if(params.local != null){
           if(params.local.change != change){
             getData();
+            graf.redraw();
           }
         }
         
@@ -1046,42 +1091,51 @@
 
   function getData(from, to) {
 
-    var cas = parseFloat($('#cas').val());
-    var barva = parseInt(sessionStorage.steviloKolicin) - 1;
+    if(koncaj == 0){
 
-    graf = $("#senzorji_graf").highcharts();
+      graf = $("#senzorji_graf").highcharts();
 
-    for(j = 0; j < 512; j++) {
+      for(j = 0; j < 512; j++) {
 
-      if((datasets[0].data[j][1] > -50) && (datasets[0].data[j + 512][1] > -50) && (datasets[1].data[j][1] > -50) && (datasets[1].data[j +512][1] > -50)){
-        
-        s[0] = datasets[0].data[j][1];
-        s[1] = 1 + datasets[0].data[j + 512][1];
-        s[2] = 2 + datasets[1].data[j][1];
-        s[3] = 3 + datasets[1].data[j + 512][1];
+        if((datasets[0].data[j][0] > -50) && (datasets[0].data[j + 512][1] > -50) && (datasets[1].data[j][0] > -50) && (datasets[1].data[j +512][1] > -50)){
+          
+          if(oznaka == "a"){
+            s[0] = 166.7*datasets[0].data[j][1] - 250;
+          }
+          else if(oznaka == "B"){
+            s[0] = 22.22*datasets[0].data[j][1] - 22.22;
+          }
+          else if(oznaka == "T"){
+            s[0] = 13150/datasets[0].data[j][1] - 2893;
+          }
+          else if(oznaka == "Napetost"){
+            s[0] = datasets[0].data[j][1];
+          }
+          else if(oznaka == "E"){
+            s[0] = 18380*datasets[0].data[j][1];
+          }
+          else if(oznaka == "p"){
+            s[0] = 1750*datasets[0].data[j][1] - 875;
+          }
 
-        for(var i = 0; i < barva; i++){
-          graf.series[i].addPoint([t, s[i]], false);
+          s[0] = Math.round(s[0]*10000)/10000;
+
+          graf.series[0].addPoint([t, s[0] ], false);
+
+          $('#tabela_signalov').append(
+
+            "<div class='row' style='border-bottom: solid 1px #D3D3D3;'> <div class='col-xs-6 text-center'>" + t + "</div><div class='col-xs-6 text-center'>" + s[0] + "</div>"
+          );
+
+          senzorji_podatki[0].push([t, s[0]]);
+
+          t += cas;
         }
-
-        senzorji_podatki[0].push([t, s[0]]);
-        senzorji_podatki[1].push([t, s[1]]);          
-        senzorji_podatki[2].push([t, s[2]]);
-        senzorji_podatki[3].push([t, s[3]]);
-
-        t += cas;
+        else{
+          break;
+        }
       }
-      else{
-        break;
-      }
-      $('#tabela_signalov').append(
-
-        "<div class='row' style='border-bottom: solid 1px #D3D3D3;'> <div class='col-xs-6 text-center'>" + t + "</div><div class='col-xs-6 text-center'>" + datasets[0].data[i][1] + "</div>"
-      );
-
     }
-
-    graf.redraw();
   }
     
   </script>
@@ -1093,19 +1147,6 @@
       <a id="btn_exit" class="pull-left" href="index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
       <h2 class="page-title pull-left"> eSenzor </h2>
-      <!-- <a href='#sl' class='translate' style ="float: right"">sl</a>
-      <a href='#en' class='translate' style ="float: right">en</a> -->
-      <button class="btn btn-default btn-info" style="float: right; margin-top: 15px; color: white;" id="shrani"> SHRANI NASTAVITVE </button>
-      <button class="btn btn-default btn-info" style="float: right; margin-top: 15px; margin-right: 1em; color: white;" id="nalozi"> NALOŽI NASTAVITVE </button>
-      <div class="dropdown dropdown-menu-right" style="float: right; margin-right: 1em; margin-top: 15px; color: #FFF; ">
-        <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
-          <span class="caret" ></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li><a href="#en" class='translate' >en</a></li>
-          <li><a href="#sl" class='translate' >sl</a></li>
-        </ul>
-      </div>
     </div>
   </div>
   
