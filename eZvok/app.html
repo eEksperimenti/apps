@@ -122,6 +122,9 @@
     en_avg_at_dec: 0
   }; 
     
+  var stariXmin = 0;
+  var stariXmax = 0;
+
   // On page loaded
   
   $(function() {
@@ -252,6 +255,97 @@
         }
       });
     
+     function xMinimum(s){
+      if(plot){
+        
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+        var min = parseFloat(s.val());
+        var max = parseFloat($('#sprememba_xmax').val());
+        var unit = $(this).data('unit');
+        
+        // Convert nanoseconds to milliseconds.
+        if(unit == 'ns') {
+          nearest /= 1000;
+        }
+        if(stariXmin != min || min == 0){
+          if(!isNaN(min) && min < max){
+            options.xaxes[0].min = min;
+            options.xaxes[0].max = max;
+            plot.setupGrid();
+            plot.draw();
+            
+            params.local.xmin = min;
+            params.local.xmax = max;
+            
+            //updateRanges();
+            s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
+            sendParams(true);
+          }
+          else if(min > max){
+            s.val(stariXmin);
+          }
+        }
+        stariXmin = min;
+      }
+    }
+    function xMaksimum(s){
+      if(plot) {
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+        var min = parseFloat($('#sprememba_xmin').val());
+        var max = parseFloat(s.val());
+        
+        if(stariXmax != max){
+          if(!isNaN(max) && min < max ){
+            options.xaxes[0].min = min;
+            options.xaxes[0].max = max;
+            plot.setupGrid();
+            plot.draw();
+            
+            params.local.xmin = min;
+            params.local.xmax = max;
+            
+            //updateRanges();
+            s.tooltip( s.prop('disabled') === true ? 'hide' : 'show');
+            sendParams(true);
+          }
+          else if(max < min){
+            s.val(stariXmax);
+          }
+        }
+        stariXmax = max;
+      }
+    }
+
+    $('#sprememba_xmin').on('keypress', function(event) {
+      
+      if(event.keyCode == 13){
+        var t = $(this); 
+        xMinimum(t);
+        t.blur();
+      }
+    });
+    $('#sprememba_xmax').on('keypress', function(event) {
+      
+      if(event.keyCode == 13){
+        var t = $(this);
+        xMaksimum(t);
+        t.blur();
+      }
+    });
+    $('#sprememba_xmin').on('blur', function() {
+      
+      var t = $(this);
+      xMinimum(t);
+    });
+    $('#sprememba_xmax').on('blur', function() {
+      
+      var t = $(this);
+      
+      xMaksimum(t);
+    });
+
     // Events binding for range controls
     
     $('#range_x_minus, #range_x_plus').on('click', function() {
@@ -720,10 +814,11 @@
         var arun_after_ajax = autorun;
         
         datasets = [];
-		var t_channel=$('#t-channel').text();
+		    //var t_channel=$('#t-channel').text();
+
         for(var i=0; i<dresult.datasets.g1.length; i++) {
-          dresult.datasets.g1[i].color = i;
-          dresult.datasets.g1[i].label = t_channel + (i+1);          
+          //dresult.datasets.g1[i].color = i;
+          //dresult.datasets.g1[i].label = t_channel + (i+1);          
           datasets.push(dresult.datasets.g1[i]);
         }
         
@@ -924,6 +1019,10 @@
     autorun = (params.original.trig_mode == 2 ? 0 : 1);
     
     // Enable the Single button when not in autorun mode
+
+    $("#sprememba_xmin").val(zaokrozi(params.local.xmin));
+    $("#sprememba_xmax").val(zaokrozi(params.local.xmax));
+
     $('#btn_single').prop('disabled', autorun);
     
     $('#trig_mode').val(params.original.trig_mode);
@@ -1717,26 +1816,24 @@
     }
     
     file_elem.hide();
-    hint_elem.html('Uploading file...');
-    console.log("url:\n" + upload_url + channel);
-    console.log($('#uploaded_file_content').val());*/
+    hint_elem.html('Uploading file...');*/
 
-    $.get('1000ksps_40k.csv', function(data){
-      //console.log(data);
-      var channel = '1';
-      $.post(upload_url + channel, data, function(dresult) {
+    if(params.local != null){
 
-        console.log(dresult);
-        if($.type(dresult) == 'string' && dresult.trim() == 'OK') {
-          $('#upload_form')[0].reset();
-          $('#modal_upload').modal('hide');
+      $.get('1000ksps_40k.csv', function(data){
 
-          user_editing = true;
-          params.local.gen_awg_refresh = parseInt(channel);
-          sendParams();
-          console.log("senda");
-        }
-      });
+        var channel = "1";
+        $.post(upload_url + channel, data, function(dresult) {
+
+          if($.type(dresult) == 'string' && dresult.trim() == 'OK') {
+            $('#upload_form')[0].reset();
+            $('#modal_upload').modal('hide');
+
+            user_editing = true;
+            params.local.gen_awg_refresh = parseInt(channel);
+            sendParams();
+          }
+        });
         /*else {
           file_elem.show();
           hint_elem.html('Error while uploading the file.');
@@ -1748,8 +1845,9 @@
         hint_elem.html('Error while uploading the selected file.');
         file_elem.parent().addClass('has-error');
       });*/
-    });
 
+      });
+    }
    
   }
   
@@ -1773,9 +1871,6 @@
     
     file_elem.hide();
     hint_elem.html('Uploading file...');
-    console.log("url:\n" + upload_url + channel);
-    console.log($('#uploaded_file_content').val());
-
 
     $.post(upload_url + channel, $('#uploaded_file_content').val(), function(dresult) {
 
@@ -1886,6 +1981,36 @@
     value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
     return value + unit;
   }
+
+
+  function zaokrozi(a){
+    var s = a.toString();
+    var n;
+    var i = s.indexOf(".");
+    if(i != -1){
+      if(i > 2){
+          n = Math.round(a);
+      }
+      else{
+        n = a.toPrecision(3);
+      }
+    }
+    else{
+        var j = s.indexOf(",");
+        if(j != -1){
+          if(i > 2){
+            n = Math.round(a);
+          }
+          else{
+            n = a.toPrecision(3);
+          }   
+        }
+        else{
+          n = a;
+        }
+    }
+    return n;
+  }
   
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
@@ -1905,16 +2030,7 @@
   <div class="container">
       <button class="btn btn-default btn-info" style="float: left; margin-top: 15px; color: white;" id="shrani"> SHRANI NASTAVITVE </button>
       <button class="btn btn-default btn-info" style="float: left; margin-top: 15px; color: white; margin-left: 15px;" id="nalozi"> NALOŽI NASTAVITVE </button>
-      <div class="dropdown dropdown-menu-right" style="float: right; margin-right: 70px; margin-top: 15px; color: #FFF; ">
-          <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
-          <span class="caret" ></span></button>
-          </button>
-          <ul class="dropdown-menu">
-          <li><a href="#en" class='translate' >en</a></li>
-          <li><a href="#sl" class='translate' >sl</a></li>
-          </ul>
-        </div>
-    </div>
+  </div>
 
   <div class="container">
     <div class="row">
@@ -1934,8 +2050,8 @@
             <span class="glyphicon glyphicon-search"></span><span class="glyphicon glyphicon-move"></span>
           </button>
         </div>
-        <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 1</button>
-        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 2</button>
+        <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)"> Tok </button>
+        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)"> Osvetljenost </button>
         
         <!-- <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Averaging</button>
 		-->
@@ -1948,7 +2064,7 @@
               <span class="glyphicon glyphicon-minus"></span>
             </button>
             <button id="range_y_plus" type="button" class="btn btn-lg range-btn-right" style="background-color: rgb(40, 97, 161); color: white;">
-              <span class="glyphicon glyphicon-plus"></span>
+             <span class="glyphicon glyphicon-plus"></span>
             </button>
             </div>
         <div class="btn-group zoomYaxis rightZoom">
@@ -1969,7 +2085,10 @@
           <div id="xtitle"></div>
 		        <span id='t-channel' style='display: none'>Kanal </span>
         </div>
-        <div class="col-xs-10 text-center" style="margin-top: -10px;left:50px">
+        <div class="col-xs-5 text-center" style="margin-top: -10px;left:50px">
+          <div>
+            <span> časovni interval </span>
+          </div>
           <div class="btn-group" style="margin-bottom: -3px;">
             <button id="range_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
               <span class="glyphicon glyphicon-minus"></span>
@@ -1982,32 +2101,72 @@
             <span id="range_x" class="badge range-badge">-</span>
           </div>
         </div>
+        <div class="col-xs-5 text-center" style="margin-top: -10px;left:50px">
+          <div>
+            <span> časovni zamik </span>
+          </div>
+          <div class="btn-group" style="margin-bottom: -3px;">
+            <button id="offset_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+            <button id="offset_x_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </div>
+        </div>
       </div>
         <div class="col-md-4 col-xs-12 col-sm-12" style="padding-top: 2em;">
           <ul class="nav nav-tabs">
               <li class="active"><a data-toggle="tab" href="#meritve" class="text-center"> MERITVE </a></li>
-              <li class="dropdown">
-                <a class="dropdown-toggle text-center" data-toggle="dropdown"> NAVODILA
-                <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a data-toggle="tab" href="#navodila1"> LEKCIJA 1 </a></li>
-                  <li><a data-toggle="tab" href="#navodila2"> LEKCIJA 2 </a></li>
-                </ul>
+              <li>
+                <a class="text-center" data-toggle="tab" href="#navodila"> NAVODILA </a>
               </li>
           </ul>
             <div class="tab-content">
               <div class="tab-pane fade in active" id="meritve">
     <div class="panel-group col-xs-12" id="accordion">
       <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#settings">
-                Nastavitve 
-              </a>
-            </h4>
-          </div>
-          <div  id="settings"  class="panel-collapse collapse in"> 
-            <div class="container" id="nastavitve">
+          <a data-toggle="collapse" data-target="#settings" style="cursor: pointer;">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                  Nastavitve prikaza 
+                </a>
+              </h4>
+            </div>
+          </a>
+          <div id="settings" class="panel-collapse collapse in"> 
+            <div class="container">
+              <div class="panel-group" style="margin-top: 1em;">
+                <div class="panel panel-default">
+                  <a data-toggle="collapse" data-target="#osX" style="color: black; text-decoration: none; cursor: pointer;">
+                    <div class="panel panel-heading" style="background-color: rgb(242, 242, 242);">
+                      <h4 class="panel-title">
+                        Abscisa = Čas
+                      </h4>
+                    </div>
+                  </a>
+                  <div class="panel-collapse collapse" id="osX" style="padding: 0 1em;">
+                    <div class="panel-body" style="border: none;">
+                      <div class="text-center">
+                        Enote vnešenih vrednosti so enake tistim na grafu.
+                      </div>
+                      <label for="sprememba_xmin"> X<sub>min</sub> </label>
+                      <input type="number" class="form-control" id="sprememba_xmin">
+                      <label for="sprememba_xmax" style="padding-top: 1em;"> X<sub>max </sub> </label>
+                      <input type="number" class="form-control" id="sprememba_xmax">
+                    </div>
+                  </div>
+                </div>
+                <div class="panel panel-default" id="nastavitve1">
+                  
+                </div>
+                <div class="panel panel-default" id="nastavitve2">
+                  
+                </div>
+                <div id="nastavitve3">
+                  
+                </div>
+              </div>
             </div>
           </div>
       </div>
@@ -2437,15 +2596,11 @@
         </div>
       </div>
     </div>
-    <div class="tab-pane fade" id="navodila1">
+    <div class="tab-pane fade" id="navodila">
         <div class="col-xs-12">
             
         </div>
     </div>
-    <div class="tab-pane fade" id="navodila2">
-        <div class="col-xs-12">
-          
-        </div>
     </div>
   </div>
     </div>
