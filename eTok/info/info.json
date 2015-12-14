@@ -1,6 +1,6 @@
 {
-    "name": "eTok",
+    "name": "eNapetost/Tok",
     "version": "",
     "revision": "",
-    "description": "Opazovanje povezanega elementa."
+    "description": "Aplikacija za generiranje in prikaz toka in napetosti na osnovnih elementih vezja."
 }

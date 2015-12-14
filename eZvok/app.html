@@ -143,16 +143,12 @@
     var src = (window.location).toString();
     var tezavnost = src.substring(src.lastIndexOf("#") + 1);
 
-    if(tezavnost == "lahko"){
-
-    }
-    else if(tezavnost == "srednje"){
-
-    }
-    else if(tezavnost == "pametno"){
-
-    }
-
+    if( tezavnost == "lahko")
+      $('#navodila_lahek').css("display", "");
+    else if( tezavnost == "srednje")
+      $('#navodila_srednji').css("display", "");
+    else if( tezavnost == "pametno")    
+      $('#navodila_zahtevni').css("display", "");
     //$('#uploaded_file').val("1000ksps_40k.csv");
     //console.log($('#uploaded_file').val());
 
@@ -2596,10 +2592,29 @@
         </div>
       </div>
     </div>
-    <div class="tab-pane fade" id="navodila">
-        <div class="col-xs-12">
-            
-        </div>
+        <div class="tab-pane fade" id="navodila">
+          <div id="navodila_zahtevni" class="col-xs-12" style="display: none;">
+           Zahtevni način:
+           <br>
+           Aplikacijo eZvok je namenjena opazovanju zvočnih signalov in merjenju hitrosti zvoka, ki jih generiramo in zajemamo z ultrazvočnim pretvornikom. 
+           Ta aplikacija je vezana na eEksperiment <a>Merjenje hitrosti zvoka</a> v zahtevnejšem načinu izvajanja. 
+           Če ste pravilno povezali potrebne komponente, opravite ustrezne nastavitve aplikacije v skladu z navodili za izvajanje meritev, ki se s klikom na <a>to povezavo</a> odprejo v novem zavihku. 
+          </div>
+          <div id="navodila_srednji" class="col-xs-12" style="display: none;">
+            Srednje zahtevni način:
+            <br>
+            Aplikacijo eZvok je namenjena opazovanju zvočnih signalov in merjenju hitrosti zvoka, ki jih generiramo in zajemamo z ultrazvočnim pretvornikom. 
+            Ta aplikacija je vezana na eEksperiment <a>Merjenje hitrosti zvoka</a> v srednje zahtevnem načinu izvajanja. Če ste pravilno povezali potrebne komponente, 
+            opravite ustrezne nastavitve aplikacije v skladu z navodili za izvajanje meritev, ki se s klikom na <a>to povezavo</a> odprejo v novem zavihku. 
+          </div>
+          <div id="navodila_lahek" class="col-xs-12" style="display: none;">
+            Lahek način:
+            <br>
+            Aplikacijo eZvok je namenjena opazovanju zvočnih signalov in merjenju hitrosti zvoka, ki jih generiramo in zajemamo z ultrazvočnim pretvornikom. 
+            Ta aplikacija je vezana na eEksperiment <a>Merjenje hitrosti zvoka</a> v enostavnem načinu izvajanja. Če ste pravilno povezali potrebne komponente, 
+            opravite ustrezne nastavitve aplikacije v skladu z navodili za izvajanje meritev, ki se s klikom na <a>to povezavo</a> odprejo v novem zavihku.   
+          </div>
+    </div>
     </div>
     </div>
   </div>

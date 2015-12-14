@@ -240,30 +240,6 @@ $(function() {
 
     //////////////  remote  ////////////////////
 
-    $("#navodilaLahko").css("display", "");
-
-    function elementi(i){
-
-      var kviz = "";
-
-      switch(i){
-        case 1:
-          kviz = sestaviKviz(kvizi[tezavnost].tuljava.sinusni);
-          break;
-        case 2:
-          kviz = sestaviKviz(kvizi[tezavnost].kondenzator.sinusni);
-          break;
-        case 3:
-          kviz = sestaviKviz(kvizi[tezavnost].upor.sinusni);
-          break;
-        case 4:
-          kviz = sestaviKviz(kvizi[tezavnost].dioda.sinusni);
-          break;
-      }
-
-      return "<form>" + kviz + "</form>";
-    }
-
     function odgovori(s){
 
       var res;
@@ -2752,7 +2728,7 @@ $(function() {
     <div class="container">
       <a id="btn_exit" class="pull-left" href="../index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
-      <h2 class="page-title pull-left"> eTok </h2>
+      <h2 class="page-title pull-left"> eNapetost/Tok </h2>
       <div class="cdropdown dropdown-menu-right pull-right" style="margin-top: 1em;">
         <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
         <span class="caret" ></span></button>
@@ -3381,16 +3357,14 @@ $(function() {
       <div class="alert alert-success text-center" style="display: none; margin: 1em 0 0 0;"> </div>
     </div>
     <div class="tab-pane fade in active" id="navodila">
-        <div class="col-xs-12" id="navodilaLahko" style="display: none;">
-            V enostavnem načinu lahko sami izbrate, kateri element naj bo priključen v vezje. <br><br> S pomočjo spreminjanja nastavitev napetostnega vira, kot so oblika signala, frekvenca in amplituda, odgovorite na vprašanja iz kviza.
-        </div>
-        <div class="col-xs-12" id="navodilaTezko" style="display: none;">
-            V zahtevnejšem načinu izvajanja je naključno izbran (priključen) en element. <br><br> Vaša naloga je, da, s spreminjanjem nastavitev grafa, poskušate pravilno odgovoriti na vprašanja iz kviza. 
-
-        </div>
-        <div class="col-xs-12" id="navodilaUgani" style="display: none;">
-            V načinu Ugani element je naključno izbran en od elementov ter oblika signala napetostnega vira. <br><br> Vaša naloga je, da, s spreminjanjem nastavitev grafa, poskušate pravilno ugotoviti, kateri element je priključen.
-        </div>
+        Aplikacija eNapetost/Tok je namenjena opazovanju toka in napetosti na osnovnih elementih vezja. 
+        Ta aplikacija je vezana na eEksperiment <a>Lastnosti elementov vezja</a>, ki se lahko izvaja v treh zahtevnostnih načinih. Če ste pravilno povezali potrebne komponente, se navodila za izvajanje eksperimenta nahajajo na sledečih povezavah:
+        <br>
+          <a>Enostaven način izvajanja</a>
+        <br>
+          <a>Srednje zahteven način izvajanja</a>
+        <br>
+          <a>Zahteven način izvajanja</a>
     </div>
   </div>
     </div>

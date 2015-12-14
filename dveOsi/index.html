@@ -1899,450 +1899,468 @@
         </div>
       </div>
 
-      <div class="panel-group col-xs-12 col-sm-12 col-md-4" id="accordion">
-      <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#settings">
-                Nastavitve 
-              </a>
-            </h4>
-          </div>
-          <div  id="settings"  class="panel-collapse collapse in"> 
-            <div class="container" id="nastavitve">
-            </div>
-          </div>
-        </div>
-		<div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#autoscale">
-                Samodejna nastavitev merilnih območij
-              </a>
-            </h4>
-          </div>
-          <div  id="autoscale"  class="panel-collapse collapse"> 
-            <div class="container">
-				<div class="row" style="margin: 4px">
-					<button id="btn_autoscale_y" class="btn btn-primary btn-block" data-autozoom="false" onclick="autoscaleY()">
-						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
-					</button>
-				</div>
-				
-				<div class="row" style="margin: 4px">
-					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
-						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
-					</button>
-				</div>
-				<div class="row" style="margin: 4px">
-					<button id="btn_resetZoom" class="btn btn-primary btn-block" onclick="resetZoom()">
-						<span class="glyphicon glyphicon-retweet"></span> Ponastavi
-					</button>  
-				</div> 
-				 
-			</div>
-          </div>
-        </div>	
-		
-        <div class="panel panel-default" style="display:none">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#range">
-                Range
-              </a>
-            </h4>
-          </div>
-          <div id="range" class="panel-collapse collapse">
-            <div class="panel-body">
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Range :</label>
-                  <div class="col-xs-8 col-sm-9">
-                    <div class="row">
-                    
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="col-xs-4 col-sm-3 control-label">Premik:</label>
-                  <div class="col-xs-8 col-sm-9">
-                    <div class="row">
-                      <div class="col-xs-6 text-center">
-                        <div class="btn-group" style="margin-bottom: -3px;">
-                          <button id="offset_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
-                            <span class="glyphicon glyphicon-minus"></span>
-                          </button>
-                          <button id="offset_x_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
-                            <span class="glyphicon glyphicon-plus"></span>
-                          </button>
-                        </div>
-                      </div>
-                      <div class="col-xs-6 text-center">
-                        <div class="btn-group" style="margin-bottom: -3px;">
-                          <button id="offset_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
-                            <span class="glyphicon glyphicon-minus"></span>
-                          </button>
-                          <button id="offset_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
-                            <span class="glyphicon glyphicon-plus"></span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-		
+      <div class="col-md-4 col-xs-12 col-sm-12" style="padding-top: 2em;">
+          <ul class="nav nav-tabs">
+              <li class="active" style="width: 50%;"><a data-toggle="tab" href="#meritve" class="text-center"> MERITVE </a></li>
+              <li style="width: 50%;">
+                <a class="text-center" data-toggle="tab" href="#navodila"> NAVODILA </a>
+              </li>
+          </ul>
+       <div class="tab-content">
+          <div class="tab-pane fade in active" id="meritve">
+
+        <div class="panel-group col-xs-12 col-sm-12 col-md-4 col-md-12" id="accordion">
         <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#measure">
-                Prikaz signalnih parametrov
-              </a>
-            </h4>
-          </div>
-          <div id="measure" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="row group-label">
-                <div class="col-xs-6" style="text-align: center">Kanal 1</div>
-                <div class="col-xs-6" style="text-align: center">Kanal 2</div>
-              </div>
-              <div class="row">
-                <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
-                <div class="col-xs-3"><span id="info_ch1_min">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
-                <div class="col-xs-3"><span id="info_ch2_min">-</span><span class="unit">V</span></div>
-              </div>
-              <div class="row">
-                <div class="col-xs-3 txt-right">Največja napetost:</div>
-                <div class="col-xs-3"><span id="info_ch1_max">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Največja napetost:</div>
-                <div class="col-xs-3"><span id="info_ch2_max">-</span><span class="unit">V</span></div>
-              </div>
-              <div class="row">
-                <div class="col-xs-3 txt-right">Vršna napetost:</div>
-                <div class="col-xs-3"><span id="info_ch1_amp">-</span><span class="unit">Vpp</span></div>
-                <div class="col-xs-3 txt-right">Vršna napetost:</div>
-                <div class="col-xs-3"><span id="info_ch2_amp">-</span><span class="unit">Vpp</span></div>
-              </div>
-              <div class="row">
-                <div class="col-xs-3 txt-right">Povprečna napetost</div>
-                <div class="col-xs-3"><span id="info_ch1_avg">-</span><span class="unit">V</span></div>
-                <div class="col-xs-3 txt-right">Povprečna napetost</div>
-                <div class="col-xs-3"><span id="info_ch2_avg">-</span><span class="unit">V</span></div>
-              </div>
-              <div class="row">
-                <div class="col-xs-3 txt-right">Frekvenca:</div>
-                <div class="col-xs-3" id="info_ch1_freq">-<span class="unit">Hz</span></div>
-                <div class="col-xs-3 txt-right">Frekvenca:</div>
-                <div class="col-xs-3" id="info_ch2_freq">-<span class="unit">Hz</span></div>
-              </div>
-              <div class="row">
-                <div class="col-xs-3 txt-right">Perioda:</div>
-                <div class="col-xs-3" id="info_ch1_period">-<span class="unit">s</span></div>
-                <div class="col-xs-3 txt-right">Perioda:</div>
-                <div class="col-xs-3" id="info_ch2_period">-<span class="unit">s</span></div>
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#settings">
+                  Nastavitve 
+                </a>
+              </h4>
+            </div>
+            <div  id="settings"  class="panel-collapse collapse in"> 
+              <div class="container" id="nastavitve">
               </div>
             </div>
           </div>
-        </div>
-		
-		<div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#trigger">
-                Proženje
-              </a>
-            </h4>
+  		<div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#autoscale">
+                  Samodejna nastavitev merilnih območij
+                </a>
+              </h4>
+            </div>
+            <div  id="autoscale"  class="panel-collapse collapse"> 
+              <div class="container">
+  				<div class="row" style="margin: 4px">
+  					<button id="btn_autoscale_y" class="btn btn-primary btn-block" data-autozoom="false" onclick="autoscaleY()">
+  						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
+  					</button>
+  				</div>
+  				
+  				<div class="row" style="margin: 4px">
+  					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
+  						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
+  					</button>
+  				</div>
+  				<div class="row" style="margin: 4px">
+  					<button id="btn_resetZoom" class="btn btn-primary btn-block" onclick="resetZoom()">
+  						<span class="glyphicon glyphicon-retweet"></span> Ponastavi
+  					</button>  
+  				</div> 
+  				 
+  			</div>
+            </div>
+          </div>	
+  		
+          <div class="panel panel-default" style="display:none">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#range">
+                  Range
+                </a>
+              </h4>
+            </div>
+            <div id="range" class="panel-collapse collapse">
+              <div class="panel-body">
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label class="col-xs-4 col-sm-3 control-label" style="padding-top: 35px;">Range :</label>
+                    <div class="col-xs-8 col-sm-9">
+                      <div class="row">
+                      
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-xs-4 col-sm-3 control-label">Premik:</label>
+                    <div class="col-xs-8 col-sm-9">
+                      <div class="row">
+                        <div class="col-xs-6 text-center">
+                          <div class="btn-group" style="margin-bottom: -3px;">
+                            <button id="offset_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+                              <span class="glyphicon glyphicon-minus"></span>
+                            </button>
+                            <button id="offset_x_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+                              <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="col-xs-6 text-center">
+                          <div class="btn-group" style="margin-bottom: -3px;">
+                            <button id="offset_y_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+                              <span class="glyphicon glyphicon-minus"></span>
+                            </button>
+                            <button id="offset_y_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+                              <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-          <div id="trigger" class="panel-collapse collapse">
-            <div class="panel-body">
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="trig_source" class="col-xs-4 control-label">Izvor prožilnega signala:</label>
-                  <div class="col-xs-8">
-                    <select id="trig_source" class="form-control">
-                      <option value="0">Kanal 1</option>
-                      <option value="1">Kanal 2</option>
-                      <option value="2">Zunanji izvor</option>
-                    </select>
-                  </div>
+  		
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#measure">
+                  Prikaz signalnih parametrov
+                </a>
+              </h4>
+            </div>
+            <div id="measure" class="panel-collapse collapse">
+              <div class="panel-body">
+                <div class="row group-label">
+                  <div class="col-xs-6" style="text-align: center">Kanal 1</div>
+                  <div class="col-xs-6" style="text-align: center">Kanal 2</div>
                 </div>
-                <div class="form-group">
-                  <label for="trig_mode" class="col-xs-4 control-label">Način proženja:</label>
-                  <div class="col-xs-8">
-                    <select id="trig_mode" class="form-control">
-                      <option value="0">Samodejno</option>
-                      <option value="1">Normal</option>
-                      <option value="2">Enkratno</option>
-                    </select>
-                  </div>
+                <div class="row">
+                  <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
+                  <div class="col-xs-3"><span id="info_ch1_min">-</span><span class="unit">V</span></div>
+                  <div class="col-xs-3 txt-right">Najmanjša napetost:</div>
+                  <div class="col-xs-3"><span id="info_ch2_min">-</span><span class="unit">V</span></div>
                 </div>
-                <div class="form-group">
-                  <label for="trig_edge" class="col-xs-4 control-label">Prehod signala za proženje:</label>
-                  <div class="col-xs-8">
-                    <select id="trig_edge" class="form-control">
-                      <option value="0">Pozitiven prehod</option>
-                      <option value="1">Negativen prehod</option>
-                    </select>
-                  </div>
+                <div class="row">
+                  <div class="col-xs-3 txt-right">Največja napetost:</div>
+                  <div class="col-xs-3"><span id="info_ch1_max">-</span><span class="unit">V</span></div>
+                  <div class="col-xs-3 txt-right">Največja napetost:</div>
+                  <div class="col-xs-3"><span id="info_ch2_max">-</span><span class="unit">V</span></div>
                 </div>
-                <div class="form-group">
-                  <label for="trig_level" class="col-xs-4 control-label">Prag proženja:</label>
+                <div class="row">
+                  <div class="col-xs-3 txt-right">Vršna napetost:</div>
+                  <div class="col-xs-3"><span id="info_ch1_amp">-</span><span class="unit">Vpp</span></div>
+                  <div class="col-xs-3 txt-right">Vršna napetost:</div>
+                  <div class="col-xs-3"><span id="info_ch2_amp">-</span><span class="unit">Vpp</span></div>
+                </div>
+                <div class="row">
+                  <div class="col-xs-3 txt-right">Povprečna napetost</div>
+                  <div class="col-xs-3"><span id="info_ch1_avg">-</span><span class="unit">V</span></div>
+                  <div class="col-xs-3 txt-right">Povprečna napetost</div>
+                  <div class="col-xs-3"><span id="info_ch2_avg">-</span><span class="unit">V</span></div>
+                </div>
+                <div class="row">
+                  <div class="col-xs-3 txt-right">Frekvenca:</div>
+                  <div class="col-xs-3" id="info_ch1_freq">-<span class="unit">Hz</span></div>
+                  <div class="col-xs-3 txt-right">Frekvenca:</div>
+                  <div class="col-xs-3" id="info_ch2_freq">-<span class="unit">Hz</span></div>
+                </div>
+                <div class="row">
+                  <div class="col-xs-3 txt-right">Perioda:</div>
+                  <div class="col-xs-3" id="info_ch1_period">-<span class="unit">s</span></div>
+                  <div class="col-xs-3 txt-right">Perioda:</div>
+                  <div class="col-xs-3" id="info_ch2_period">-<span class="unit">s</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+  		
+  		<div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#trigger">
+                  Proženje
+                </a>
+              </h4>
+            </div>
+            <div id="trigger" class="panel-collapse collapse">
+              <div class="panel-body">
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="trig_source" class="col-xs-4 control-label">Izvor prožilnega signala:</label>
+                    <div class="col-xs-8">
+                      <select id="trig_source" class="form-control">
+                        <option value="0">Kanal 1</option>
+                        <option value="1">Kanal 2</option>
+                        <option value="2">Zunanji izvor</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="trig_mode" class="col-xs-4 control-label">Način proženja:</label>
+                    <div class="col-xs-8">
+                      <select id="trig_mode" class="form-control">
+                        <option value="0">Samodejno</option>
+                        <option value="1">Normal</option>
+                        <option value="2">Enkratno</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="trig_edge" class="col-xs-4 control-label">Prehod signala za proženje:</label>
+                    <div class="col-xs-8">
+                      <select id="trig_edge" class="form-control">
+                        <option value="0">Pozitiven prehod</option>
+                        <option value="1">Negativen prehod</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="trig_level" class="col-xs-4 control-label">Prag proženja:</label>
+                    <div class="col-xs-5">
+                      <input type="text" id="trig_level" value="0" class="form-control" autocomplete="off">
+                      <span id="apply_trig_level" class="input-group-btn" style="display: none;">
+                        <button class="btn btn-primary btn-lg" type="button"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                      </span>
+                    </div>
+                    <div id="trig_lev_units" class="col-xs-3" style="padding: 7px 0 0;">V</div>
+                  </div>
+                </form>
+                <div class="row">
+                  <div class="col-xs-4"> </div>
                   <div class="col-xs-5">
-                    <input type="text" id="trig_level" value="0" class="form-control" autocomplete="off">
-                    <span id="apply_trig_level" class="input-group-btn" style="display: none;">
-                      <button class="btn btn-primary btn-lg" type="button"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
+                    <button id="btn_single" class="btn btn-primary" onclick="singleUpdate()" disabled>
+                      <span class="glyphicon glyphicon-step-forward"></span> Enkratno proženje
+                    </button>
                   </div>
-                  <div id="trig_lev_units" class="col-xs-3" style="padding: 7px 0 0;">V</div>
-                </div>
-              </form>
-              <div class="row">
-                <div class="col-xs-4"> </div>
-                <div class="col-xs-5">
-                  <button id="btn_single" class="btn btn-primary" onclick="singleUpdate()" disabled>
-                    <span class="glyphicon glyphicon-step-forward"></span> Enkratno proženje
-                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#gain">
-                Merilni sondi
-              </a>
-            </h4>
-          </div>
-          <div id="gain" class="panel-collapse collapse">
-            <div class="panel-body">
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="group-label" style="padding-bottom: 10px;">Kanal 1</div>
-                <div class="form-group">
-                  <label for="gain_ch1_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <select class="form-control" id="gain_ch1_att">
-                      <option value="0">1x</option>
-                      <option value="1">10x</option>
-                    </select>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#gain">
+                  Merilni sondi
+                </a>
+              </h4>
+            </div>
+            <div id="gain" class="panel-collapse collapse">
+              <div class="panel-body">
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="group-label" style="padding-bottom: 10px;">Kanal 1</div>
+                  <div class="form-group">
+                    <label for="gain_ch1_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <select class="form-control" id="gain_ch1_att">
+                        <option value="0">1x</option>
+                        <option value="1">10x</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label for="gain_ch1_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <select class="form-control" id="gain_ch1_sett">
-                      <option value="0">LV</option>
-                      <option value="1">HV</option>
-                    </select>
+                  <div class="form-group">
+                    <label for="gain_ch1_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <select class="form-control" id="gain_ch1_sett">
+                        <option value="0">LV</option>
+                        <option value="1">HV</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="group-label" style="padding: 10px 0;">Kanal 2</div>
-                <div class="form-group">
-                  <label for="gain_ch2_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <select class="form-control" id="gain_ch2_att">
-                      <option value="0">1x</option>
-                      <option value="1">10x</option>
-                    </select>
+                  <div class="group-label" style="padding: 10px 0;">Kanal 2</div>
+                  <div class="form-group">
+                    <label for="gain_ch2_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <select class="form-control" id="gain_ch2_att">
+                        <option value="0">1x</option>
+                        <option value="1">10x</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label for="gain_ch2_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <select class="form-control" id="gain_ch2_sett">
-                      <option value="0">LV</option>
-                      <option value="1">HV</option>
-                    </select>
+                  <div class="form-group">
+                    <label for="gain_ch2_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <select class="form-control" id="gain_ch2_sett">
+                        <option value="0">LV</option>
+                        <option value="1">HV</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#generator">
-                Signalni generator
-              </a>
-            </h4>
-          </div>
-          <div id="generator" class="panel-collapse collapse">
-            <div class="panel-body">
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="checkbox" style="padding-bottom: 12px;">
-                  <label class="group-label">
-                    <input type="checkbox" id="gen_enable_ch1" checked> Kanal 1
-                  </label>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch1_sigtype">
-                      <option value="0">Sinusna</option>
-                      <option value="1">Pravokotna</option>
-                      <option value="2">Trikotna</option>
-                      <option value="3">Iz datoteke</option>
-                    </select>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#generator">
+                  Signalni generator
+                </a>
+              </h4>
+            </div>
+            <div id="generator" class="panel-collapse collapse">
+              <div class="panel-body">
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="checkbox" style="padding-bottom: 12px;">
+                    <label class="group-label">
+                      <input type="checkbox" id="gen_enable_ch1" checked> Kanal 1
+                    </label>
                   </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_ampl">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_ampl">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch1_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
+                    <div class="col-xs-4 col-sm-7">
+                      <select class="form-control" id="gen_ch1_sigtype">
+                        <option value="0">Sinusna</option>
+                        <option value="1">Pravokotna</option>
+                        <option value="2">Trikotna</option>
+                        <option value="3">Iz datoteke</option>
+                      </select>
+                    </div>
                   </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_ampl_units">Vpp</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_freq" class="col-xs-4 control-label"> Frekvenca:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_freq">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_freq">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch1_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_ampl">
+                      <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_ampl">
+                        <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                      </span>
+                    </div>
+                    <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_ampl_units">Vpp</div>
                   </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_freq_units">Hz</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_dc">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_dc">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch1_freq" class="col-xs-4 control-label"> Frekvenca:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_freq">
+                      <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_freq">
+                        <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                      </span>
+                    </div>
+                    <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_freq_units">Hz</div>
                   </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_dc_units">V</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch1_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch1_trigmode">
-                      <option value="0">Ponavljajoče</option>
-                      <option value="1">Enkratno</option>
-                      <option value="2">Zunanji izvor</option>
-                    </select>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch1_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_dc">
+                      <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_dc">
+                        <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                      </span>
+                    </div>
+                    <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_dc_units">V</div>
                   </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="row">
-                  <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
-                    <button id="gen_ch1_single" class="btn btn-primary" onclick="return postGenSingle(1)">
-                      <span class="glyphicon glyphicon-step-forward"></span> Enkratno
-                    </button>
-                    <button id="gen_ch1_upload" class="btn btn-primary" onclick="return showUploadForm(1)">
-                      <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
-                    </button>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch1_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
+                    <div class="col-xs-4 col-sm-7">
+                      <select class="form-control" id="gen_ch1_trigmode">
+                        <option value="0">Ponavljajoče</option>
+                        <option value="1">Enkratno</option>
+                        <option value="2">Zunanji izvor</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="checkbox" style="padding-top: 15px; padding-bottom: 12px;">
-                  <label class="group-label">
-                    <input type="checkbox" id="gen_enable_ch2" checked> Kanal 2
-                  </label>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch2_sigtype">
-                      <option value="0">Sinusna</option>
-                      <option value="1">Pravokotna</option>
-                      <option value="2">Trikotna</option>
-                      <option value="3">Iz datoteke</option>
-                    </select>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="row">
+                    <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
+                      <button id="gen_ch1_single" class="btn btn-primary" onclick="return postGenSingle(1)">
+                        <span class="glyphicon glyphicon-step-forward"></span> Enkratno
+                      </button>
+                      <button id="gen_ch1_upload" class="btn btn-primary" onclick="return showUploadForm(1)">
+                        <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_ampl">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_ampl">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="checkbox" style="padding-top: 15px; padding-bottom: 12px;">
+                    <label class="group-label">
+                      <input type="checkbox" id="gen_enable_ch2" checked> Kanal 2
+                    </label>
                   </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_ampl_units">Vpp</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_freq" class="col-xs-4 control-label"> Frekvenca:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_freq">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_freq">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch2_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
+                    <div class="col-xs-4 col-sm-7">
+                      <select class="form-control" id="gen_ch2_sigtype">
+                        <option value="0">Sinusna</option>
+                        <option value="1">Pravokotna</option>
+                        <option value="2">Trikotna</option>
+                        <option value="3">Iz datoteke</option>
+                      </select>
+                    </div>
                   </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_freq_units">Hz</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
-                  <div class="col-xs-4 col-sm-5">
-                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_dc">
-                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_dc">
-                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                    </span>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch2_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_ampl">
+                      <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_ampl">
+                        <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                      </span>
+                    </div>
+                    <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_ampl_units">Vpp</div>
                   </div>
-                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_dc_units">V</div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="form-group">
-                  <label for="gen_ch2_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
-                  <div class="col-xs-4 col-sm-7">
-                    <select class="form-control" id="gen_ch2_trigmode">
-                      <option value="0">Ponavljajoče</option>
-                      <option value="1">Enkratno</option>
-                      <option value="2">Zunanji izvor</option>
-                    </select>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch2_freq" class="col-xs-4 control-label"> Frekvenca:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_freq">
+                      <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_freq">
+                        <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                      </span>
+                    </div>
+                    <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_freq_units">Hz</div>
                   </div>
-                </div>
-              </form>
-              <form class="form-horizontal" role="form" onsubmit="return false;">
-                <div class="row">
-                  <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
-                    <button id="gen_ch2_single" class="btn btn-primary" onclick="return postGenSingle(2)">
-                      <span class="glyphicon glyphicon-step-forward"></span> Enkratno
-                    </button>
-                    <button id="gen_ch2_upload" class="btn btn-primary" onclick="return showUploadForm(2)">
-                      <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
-                    </button>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch2_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
+                    <div class="col-xs-4 col-sm-5">
+                      <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch2_dc">
+                      <span style="display: none;" class="input-group-btn" id="apply_gen_ch2_dc">
+                        <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                      </span>
+                    </div>
+                    <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch2_dc_units">V</div>
                   </div>
-                </div>
-              </form>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="gen_ch2_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
+                    <div class="col-xs-4 col-sm-7">
+                      <select class="form-control" id="gen_ch2_trigmode">
+                        <option value="0">Ponavljajoče</option>
+                        <option value="1">Enkratno</option>
+                        <option value="2">Zunanji izvor</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+                <form class="form-horizontal" role="form" onsubmit="return false;">
+                  <div class="row">
+                    <div class="col-xs-8 col-md-12 col-lg-8 col-sm-offset-4 col-md-offset-0 col-lg-offset-4">
+                      <button id="gen_ch2_single" class="btn btn-primary" onclick="return postGenSingle(2)">
+                        <span class="glyphicon glyphicon-step-forward"></span> Enkratno
+                      </button>
+                      <button id="gen_ch2_upload" class="btn btn-primary" onclick="return showUploadForm(2)">
+                        <span class="glyphicon glyphicon-upload"></span> Naloži datoteko
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+       <div class="tab-pane fade" id="navodila">
+          <div class="col-xs-12">
+            Aplikacija Dve osi je namenjena generiranju signalov na izhodu 1 in 2 računalniško merilne kartice Red Pitaya ter hkratnem opazovanju vhodnih signalov na hitrih vhodih 1 in 2. V nastavitvah je mogoče nastaviti prikaz signalov na hitrih vhodih z vpisom enačbe. Na primer, za levo ordinatno os (vertikalna Y os) se vpiše izris signala v obliki Y1=a1*V1+b1*V2+c1, kjer so a1, b1 in c1 konstante, ki jih vpišemo v vektor (a1, b1, c1), V1 je napetostni signal iz prvega hitrega vhoda, V2 pa napetostni signal iz drugega hitrega vhoda.
+          </div>
+        </div>
+      </div>
+
     <div class="footer clearfix">
-      <p class="pull-right" style="margin: 4px 0 0">&copy; 2014 - Red Pitaya</p>
+      <p class="pull-right" style="margin: 4px 0 0">2015 - eEksperimenti</p>
     </div>
   </div>
+</div>
  <!-- <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">

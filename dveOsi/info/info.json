@@ -1,6 +1,6 @@
 {
-    "name": "dveOsi ",
-    "version": "alpha",
-    "revision": "d3751f9",
-    "description": "A two channel waveform generator with integrated two channel time domain signal visualization system."
+    "name": "dveOsi",
+    "version": "",
+    "revision": "",
+    "description": "Aplikacija za generiranje in prikaz signalov na dveh ločenih ordinatnih oseh."
 }
