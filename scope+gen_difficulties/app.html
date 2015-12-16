@@ -77,93 +77,7 @@
         local: null
       };
 
-<<<<<<< HEAD
       var predvajanje = 0;
-=======
-  var time_range_max = [130, 1000, 8, 130, 1, 8];
-  var range_steps = [0.5, 1, 2, 5, 10, 20, 50, 100];
-  
-  var plot_options = {
-    colors: ['#3276B1', '#D2322D', '#009900'],    // channel1, channel2, trigger line
-    lines: { lineWidth: 1 },
-    selection: { mode: 'xy' },
-    zoom: { interactive: true, trigger: null },
-    xaxis: { min: xmin, max: xmax },
-    grid: { borderWidth: 0 },
-    legend: { noColumns: 2, margin: [0, 0], backgroundColor: 'transparent' },
-    touch: { autoWidth: false, autoHeight: false }
-  };
-  
-  // Settings which should not be modified
-  
-  var update_timer = null;
-  var zoompan_timer = null;
-  var downloading = false;
-  var sending = false;
-  var send_que = false;
-  var use_long_timeout = false;
-  var trig_dragging = false;
-  var touch_last_y = 0;
-  var user_editing = false;
-  var app_started = false;
-  var last_get_failed = false;
-  var refresh_counter = 0;
-  var autorun = 1;
-  var datasets = [];
-  var plot = null;
-  var params = {
-    original: null,
-    local: null
-  };
-  
-  // Default parameters - posted after server side app is started 
-  var def_params = {
-    en_avg_at_dec: 0
-  }; 
-    
-  // On page loaded
-  
-  $(function() {
-    
-    // Show different buttons on touch screens    
-    if(window.ontouchstart === undefined) {
-      $('.btn-lg').removeClass('btn-lg');
-      $('#accordion .btn, .modal .btn').addClass('btn-sm');
-      $('#btn_zoompan').remove();
-      $('#btn_zoomin, #btn_zoomout, #btn_pan').show();
-    }
-    else {
-      update_interval = update_interval_mobdev;
-      meas_panel_dec = meas_panel_dec_mobdev;
-      $('#btn_zoomin, #btn_zoomout, #btn_pan').remove();
-      $('#btn_zoompan').show();
-    }
-    
-    // Add application ID in the message from modal popup
-    $('.app-id').text(app_id);
-    
-    var src = (window.location).toString();
-    var tezavnost = src.substring(src.lastIndexOf("#") + 1);
-
-    if( tezavnost == "lahko")
-      $('#navodila_lahek').css("display", "");
-    else if( tezavnost == "srednje")
-      $('#navodila_srednji').css("display", "");
-    else if( tezavnost == "pametno")    
-      $('#navodila_zahtevni').css("display", "");
-    // Disable all controls until the params state is loaded for the first time 
-    //$('input, select, button', '.container').prop('disabled', true);
-    
-    // Events binding for trigger controls
-    
-    $('#trigger_canvas').on({
-      'mousedown touchstart': function(evt) {
-      
-        // Ignore the event if trigger source is External or mode is not Normal
-        if(!params.original || params.original.trig_mode != 1 || params.original.trig_source == 2) {
-          return;
-        }
->>>>>>> origin/master
       
       // Default parameters - posted after server side app is started 
       var def_params = {
@@ -183,62 +97,60 @@
             zvok(1);
           }
         });
-      
+
         $('#zvok2').on('click', function(){
           if(predvajanje != 1){
             predvajanje = 1;
             zvok(2);
           }
         });
-      
+
         function zvok(kanal){
-      
+
           window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
               
           var min = parseFloat(params.local.min_y);
           var max = parseFloat(params.local.max_y);
-      
+
           var Nsignal = 1024;                      
           var fmin = 200;
           var fmax = 1200;
            
           var k = (fmax - fmin)/(Math.abs(max - min));
           var n = fmax - k*Math.abs(max);
-      
+
           var frekvence = [];
           var fr;
-      
+
           for (var i = 0; i < 1024; i = i+2){   // zracunaj sample
-      
+
             fr = k*parseFloat(datasets[kanal - 1].data[i][1]) + n;
             fr = Math.round(fr*10000)/10000;
-      
+
             frekvence.push(fr);
           }
-      
+
           var oscillator = window.audioContext.createOscillator();
           var gain =  window.audioContext.createGain();
           gain.gain.value = 1;
-      
+
           oscillator.connect(gain);
           gain.connect(window.audioContext.destination);
           oscillator.noteOn(0);
-      
+
           var i = 0;
-      
+
           var cs = setInterval( function(){
-      
+
             oscillator.frequency.value = frekvence[i];
             
             if(i == 512){
               gain.gain.value = 0;
               predvajanje = 0;
-              console.log(predvajanje);
-              //oscillator.noteOff();
               clearInterval(cs);
             }
             i++;
-      
+
           }, 5);
         }
       
@@ -2338,7 +2250,6 @@
         value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
         return value + unit;
       }
-<<<<<<< HEAD
       
       
     </script>
@@ -2368,118 +2279,6 @@
           document.write(n);
         </script>
       </ul>
-=======
-    })
-    .fail(function() {
-      file_elem.show();
-      hint_elem.html('Error while uploading the selected file.');
-      file_elem.parent().addClass('has-error');
-    });
-  }
-  
-  function getLocalDecimalSeparator() {
-    var n = 1.1;
-    return n.toLocaleString().substring(1,2);
-  }
-  
-  function parseLocalFloat(num) {
-    return +(num.replace(getLocalDecimalSeparator(), '.'));
-  }
-  
-  function floatToLocalString(num) {
-    // Workaround for a bug in Safari 6 (reference: https://github.com/mleibman/SlickGrid/pull/472)
-    //return num.toString().replace('.', getLocalDecimalSeparator());
-    return (num + '').replace('.', getLocalDecimalSeparator());
-  }
-  
-  function shortenFloat(value) {
-    return value.toFixed(Math.abs(value) >= 10 ? 1 : 3);
-  }
-
-  function convertHz(value) {
-    var unit = '';
-    var decsep = getLocalDecimalSeparator();
-    
-    if(value >= 1e6) {
-      value /= 1e6;
-      unit = '<span class="unit">MHz</span>';
-    }
-    else if(value >= 1e3) {
-      value /= 1e3;
-      unit = '<span class="unit">kHz</span>';
-    }
-    else {
-      unit = '<span class="unit">Hz</span>';
-    }
-
-    // Fix to 4 decimal digits in total regardless of the decimal point placement
-    var eps = 1e-2;
-    if (value >= 100 - eps) {
-      value = value.toFixed(1);
-    }
-    else if  (value >= 10 - eps) {
-      value = value.toFixed(2);
-    }
-    else {
-      value = value.toFixed(3);
-    }
-    
-    value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
-    return value + unit;
-  }
-  
-  function convertSec(value) {
-    var unit = '';
-    var decsep = getLocalDecimalSeparator();
-    
-    if(value < 1e-6) {
-      value *= 1e9;
-      unit = '<span class="unit">ns</span>';
-    }
-    else if(value < 1e-3) {
-      value *= 1e6;
-      unit = '<span class="unit">µs</span>';
-    }
-    else if(value < 1) {
-      value *= 1e3
-      unit = '<span class="unit">ms</span>';
-    }
-    else {
-      unit = '<span class="unit">s</span>';
-    }
-
-    // Fix to 4 decimal digits in total regardless of the decimal point placement
-    var eps = 1e-2;
-    if (value >= 100 - eps) {
-      value = value.toFixed(1);
-    }
-    else if  (value >= 10 - eps) {
-      value = value.toFixed(2);
-    }
-    else {
-      value = value.toFixed(3);
-    }
-    
-    value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
-    return value + unit;
-  }
-
-  function OpenInNewTab(url) {
-    var win = window.open(window.location.href, '_blank');
-    win.focus();
-  }
-
-  
-  </script>
-  <script src="../assets/redpitaya.custom.js"></script>
-</head>
-<body style="">
-  <div class="header">
-    <div class="container">
-      <a id="btn_exit" class="pull-left" href="/scope+gen_difficulties/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-      <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
-      <h2 class="page-title">Signalni generator in osciloskop</h2>
->>>>>>> origin/master
     </div>
     <div class="container">
     <div class="row">
@@ -2515,23 +2314,7 @@
             </div>
           </div>
         </div>
-<<<<<<< HEAD
         <div class="col-xs-4"></div>
-=======
-        <button id="btn_ch1" class="btn btn-primary" data-checked="true" onclick="setVisibleChannels(this)">Kanal 1</button>
-        <button id="btn_ch2" class="btn btn-primary" data-checked="true" onclick="setVisibleChannels(this)">Kanal 2</button>
-
-        <button id="zvok1">
-          <img src="../assets/images/zvok_simbol_ch1.png" alt="Save icon"/>
-        </button>
-
-        <button id="zvok2">
-          <img src="../assets/images/zvok_simbol_ch2.png" alt="Save icon"/>
-        </button>
-        
-        <!-- <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Averaging</button>
-    -->
->>>>>>> origin/master
       </div>
     </div>
     <div class="row">
@@ -3052,7 +2835,6 @@
         <a data-toggle="collapse" href="#vzorci"> Vzorčni signali </a>
         </h4>
         </div>
-<<<<<<< HEAD
         <div id="vzorci" class="panel-collapse collapse">
         <div class="panel-body">
         <form class="form-horizontal" autocomplete="off" role="form" onsubmit="return false;" style="display: none;">
@@ -3161,49 +2943,6 @@
         <div class="tab-pane fade" id="navodila1">
         <div class="col-xs-12">
         //vstavi besedilo  
-=======
-      </div>
-    </div>
-    </div>
-    </div>
-     <div class="tab-pane fade" id="navodila1">
-        <div id="navodila_zahtevni" class="col-xs-12" style="display: none;">
-         Zahtevni način:
-         <br>
-          Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
-<<<<<<< HEAD
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v zahtevnejšem načinu izvajanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a onclick="OpenInNewTab()">to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
-=======
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v zahtevnejšem načinu izvajanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
-<<<<<<< Updated upstream
->>>>>>> f26f26e7407a8a92eaa827c4c0c7b7647307879a
-        </div>
-        <div id="navodila_srednji" class="col-xs-12" style="display: none;">
-          Srednje zahtevni način:
-          <br>
-          Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v srednje zahtevnem načinu izvajanja, ki ima nekoliko poenostavljeno razlago delovanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
-        </div>
-        <div id="navodila_lahek" class="col-xs-12" style="display: none;">
-          Lahek način:
-          <br>
-          Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v srednje lahkem načinu izvajanja, ki ima poenostavljeno razlago delovanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.  
-=======
->>>>>>> Stashed changes
-        </div>
-        <div id="navodila_srednji" class="col-xs-12" style="display: none;">
-          Srednje zahtevni način:
-          <br>
-          Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v srednje zahtevnem načinu izvajanja, ki ima nekoliko poenostavljeno razlago delovanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
-        </div>
-        <div id="navodila_lahek" class="col-xs-12" style="display: none;">
-          Lahek način:
-          <br>
-          Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v srednje lahkem načinu izvajanja, ki ima poenostavljeno razlago delovanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.  
->>>>>>> origin/master
         </div>
         </div>
         </div>
