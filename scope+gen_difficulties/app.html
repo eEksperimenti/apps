@@ -2193,6 +2193,11 @@
     return value + unit;
   }
 
+  function OpenInNewTab(url) {
+    var win = window.open(window.location.href, '_blank');
+    win.focus();
+  }
+
   
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
@@ -2849,7 +2854,7 @@
          Zahtevni način:
          <br>
           Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v zahtevnejšem načinu izvajanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
+          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v zahtevnejšem načinu izvajanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a onclick="OpenInNewTab()">to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
         </div>
         <div id="navodila_srednji" class="col-xs-12" style="display: none;">
           Srednje zahtevni način:
