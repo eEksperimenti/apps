@@ -80,7 +80,10 @@
 <<<<<<< HEAD
       var predvajanje = 0;
 =======
+<<<<<<< HEAD
   var predvajanje = 0;
+=======
+>>>>>>> origin/master
   var time_range_max = [130, 1000, 8, 130, 1, 8];
   var range_steps = [0.5, 1, 2, 5, 10, 20, 50, 100];
   
@@ -2339,12 +2342,15 @@
       }
 <<<<<<< HEAD
       
+<<<<<<< HEAD
 =======
 
       function OpenInNewTab(url) {
         var win = window.open(window.location, '_blank');
         win.focus();
       } 
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
       
     </script>
@@ -2375,7 +2381,112 @@
         </script>
       </ul>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+=======
+    })
+    .fail(function() {
+      file_elem.show();
+      hint_elem.html('Error while uploading the selected file.');
+      file_elem.parent().addClass('has-error');
+    });
+  }
+  
+  function getLocalDecimalSeparator() {
+    var n = 1.1;
+    return n.toLocaleString().substring(1,2);
+  }
+  
+  function parseLocalFloat(num) {
+    return +(num.replace(getLocalDecimalSeparator(), '.'));
+  }
+  
+  function floatToLocalString(num) {
+    // Workaround for a bug in Safari 6 (reference: https://github.com/mleibman/SlickGrid/pull/472)
+    //return num.toString().replace('.', getLocalDecimalSeparator());
+    return (num + '').replace('.', getLocalDecimalSeparator());
+  }
+  
+  function shortenFloat(value) {
+    return value.toFixed(Math.abs(value) >= 10 ? 1 : 3);
+  }
+
+  function convertHz(value) {
+    var unit = '';
+    var decsep = getLocalDecimalSeparator();
+    
+    if(value >= 1e6) {
+      value /= 1e6;
+      unit = '<span class="unit">MHz</span>';
+    }
+    else if(value >= 1e3) {
+      value /= 1e3;
+      unit = '<span class="unit">kHz</span>';
+    }
+    else {
+      unit = '<span class="unit">Hz</span>';
+    }
+
+    // Fix to 4 decimal digits in total regardless of the decimal point placement
+    var eps = 1e-2;
+    if (value >= 100 - eps) {
+      value = value.toFixed(1);
+    }
+    else if  (value >= 10 - eps) {
+      value = value.toFixed(2);
+    }
+    else {
+      value = value.toFixed(3);
+    }
+    
+    value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
+    return value + unit;
+  }
+  
+  function convertSec(value) {
+    var unit = '';
+    var decsep = getLocalDecimalSeparator();
+    
+    if(value < 1e-6) {
+      value *= 1e9;
+      unit = '<span class="unit">ns</span>';
+    }
+    else if(value < 1e-3) {
+      value *= 1e6;
+      unit = '<span class="unit">µs</span>';
+    }
+    else if(value < 1) {
+      value *= 1e3
+      unit = '<span class="unit">ms</span>';
+    }
+    else {
+      unit = '<span class="unit">s</span>';
+    }
+
+    // Fix to 4 decimal digits in total regardless of the decimal point placement
+    var eps = 1e-2;
+    if (value >= 100 - eps) {
+      value = value.toFixed(1);
+    }
+    else if  (value >= 10 - eps) {
+      value = value.toFixed(2);
+    }
+    else {
+      value = value.toFixed(3);
+    }
+    
+    value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
+    return value + unit;
+  }
+
+  function OpenInNewTab(url) {
+    var win = window.open(window.location.href, '_blank');
+    win.focus();
+  }
+
+  
+>>>>>>> origin/master
   </script>
   <script src="../assets/redpitaya.custom.js"></script>
 </head>
@@ -2422,10 +2533,14 @@
           </div>
         </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <div class="col-xs-4"></div>
 =======
 
+=======
+>>>>>>> origin/master
         <div class="col-xs-4"></div>
+=======
         <button id="btn_ch1" class="btn btn-primary" data-checked="true" onclick="setVisibleChannels(this)">Kanal 1</button>
         <button id="btn_ch2" class="btn btn-primary" data-checked="true" onclick="setVisibleChannels(this)">Kanal 2</button>
 
@@ -2960,6 +3075,7 @@
         <a data-toggle="collapse" href="#vzorci"> Vzorčni signali </a>
         </h4>
         </div>
+<<<<<<< HEAD
         <div id="vzorci" class="panel-collapse collapse">
         <div class="panel-body">
         <form class="form-horizontal" autocomplete="off" role="form" onsubmit="return false;" style="display: none;">
@@ -3066,17 +3182,46 @@
         </div>
         </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/master
         <div class="tab-pane fade" id="navodila1">
         <div class="col-xs-12">
         //vstavi besedilo  
 =======
+<<<<<<< HEAD
         
+=======
+      </div>
+    </div>
+    </div>
+    </div>
+>>>>>>> origin/master
      <div class="tab-pane fade" id="navodila1">
         <div id="navodila_zahtevni" class="col-xs-12" style="display: none;">
          Zahtevni način:
          <br>
           Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
-          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v zahtevnejšem načinu izvajanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a onclick="OpenInNewTab()">to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.     
+<<<<<<< HEAD
+          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v zahtevnejšem načinu izvajanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a onclick="OpenInNewTab()">to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
+=======
+          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v zahtevnejšem načinu izvajanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
+<<<<<<< Updated upstream
+>>>>>>> f26f26e7407a8a92eaa827c4c0c7b7647307879a
+        </div>
+        <div id="navodila_srednji" class="col-xs-12" style="display: none;">
+          Srednje zahtevni način:
+          <br>
+          Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
+          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v srednje zahtevnem načinu izvajanja, ki ima nekoliko poenostavljeno razlago delovanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.
+        </div>
+        <div id="navodila_lahek" class="col-xs-12" style="display: none;">
+          Lahek način:
+          <br>
+          Aplikacijo Osciloskop in signalni generator lahko uporabljate za generiranje in prikaz analognih signalov iz hitrih vhodov računalniško-merilne  kartice Red Pitaya. 
+          Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v srednje lahkem načinu izvajanja, ki ima poenostavljeno razlago delovanja. Celoten opis eksperimenta se nahaja <a>na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a>to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.  
+=======
+>>>>>>> Stashed changes
         </div>
         <div id="navodila_srednji" class="col-xs-12" style="display: none;">
           Srednje zahtevni način:
