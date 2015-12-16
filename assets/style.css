@@ -340,3 +340,8 @@ ul li .dropdown-toggle{
   background-color: white;
   color: black;
 }
+
+.popover{
+  max-width: none;
+  width: 20em;
+}
