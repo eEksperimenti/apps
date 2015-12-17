@@ -232,7 +232,30 @@
   
   // On page loaded
   
-  $(function() { 
+  $(function() {
+
+    var protocol  = window.location.protocol;
+    var base_addr = window.location.hostname;
+
+    $(".opis").on("click", function(){
+      var win = window.open(protocol +"//" + base_addr + '/index.html?page=soncna-celica-aplikacija', '_blank');
+      win.focus();
+    });
+
+    $("#tezji_navodila").on("click", function(){
+      var win = window.open(protocol +"//" + base_addr + '/index.html?page=soncna-celica-tezji', '_blank');
+      win.focus();
+    });
+
+    $("#srednji_navodila").on("click", function(){
+      var win = window.open(protocol +"//" + base_addr + '/index.html?page=soncna-celica-srednji', '_blank');
+      win.focus();
+    });
+
+    $("#lazji_navodila").on("click", function(){
+      var win = window.open(protocol +"//" + base_addr + '/index.html?page=soncna-celica-lazji', '_blank');
+      win.focus();
+    });
     
     // Show different buttons on touch screens    
     if(window.ontouchstart === undefined) {
@@ -2094,16 +2117,16 @@
 
       <div class="tab-pane fade" id="navodila1" style="padding: 2em">
         Aplikacija eSončna celica je namenjena prikazu tokovno-napetostne (I-U) karakteristike sončne celice. 
-        Aplikacija je vezana na eEksperiment <a>Sončna celica</a>, ki se lahko izvaja v treh zahtevnostnih načinih. Če ste pravilno povezali potrebne komponente, se navodila za izvajanje eksperimenta nahajajo na sledečih povezavah:
+        Aplikacija je vezana na eEksperiment <a class="opis">Sončna celica</a>, ki se lahko izvaja v treh zahtevnostnih načinih. Če ste pravilno povezali potrebne komponente, se navodila za izvajanje eksperimenta nahajajo na sledečih povezavah:
         <br>
         <br>
-          -<a>Enostaven način izvajanja</a>
+          -<a id="lazji_navodila">Enostaven način izvajanja</a>
         <br>
         <br>
-          -<a>Srednje zahteven način izvajanja</a>
+          -<a id="srednji_navodila">Srednje zahteven način izvajanja</a>
         <br>
         <br>
-          -<a>Zahteven način izvajanja</a>
+          -<a id="tezji_navodila">Zahteven način izvajanja</a>
       </div>  
     </div>  
   </div>
