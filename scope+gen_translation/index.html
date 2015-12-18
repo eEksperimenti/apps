@@ -16,7 +16,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generator & Oscilloscope</title>
+  <title>Generator & Osciloskop</title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
   <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
@@ -940,7 +940,7 @@
     
     params.original.time_units = params.local.time_units = new_params.time_units;
     var timeu_lbl = (params.original.time_units == 0 ? 'µs' : (params.original.time_units == 1 ? 'ms' : 's'));
-    $('#xtitle').text(  'Time [ ' + timeu_lbl + ' ]').trigger('translate');
+    $('#xtitle').text(  'Čas [ ' + timeu_lbl + ' ]').trigger('translate');
   }
   
   function isParamChanged() {
@@ -1856,17 +1856,7 @@
         </div>
       </div>
 
-      <div class="col-md-4 col-xs-12 col-sm-12">
-          <ul class="nav nav-tabs">
-              <li class="active"><a data-toggle="tab" href="#meritve" > MERITVE </a></li>
-              <li>
-                <a data-toggle="tab" href="#navodila1"> NAVODILA
-              </li>
-          </ul>
-            <div class="tab-content">
-              <div class="tab-pane fade in active" id="meritve">
-
-      <div class="panel-group col-xs-12 col-sm-12 col-md-12" id="accordion">
+      <div class="panel-group col-xs-12 col-sm-12 col-md-4" id="accordion">
 		<div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
@@ -2318,12 +2308,6 @@
         </div>
       </div>
     </div>
-    <div class="tab-pane fade" id="navodila1">
-        <div class="col-xs-12">
-               //vstavi besedilo  
-        </div>
-    </div>
-  </div>
   </div>
 
   <div class="footer clearfix">
