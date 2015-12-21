@@ -2,25 +2,17 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/../style.css" type="text/css" />
-    <link rel="stylesheet" href="../assets/bootstrap-3.0.0/css/bootstrap.css" type="text/css" />
     <link rel="stylesheet" href="../assets/style.css" type="text/css" />
     <link rel="stylesheet" href="../assets/bootstrap-3.0.0/css/bootstrap.min.css" type="text/css" />
-    <!--[if IE]>
-      <link rel="stylesheet" href="./ie9.css" type="text/css" />
-    <![endif]-->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-
     <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
-    <title>My Red Pitaya</title>
+    <title> eEksperimenti </title>
   </head>
-
   <body>
     <div class="headerwrapper">
       <div class="container">
-        <a style="padding: 10px 0 0 40px;" id="btn_exit" class="pull-left" href="/.."><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
-        <a href="http://www.redpitaya.com">
-          <img src="/../assets/images/eEksperimenti_logo.png" class="logo"/>
-        </a>
+        <a style="padding: 10px 0 0 40px;" id="btn_exit" class="pull-left" href="../../../apps"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
+        <img src="/../assets/images/eEksperimenti_logo.png" class="logo"/>
       </div>
     </div>
     <div class="bazaar-link">
@@ -33,116 +25,28 @@
           </div>
         </div>
         <div class="row" style="padding: 2em 0;">
-          <script type="text/javascript">
-            document.write("<div class='col-md-4 text-center'> <a href='");
-
-            var e = location.hash.concat("app.html#sl/#lahko");
-
-            document.write(e);
-            document.write("' style='color: white;'> <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'>ENOSTAVEN NAČIN </button> </a> </div>");
-
-
-            document.write("<div class='col-md-4 text-center'> <a href='");
-
-            var e = location.hash.concat("app.html#sl/#srednje");
-
-            document.write(e);
-            document.write("' style='color: white;'> <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> SREDNJE ZAHTEVEN NAČIN </button> </a></div>");
-
-            document.write("<div class='col-md-4 text-center'> <a href='");
-
-            var e = location.hash.concat("app.html#sl/#pametno");
-
-            document.write(e);
-            document.write("' style='color: white;'> <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ZAHTEVNEJŠI NAČIN </button> </a> </div>");
-          </script>
+          <div class="row" style="padding: 2em 0;">
+          <div class='col-md-4 text-center'> 
+            <a href="app.html#sl/#lahko"  style='color: white;' id="lahko"> 
+              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ENOSTAVEN NAČIN </button> 
+            </a>
+          </div> 
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl/#srednje"  style='color: white;' id="tezko"> 
+              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> SREDNJE ZAHTEVEN NAČIN </button> 
+            </a>
+          </div>
+          <div class='col-md-4 text-center'>
+            <a href="app.html#sl/#pametno"  style='color: white;' id="ugani"> 
+              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ZAHTEVNEJŠI NAČIN </button> 
+            </a>
+          </div>
+        </div>
         </div>
       </div>
     </div>
   </body>
-  <script type="text/javascript">
-
-    var elementi = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
-    if(getCookie("konec") == ""){
-
-      setCookie("konec", "ne", 100);
-      shuffle(elementi);
-
-      for(var i = 1; i <= elementi.length; i++){
-        setCookie(i, elementi[i - 1], 100);
-      }
-    }
-
-    if(getCookie("konec") == "da" || lenCookie() == 1){
-      shuffle(elementi);
-
-      for(var i = 1; i <= elementi.length; i++){
-        setCookie(i, elementi[i - 1], 100);
-      }
-    }
-
-    function getCookie(cname){
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i=0; i<ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0)==' ') 
-              c = c.substring(1);
-            if (c.indexOf(name) == 0) 
-              return c.substring(name.length, c.length);
-        }
-        return "";
-    }
-
-    function lenCookie(){
-
-      var ca = document.cookie.split(';');
-      var n = 0;
-
-      for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-
-        while (c.charAt(0)==' ') 
-          c = c.substring(1);
-
-        n++;
-      }
-        return n;
-    }
-
-    function setCookie(cname, cvalue, exdays){
-      var d = new Date();
-      d.setTime(d.getTime() + (exdays*24*60*60*1000));
-      var expires = "expires="+d.toUTCString();
-      document.cookie = cname + "=" + cvalue + "; " + expires;
-    }
-
-    function eraseCookie(cname){
-      var d = new Date();
-      d.setTime(d.getTime() - (2*24*60*60*1000));
-      var expires = "expires="+d.toUTCString();
-      document.cookie = cname + "=" + "42" + "; " + expires;
-    }
-
-    function shuffle(array){
-      var currentIndex = array.length, temporaryValue, randomIndex;
-
-      // While there remain elements to shuffle...
-      while (0 !== currentIndex) {
-
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-
-        // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-      }
-
-      return array;
-    }
-
+  <script type="text/javascript"> 
+    localStorage.clear();
   </script>
 </html>
