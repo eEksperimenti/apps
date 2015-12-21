@@ -1,3 +1,5 @@
+window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
 $('#zvok1').popover({ trigger: "hover", html: true });
 $('#zvok2').popover({ trigger: "hover", html: true });
 
@@ -16,8 +18,6 @@ $('#zvok2').on('click', function(){
 });
 
 function zvok(kanal){
-
-  window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       
   var min = parseFloat(params.local.min_y);
   var max = parseFloat(params.local.max_y);
