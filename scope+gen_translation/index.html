@@ -16,7 +16,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generator & Osciloskop</title>
+  <title> Signalni generator in osciloskop </title>
   <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
   <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
   <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
@@ -62,8 +62,8 @@
   var plot_options = {
     colors: ['#3276B1', '#D2322D', '#009900'],    // channel1, channel2, trigger line
     lines: { lineWidth: 1 },
-    selection: { mode: 'xy' },
-    zoom: { interactive: true, trigger: null },
+    //selection: { mode: 'xy' },
+    //zoom: { interactive: true, trigger: null },
     xaxis: { min: xmin, max: xmax },
     grid: { borderWidth: 0 },
     legend: { noColumns: 2, margin: [0, 0], backgroundColor: 'transparent' },
@@ -96,11 +96,80 @@
   var def_params = {
     en_avg_at_dec: 0
   }; 
+
+  var predvajanje = 0;
     
   // On page loaded
   
   $(function() {
     
+    window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    $('#zvok1').popover({ trigger: "hover", html: true });
+    $('#zvok2').popover({ trigger: "hover", html: true });
+
+    $('#zvok1').on('click', function(){
+      if(predvajanje != 1){
+        predvajanje = 1;
+        zvok(1);
+      }
+    });
+
+    $('#zvok2').on('click', function(){
+      if(predvajanje != 1){
+        predvajanje = 1;
+        zvok(2);
+      }
+    });
+
+    function zvok(kanal){
+          
+      var min = parseFloat(params.local.min_y);
+      var max = parseFloat(params.local.max_y);
+
+      var Nsignal = 1024;                      
+      var fmin = 200;
+      var fmax = 1200;
+       
+      var k = (fmax - fmin)/(Math.abs(max - min));
+      var n = fmax - k*Math.abs(max);
+
+      var frekvence = [];
+      var fr;
+
+      for (var i = 0; i < 1024; i = i+2){   // zracunaj sample
+
+        fr = k*parseFloat(datasets[kanal - 1].data[i][1]) + n;
+        fr = Math.round(fr*10000)/10000;
+
+        frekvence.push(fr);
+      }
+
+      var oscillator = window.audioContext.createOscillator();
+      var gain =  window.audioContext.createGain();
+      gain.gain.value = 1;
+
+      oscillator.connect(gain);
+      gain.connect(window.audioContext.destination);
+      oscillator.noteOn(0);
+
+      var i = 0;
+
+      var cs = setInterval( function(){
+
+        oscillator.frequency.value = frekvence[i];
+        
+        if(i == 512){
+          gain.gain.value = 0;
+          oscillator.noteOff(0);
+          predvajanje = 0;
+          clearInterval(cs);
+        }
+        i++;
+
+      }, 5);
+    }
+
     // Show different buttons on touch screens    
     if(window.ontouchstart === undefined) {
       $('.btn-lg').removeClass('btn-lg');
@@ -119,7 +188,7 @@
     $('.app-id').text(app_id);
     
     // Disable all controls until the params state is loaded for the first time 
-    $('input, select, button', '.container').prop('disabled', true);
+    //$('input, select, button', '.container').prop('disabled', true);
     
     // Events binding for trigger controls
     
@@ -1796,7 +1865,7 @@
 <body>
   <div class="header">
     <div class="container">
-      <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
+      <a id="btn_exit" class="pull-left" href="../../../apps"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
       <h2 class="page-title">Signalni generator in osciloskop</h2>
     </div>
@@ -1813,32 +1882,41 @@
 		<li><a href="#sl" class='translate' >sl</a></li>
 	  </ul>
 	</div>
-  
   <div class="container">
     <div class="row">
-	
       <div id="btn_toolbar" class="col-xs-12">
-        
-        
-        <div id="selzoompan" class="btn-group" data-toggle="buttons">
-          <button id="btn_zoomin" class="btn btn-primary" onclick="selectTool.call(this, 'zoomin')" style="display: none">
-            <span class="glyphicon glyphicon-zoom-in"></span>
-          </button>
-          <button id="btn_zoomout" class="btn btn-default" onclick="selectTool.call(this, 'zoomout')" style="display: none">
-            <span class="glyphicon glyphicon-zoom-out"></span>
-          </button>
-          <button id="btn_pan" class="btn btn-default" onclick="selectTool.call(this, 'pan')" style="display: none">
-            <span class="glyphicon glyphicon-move"></span>
-          </button>
-          <button id="btn_zoompan" class="btn btn-primary btn-lg" onclick="selectTool.call(this, 'zoompan')" style="display: none">
-            <span class="glyphicon glyphicon-search"></span><span class="glyphicon glyphicon-move"></span>
-          </button>
+        <div class="col-xs-8">
+          <div class="col-xs-4">
+            <div id="selzoompan" class="btn-group" data-toggle="buttons">
+              <button id="btn_zoomin" class="btn btn-primary" onclick="selectTool.call(this, 'zoomin')">
+              <span class="glyphicon glyphicon-zoom-in"></span>
+              </button>
+              <button id="btn_zoomout" class="btn btn-default" onclick="selectTool.call(this, 'zoomout')">
+              <span class="glyphicon glyphicon-zoom-out"></span>
+              </button>
+              <button id="btn_pan" class="btn btn-default" onclick="selectTool.call(this, 'pan')" style="">
+              <span class="glyphicon glyphicon-move"></span>
+              </button>
+            </div>
+          </div>
+          <div class="col-xs-4">
+            <button id="btn_ch1" class="btn btn-primary" data-checked="true" onclick="setVisibleChannels(this)">Kanal 1</button>
+            <button id="btn_ch2" class="btn btn-primary" data-checked="true" onclick="setVisibleChannels(this)">Kanal 2</button>
+          </div>
+          <div class="col-xs-4" style="padding-bottom: 0.5em;">
+            <div class="col-xs-6">
+              <button id="zvok1" style="background-color: white; border: none;" data-content="S klikom na ta gumb, se signal na zaslonu pretvori v zvočni signal z uporabo pretvorbe iz amplitude v frekvenco (amplitudno frekvenčna modulacija). To je eksperimentalni sistem, ki je namenjen slabovidnim ali slepim, ki jim ta način morda lahko olajša ali sploh omogoča sodelovanje pri eksperimentih. Sinusni signal se torej ne sliši kot zvok ene frekvence pač pa kot izmenjaje višji in nižji toni. <br><br> Aplikacija deluje smiselno, če graf na sliki miruje. To dosežemo z ustrezno nastavitvijo Proženja signala." data-placement="bottom">
+              <img class="img-responsive" src="../assets/images/zvok_simbol_ch1.png" alt="zvok1" style="width: 100%;"/>
+              </button>
+            </div>
+            <div class="col-xs-6">
+              <button id="zvok2" style="background-color: white; border: none;" data-content="S klikom na ta gumb, se signal na zaslonu pretvori v zvočni signal z uporabo pretvorbe iz amplitude v frekvenco (amplitudno frekvenčna modulacija). To je eksperimentalni sistem, ki je namenjen slabovidnim ali slepim, ki jim ta način morda lahko olajša ali sploh omogoča sodelovanje pri eksperimentih. Sinusni signal se torej ne sliši kot zvok ene frekvence pač pa kot izmenjaje višji in nižji toni. <br><br> Aplikacija deluje smiselno, če graf na sliki miruje. To dosežemo z ustrezno nastavitvijo Proženja signala." data-placement="bottom">
+              <img class="img-responsive" src="../assets/images/zvok_simbol_ch2.png" alt="zvok2" style="width: 100%;"/>
+              </button>
+            </div>
+          </div>
         </div>
-        <button id="btn_ch1" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 1</button>
-        <button id="btn_ch2" class="btn btn-primary btn-lg" data-checked="true" onclick="setVisibleChannels(this)">Kanal 2</button>
-        
-        <!-- <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Povprečenje signalov</button>
-		-->
+        <div class="col-xs-4"></div>
       </div>
     </div>
 
@@ -1868,12 +1946,12 @@
           <div  id="autoscale"  class="panel-collapse collapse in"> 
             <div class="container">
 				<div class="row" style="margin: 4px">
-					<button id="btn_autoscale_y" class="btn btn-primary btn-block"  onclick="autoscaleY()">
+					<button id="btn_autoscale_y" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
 						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
 					</button>
 				</div>
 				<div class="row" style="margin: 4px">
-					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
+					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="autoscaleY()">
 						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
 					</button>
 				</div>
@@ -2308,12 +2386,12 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="footer clearfix">
-      <p class="pull-right" style="margin: 4px 0 0"> 2015 - eEksperimenti </p>
+    <div class="row">
+      <div class="footer clearfix" style="margin: 2em 2em 0 2em;">
+        <p class="text-center"> 2015 - eEksperimenti</p>
+      </div>
     </div>
-    
+  </div>
   <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
