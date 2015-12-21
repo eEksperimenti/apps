@@ -47,8 +47,8 @@
       var plot_options = {
         colors: ['#3276B1', '#D2322D', '#009900'],    // channel1, channel2, trigger line
         lines: { lineWidth: 1 },
-        selection: { mode: 'xy' },
-        zoom: { interactive: true, trigger: null },
+        //selection: { mode: 'xy' },
+        //zoom: { interactive: true, trigger: null },
         xaxis: { min: xmin, max: xmax },
         grid: { borderWidth: 0 },
         legend: { noColumns: 2, margin: [0, 0], backgroundColor: 'transparent' },
@@ -2291,7 +2291,7 @@
   <body style="">
     <div class="header">
       <div class="container">
-        <a id="btn_exit" class="pull-left" href="/scope+gen_difficulties/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
+        <a id="btn_exit" class="pull-left" href="index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
         <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
         <h2 class="page-title">Signalni generator in osciloskop</h2>
       </div>
@@ -2302,15 +2302,8 @@
       <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
       <span class="caret"></span></button>
       <ul class="dropdown-menu">
-        <script type="text/javascript">
-          document.write("<li><a href=");
-          var l = location.hash.substr(5);
-          var m = "'#en/#".concat(l).concat("'class='translate'>en</a></li>");
-          document.write(m);
-          document.write("<li><a href=");
-          var n = "'#sl/#".concat(l).concat("'class='translate'>sl</a></li>");
-          document.write(n);
-        </script>
+        <li><a href="#en" class='translate' >en</a></li>
+        <li><a href="#sl" class='translate' >sl</a></li>
       </ul>
     </div>
     <div class="container">
@@ -2993,8 +2986,8 @@
           Na to aplikacijo je vezan eEksperiment: Osciloskop in signalni generator v srednje lahkem načinu izvajanja, ki ima poenostavljeno razlago delovanja. Celoten opis eksperimenta se nahaja <a class="opis">na tej povezavi</a>, ki se bo odprla v novem zavihku. S klikom na <a id="lazji_navodila">to povezavo</a> pa se v novem zavihku odprejo le navodila za izvajanje eksperimenta.  
         </div>
         </div>
-        <div class="footer clearfix">
-          <p class="pull-right" style="margin: 4px 0 0"> 2015 - eEksperimenti</p>
+        <div class="footer clearfix" style="margin: 2em 2em 0 2em;">
+          <p class="text-center"> 2015 - eEksperimenti</p>
         </div>
         <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
           <div class="modal-dialog">
