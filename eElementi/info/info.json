@@ -1,6 +1,6 @@
 {
     "name": "eElementi",
-    "version": "alpha",
-    "revision": "d3751f9",
-    "description": "A two channel waveform generator with integrated two channel time domain signal visualization system."
+    "version": "",
+    "revision": "",
+    "description": "Aplikacija eElementi je podobna aplikaciji eLastnosti elementov, le da se jo izvaja na oddaljen način. Za izvajanje aplikacije je potrebna rezervacija."
 }
