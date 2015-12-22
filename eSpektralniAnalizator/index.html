@@ -58,8 +58,8 @@
   var plot_options = {
     colors: ['#3276B1', '#D2322D'],    // channel1, channel2
     lines: { lineWidth: 1 },
-    selection: { mode: 'xy' },
-    zoom: { interactive: true, trigger: null },
+    //selection: { mode: 'xy' },
+    //zoom: { interactive: true, trigger: null },
     xaxis: { min: xmin, max: xmax },
     yaxis: { min: ymin, max: ymax },
     grid: { borderWidth: 0 },
@@ -785,13 +785,13 @@
 <body>
   <div class="header">
     <div class="container">
-      <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
+      <a id="btn_exit" class="pull-left" href="../../../apps"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
       <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png">
       <h2 class="page-title">eSpektralni analizator</h2>
     </div>
   </div>
 
-  <div class="dropdown dropdown-menu-right" style="float: right; margin-top: 15px; margin-right: 70px;">
+  <div class="dropdown dropdown-menu-right" style="display: none; float: right; margin-top: 15px; margin-right: 70px;">
     <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
     <span class="caret" ></span></button>
     </button>
