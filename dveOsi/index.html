@@ -129,9 +129,7 @@
       // On page loaded
       
       $(function() {
-
-        $("#btn_exit")[0].href = "../../../apps";
-        
+              
         window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         $('#zvok1').popover({ trigger: "hover", html: true });
@@ -874,11 +872,11 @@
             
             datasets = [];
             
-            var t_channel=$('#t-channel').text();
+            //var t_channel=$('#t-channel').text();
             
             for(var i=0; i<dresult.datasets.g1.length; i++) {
-              dresult.datasets.g1[i].color = i;
-              dresult.datasets.g1[i].label = t_channel + (i+1);          
+              //dresult.datasets.g1[i].color = i;
+              //dresult.datasets.g1[i].label = t_channel + (i+1);          
               datasets.push(dresult.datasets.g1[i]);
             }
             
@@ -1147,7 +1145,7 @@
         
         params.original.time_units = params.local.time_units = new_params.time_units;
         var timeu_lbl = (params.original.time_units == 0 ? 'µs' : (params.original.time_units == 1 ? 'ms' : 's'));
-        $('#xtitle').text(  'Time [ ' + timeu_lbl + ' ]').trigger('translate');
+        $('#xtitle').text(  'Čas [ ' + timeu_lbl + ' ]');
       }
       
       function isParamChanged() {
@@ -2062,7 +2060,7 @@
             <button class="btn btn-default btn-info" style="color: white;" id="nalozi"> NALOŽI NASTAVITVE </button>
           </div>
           <div class="col-xs-3">
-            <div class="dropdown dropdown-menu-right">
+            <div class="dropdown dropdown-menu-right" style="display: none;">
               <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
               <span class="caret" ></span></button>
               </button>
@@ -2182,7 +2180,7 @@
                   </div>
                 </div>
               </div>
-              <div class="panel panel-default">
+              <div class="panel panel-default" style="display: none;">
                 <div class="panel-heading">
                   <h4 class="panel-title">
                     <a data-toggle="collapse" href="#autoscale">
