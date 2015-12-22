@@ -56,9 +56,6 @@ gen_sig_freq_ch2:111.000000
 gen_sig_dcoff_ch2:0.000000
 gen_awg_refresh:0.000000
 load_save_params:0.000000
-n_xmin: 0.0
-n_xmax: 0.0
-change_x: 0.0
 velicina-y1: Napetost sprejemnika
 enota-y1:V
 faktor-y1:[1, 0, 0]
