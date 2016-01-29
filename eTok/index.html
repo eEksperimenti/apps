@@ -295,12 +295,7 @@ $(function() {
       }
 
       var oscillator = window.audioContext.createOscillator();
-      var gain =  window.audioContext.createGain();
-      gain.gain.value = 1;
-
-      oscillator.connect(gain);
-      gain.connect(window.audioContext.destination);
-      oscillator.noteOn(0);
+      var gain = start(0);
 
       var i = 0;
 
@@ -308,9 +303,9 @@ $(function() {
 
         oscillator.frequency.value = frekvence[i];
         
-        if(i == 512){
+        if(i == 511){
           gain.gain.value = 0;
-          oscillator.noteOff(0);
+          oscillator.stop();
           predvajanje = 0;
           clearInterval(cs);
         }
