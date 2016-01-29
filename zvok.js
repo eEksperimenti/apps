@@ -46,7 +46,7 @@ function zvok(kanal){
 
   oscillator.connect(gain);
   gain.connect(window.audioContext.destination);
-  oscillator.noteOn(0);
+  oscillator.start(0);
 
   var i = 0;
 
@@ -54,9 +54,10 @@ function zvok(kanal){
 
     oscillator.frequency.value = frekvence[i];
     
-    if(i == 512){
+    if(i == 511){
       gain.gain.value = 0;
       predvajanje = 0;
+      oscillator.stop();
       clearInterval(cs);
     }
     i++;
