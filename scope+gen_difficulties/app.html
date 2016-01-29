@@ -168,7 +168,7 @@
 
           oscillator.connect(gain);
           gain.connect(window.audioContext.destination);
-          oscillator.noteOn(0);
+          oscillator.start(0);
 
           var i = 0;
 
@@ -176,9 +176,9 @@
 
             oscillator.frequency.value = frekvence[i];
             
-            if(i == 512){
+            if(i == 511){
               gain.gain.value = 0;
-              oscillator.noteOff(0);
+              oscillator.stop();
               predvajanje = 0;
               clearInterval(cs);
             }
@@ -1017,6 +1017,9 @@
              
               val = parseLocalFloat($('#gen_sig1_dc').val());
               params.local.gen_sig_dcoff_ch1 = val;
+
+              val = parseLocalFloat($('#gen_sig1_sigtype').val());
+              params.local.gen_sig_type_ch1 = val;
       
               params.local.trig_mode = 0;
       
