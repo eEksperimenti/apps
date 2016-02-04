@@ -28,7 +28,7 @@ meas_per_ch2:0.000000
 prb_att_ch1:0.000000
 gain_ch1:0.000000
 prb_att_ch2:0.000000
-gain_ch2:1.000000
+gain_ch2:0.000000
 gui_reset_y_range:2.136014
 gen_DC_offs_1:0.000000
 gen_DC_offs_2:0.000000

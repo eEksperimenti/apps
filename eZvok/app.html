@@ -124,7 +124,7 @@
     
   var stariXmin = 0;
   var stariXmax = 0;
-
+  var privzeti = 0;
   var predvajanje = 0;
 
   // On page loaded
@@ -835,10 +835,7 @@
         )
         .done(function(dresult) {
           app_started = true;
-          updateGraphData(); 
-          /***************/
-          startUploadDefault();  
-          /*****************/   
+          updateGraphData();  
         })
         .fail(function() {
           showModalError('Could not initialize the application with default parameters.', false, true);
@@ -859,7 +856,7 @@
     err_modal.find('.modal-body').html(err_msg);
     err_modal.modal('show');
   }   
-  
+
   function updateGraphData() {
     if(downloading) {
       return;
@@ -870,6 +867,13 @@
     }
     downloading = true;
     
+    if(params.local != null){
+      if(privzeti == 0){
+        startUploadDefault(); 
+        privzeti = 1;
+      }
+    }
+
     // Send params if there are any unsent changes
     sendParams();
     
@@ -1915,37 +1919,35 @@
     file_elem.hide();
     hint_elem.html('Uploading file...');*/
 
-    if(params.local != null){
+    console.log(42);
 
-      $.get('1000ksps_40k.csv', function(data){
+    $.get('1000ksps_40k.csv', function(data){
 
-        var channel = "1";
-        $.post(upload_url + channel, data, function(dresult) {
+      var channel = "1";
+      $.post(upload_url + channel, data, function(dresult) {
 
-          if($.type(dresult) == 'string' && dresult.trim() == 'OK') {
-            $('#upload_form')[0].reset();
-            $('#modal_upload').modal('hide');
+        if($.type(dresult) == 'string' && dresult.trim() == 'OK') {
+          $('#upload_form')[0].reset();
+          $('#modal_upload').modal('hide');
 
-            user_editing = true;
-            params.local.gen_awg_refresh = parseInt(channel);
-            sendParams();
-          }
-        });
-        /*else {
-          file_elem.show();
-          hint_elem.html('Error while uploading the file.');
-          file_elem.parent().addClass('has-error');
+          user_editing = true;
+          params.local.gen_awg_refresh = parseInt(channel);
+          sendParams();
         }
-      })
-      .fail(function() {
-        file_elem.show();
-        hint_elem.html('Error while uploading the selected file.');
-        file_elem.parent().addClass('has-error');
-      });*/
-
       });
-    }
-   
+      /*else {
+        file_elem.show();
+        hint_elem.html('Error while uploading the file.');
+        file_elem.parent().addClass('has-error');
+      }
+    })
+    .fail(function() {
+      file_elem.show();
+      hint_elem.html('Error while uploading the selected file.');
+      file_elem.parent().addClass('has-error');
+    });*/
+
+    });   
   }
   
   function startUpload() {
@@ -2154,10 +2156,7 @@
             <div class="col-xs-2"></div>
         </div>
         <div class="col-xs-9">
-          <div class="col-xs-9">
-            <button class="btn btn-default btn-info" style="color: white;" id="shrani"> SHRANI NASTAVITVE </button>
-            <button class="btn btn-default btn-info" style="color: white;" id="nalozi"> NALOŽI NASTAVITVE </button>
-          </div>
+          <div class="col-xs-9"></div>
           <div class="col-xs-3">
             <div class="dropdown dropdown-menu-right" style="display: none;">
               <button id="langage" class="btn btn-default dropdown-toggle btn-info" style="color: #FFF;" type="button" data-toggle="dropdown">Jezik
