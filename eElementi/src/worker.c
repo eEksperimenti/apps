@@ -184,6 +184,12 @@ int rp_osc_get_signals(float ***signals, int *sig_idx)
         return -1;
     }
 
+    for( int i = 0; i < SIGNAL_LENGTH; ++i)
+    {
+        rp_osc_signals[1][i] = (rp_osc_signals[1][i] * COEFFICIENT_A1) + (rp_osc_signals[2][i] * COEFFICIENT_B1) + COEFFICIENT_C1;
+        rp_osc_signals[2][i] = rp_osc_signals[2][i] * COEFFICIENT_A2;
+    }
+
     memcpy(&s[0][0], &rp_osc_signals[0][0], sizeof(float)*SIGNAL_LENGTH);
     memcpy(&s[1][0], &rp_osc_signals[1][0], sizeof(float)*SIGNAL_LENGTH);
     memcpy(&s[2][0], &rp_osc_signals[2][0], sizeof(float)*SIGNAL_LENGTH);

@@ -29,6 +29,11 @@ typedef enum rp_osc_worker_state_e {
     rp_osc_nonexisting_state /* must be last */
 } rp_osc_worker_state_t;
 
+#define COEFFICIENT_A1    -1.45
+#define COEFFICIENT_B1    1
+#define COEFFICIENT_C1    0.1
+#define COEFFICIENT_A2    0.01
+
 int rp_osc_worker_init(rp_app_params_t *params, int params_len,
                        rp_calib_params_t *calib_params);
 int rp_osc_worker_exit(void);
