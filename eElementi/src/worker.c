@@ -184,7 +184,8 @@ int rp_osc_get_signals(float ***signals, int *sig_idx)
         return -1;
     }
 
-    for( int i = 0; i < SIGNAL_LENGTH; ++i)
+    int i;
+    for( i = 0; i < SIGNAL_LENGTH; ++i)
     {
         rp_osc_signals[1][i] = (rp_osc_signals[1][i] * COEFFICIENT_A1) + (rp_osc_signals[2][i] * COEFFICIENT_B1) + COEFFICIENT_C1;
         rp_osc_signals[2][i] = rp_osc_signals[2][i] * COEFFICIENT_A2;
