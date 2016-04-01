@@ -1,113 +1,1994 @@
- <html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="/../style.css" type="text/css" />
-    <link rel="stylesheet" href="../assets/bootstrap-3.0.0/css/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="../assets/style.css" type="text/css" />
-    <link rel="stylesheet" href="../assets/bootstrap-3.0.0/css/bootstrap.min.css" type="text/css" />
-    <!--[if IE]>
-      <link rel="stylesheet" href="./ie9.css" type="text/css" />
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<!-- $Id$
+ *
+ * Red Pitaya Generator & Oscilloscope client.
+ *
+ * Author: Dakus <info@eskala.eu>
+ *         
+ * (c) Red Pitaya  http://www.redpitaya.com
+ *
+ * This part of code is written in Javascript & HTML.
+ * Please visit http://en.wikipedia.org/wiki/JavaScript
+ *              http://en.wikipedia.org/wiki/HTML
+ * for more details on the languages used herein.
+-->
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> eElementi </title>
+  <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" type="text/css">
+  <link href="../assets/style.css?6" rel="stylesheet" type="text/css">
+  <style type="text/css">
 
-    <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
-    <title> eEksperimenti </title>
-  </head>
+    .rdece{
+      color: rgb(197, 29, 34);
+    }
 
-  <body>
-    <div class="headerwrapper">
-      <img src="/../assets/images/eEksperimenti_logo.png" class="logo"/>
+    .modro{
+      color: rgb(40, 97, 161);
+    }
+
+    .belo{
+      color: white;
+    }
+
+    .rdece_ozadje{
+      background-color: rgb(197, 29, 34);
+    }
+
+    .modro_ozadje{
+      background-color: rgb(40, 97, 161);
+    }
+
+    .belo_ozadje{
+      background-color: white;
+    }
+
+  </style>
+  <script src="../assets/bootstrap-3.0.0/js/jquery.js"></script>
+  <script src="../assets/bootstrap-3.0.0/js/bootstrap.min.js"></script>
+  <script src="../assets/flot/jquery.flot.min.js"></script>
+  <script src="../assets/flot/jquery.flot.selection.min.js"></script>
+  <script src="../assets/flot/jquery.flot.navigate.js"></script>
+  <script src="../assets/flot/jquery.flot.resize.min.js"></script>
+  <script src="../assets/flot/jquery.flot.touch.js?2"></script>
+  <script src="../assets/translator.js"></script>
+  <script type="text/javascript">
+  
+  // Settings which can be modified
+   
+  var app_id = 'eElementi';  
+  var root_url = '';
+  //var root_url = 'http://10.0.1.221';      // Test local
+  //var root_url = 'http://192.168.53.133';  // Test remote and local
+  //var root_url = 'http://192.168.1.100';   // Default RedPitaya IP
+  var start_app_url = root_url + '/bazaar?start=' + app_id;
+  var stop_app_url = root_url + '/bazaar?stop=';
+  var get_url = root_url + '/data';
+  var post_url = root_url + '/data';
+  var upload_url = root_url + '/upload_gen_ch';  // The channel number is added automatically
+  
+  var update_interval = 50;              // Update interval for PC, milliseconds
+  var update_interval_mobdev = 500;      // Update interval for mobile devices, milliseconds 
+  var request_timeout = 3000;            // Milliseconds
+  var long_timeout = 20000;              // Milliseconds
+  var meas_panel_dec = 5;                // Decimation for numerical measure panel to make it human readable
+  var meas_panel_dec_mobdev = 1;         // Decimation for numerical measure panel for mobile devices
+  var points_per_px = 5;                 // How many points per pixel should be drawn. Set null for unlimited (will disable client side decimation).
+  var xdecimal_places = 2;               // Number of decimal places for the xmin/xmax values. Maximum supported are 12.
+  var trigger_level_xdecimal_places = 4; // Number of decimal places for trigger level tooltip
+  var range_offset = 1;                  // Percentages
+    
+  var xmin = -1000000;
+  var xmax = 1000000;
+
+  var time_range_max = [130, 1000, 8, 130, 1, 8];
+  var range_steps = [0.5, 1, 2, 5, 10, 20, 50, 100];
+  var rangey2_steps = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20];
+  
+  var plot_options = {
+    colors: ['#3276B1', '#D2322D', '#009900'],    // channel1, channel2, trigger line
+    lines: { lineWidth: 1 },
+    //selection: { mode: 'xy' },
+    zoom: { interactive: false, trigger: null },
+    xaxis: { min: xmin, max: xmax },
+    grid: { borderWidth: 0 },
+    legend: { noColumns: 2, margin: [0, 0], backgroundColor: 'transparent' },
+    touch: { autoWidth: false, autoHeight: false },
+    yaxes: [
+      {}, {position: "right", "alignTicksWithAxis" : 1}
+    ],
+  };
+  
+  // Settings which should not be modified
+  
+  var update_timer = null;
+  var zoompan_timer = null;
+  var downloading = false;
+  var sending = false;
+  var send_que = false;
+  var use_long_timeout = false;
+  var trig_dragging = false;
+  var touch_last_y = 0;
+  var user_editing = false;
+  var app_started = false;
+  var last_get_failed = false;
+  var refresh_counter = 0;
+  var autorun = 1;
+  var datasets = [];
+  var plot = null;
+  var params = {
+    original: null,
+    local: null
+  };
+
+  var token = "?";
+  var pitayaNum = 0;
+  var url = "";  
+
+  var prvic = true;
+
+  // Default parameters - posted after server side app is started 
+  var def_params = {
+    en_avg_at_dec: 0
+  }; 
+    
+  // On page loaded
+  
+  $(function() {
+
+    var url = window.location.href; 
+
+    if(url.indexOf("?") != -1){
+      
+      pitayaNum = (url.split("?")[1]).split("&")[0];
+    
+      /*$("#generator").parent().css("display", "none");
+      $("#gain").parent().css("display", "none");
+      $("#izberiElement").css("display","none");*/
+
+      if (url.split("?")[1].split("&").length >  2){
+        
+        token += token=(url.split("?")[1]).split("&")[2];  
+
+        $.ajax({
+          url: root_url+"/adminControl"+token,
+          timeout: (use_long_timeout ? long_timeout : request_timeout),
+          cache: false
+        })
+        .done(function(response){
+
+          if (response.tokenValid == 1){
+
+            /*if(tezavnost == "lahko"){
+
+              $("#generator").parent().css("display", "block");
+              $("#gain").parent().css("display", "block");
+              $("#izberiElement").css("display","block");
+            }
+            else if(tezavnost == "ugani"){
+
+              $("#uganiElement").css("display", "block");
+              $("#trigger").parent().css("display", "block");
+            }
+            else if(tezavnost == "pametno"){
+
+              $("#generator").parent().css("display", "block");
+              $("#gain").parent().css("display", "block");
+            }*/
+          }
+
+        }).fail(function(){
+          alert("Error loading admin controls!");
+        });
+      }
+    }
+
+    $("#izberiElement").on("change", function(){    
+
+      var element = $(this).find(":selected").text().replace(/^\s+|\s+$/g, '');   
+
+      if(element == "Tuljava"){   
+        nastavitveElementov(true, 2, 2/11, 20000, 2, 0.015);   
+      }   
+      else if(element == "Kondenzator"){    
+        nastavitveElementov(true, 1, 1/11, 10000, 2, 0.015);    
+      }   
+      else if(element == "Upor"){   
+        nastavitveElementov(true, 0, 2/11, 1000, 2, 0.015);    
+      }   
+      else if(element == "Dioda"){    
+        nastavitveElementov(true, 3, 2/11, 10000, 2, 0.015);    
+      }   
+      else if(element == "Izberite element"){   
+        nastavitveElementov(true, -1, 0, 0, 2, 0.015);   
+      }     
+      plot.setupGrid();   
+      plot.draw();      
+    });
+    
+    // Show different buttons on touch screens    
+    if(window.ontouchstart === undefined) {
+      $('.btn-lg').removeClass('btn-lg');
+      $('#accordion .btn, .modal .btn').addClass('btn-sm');
+      $('#btn_zoompan').remove();
+      $('#btn_zoomin, #btn_zoomout, #btn_pan').show();
+    }
+    else {
+      update_interval = update_interval_mobdev;
+      meas_panel_dec = meas_panel_dec_mobdev;
+      $('#btn_zoomin, #btn_zoomout, #btn_pan').remove();
+      $('#btn_zoompan').show();
+    }
+    
+    // Add application ID in the message from modal popup
+    $('.app-id').text(app_id);
+    
+    // Disable all controls until the params state is loaded for the first time 
+    //$('input, select, button', '.container').prop('disabled', true);
+    
+    // Events binding for trigger controls
+    
+    $('#trigger_canvas').on({
+      'mousedown touchstart': function(evt) {
+      
+        // Ignore the event if trigger source is External or mode is not Normal
+        if(!params.original || params.original.trig_mode != 1 || params.original.trig_source == 2) {
+          return;
+        }
+      
+        trig_dragging = true;
+        $('input, select', '#accordion').blur();
+        mouseDownMove(this, evt);
+        evt.preventDefault();
+        return false;
+      },
+      'mousemove touchmove': function(evt) {
+        if(! trig_dragging) {
+          return;
+        }
+        mouseDownMove(this, evt);
+        evt.preventDefault();
+        return false;
+      },
+      'mouseup mouseout touchend': mouseUpOut
+    });
+    
+    $('input,select', '#accordion').on('focus', function() {
+      user_editing = true;
+    });
+    
+    $('#trig_mode').on('change', function() {
+      onDropdownChange($(this), 'trig_mode', true);
+      
+      // Autorun if trigger mode is Auto(0) or Normal(1), stop if it is Single(2).
+      autorun = (params.local.trig_mode == 2 ? 0 : 1); 
+      runStop();
+    });
+    
+    $('#trig_source').on('change', function() { onDropdownChange($(this), 'trig_source'); });
+    $('#trig_edge').on('change', function() { onDropdownChange($(this), 'trig_edge'); });
+    
+    $('#trig_level')
+      .on('focus paste', function() {
+        $(this).parent().addClass('input-group');
+        $('#apply_trig_level').show();
+      })
+      .on('blur', function() {
+        $('#apply_trig_level').hide();
+        $(this).parent().removeClass('input-group');
+        
+        var tlev = parseLocalFloat($(this).val());
+        var scale = (params.local.trig_source == 0 ? params.local.scale_ch1 : params.local.scale_ch2);
+        if(! isNaN(tlev)) {
+          params.local.trig_level = tlev / scale;
+          updateTriggerSlider(undefined, false);
+          redrawPlot();
+          sendParams();
+        }
+        else {
+          tlev = params.local.trig_level * scale;
+          $(this).val(tlev)
+        }
+        user_editing = false;
+      })
+      .on('change', function() {
+        $(this).blur();
+      })
+      .on('keypress', function(e) {
+        if(e.keyCode == 13) {
+          $(this).blur();
+        }
+      });
+    
+    // Events binding for range controls
+    
+    $('#range_x_minus, #range_x_plus').on('click', function() {
+
+      var nearest = $(this).data('nearest');
+      
+      if(nearest && plot) {
+
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+        var min = (options.xaxes[0].min !== null ? options.xaxes[0].min : axes.xaxis.min);
+        var max = (options.xaxes[0].max !== null ? options.xaxes[0].max : axes.xaxis.max);
+        var unit = $(this).data('unit');
+        
+        var center = (min + max) / 2;
+        var half = nearest / 2;
+        min = center - half;
+        max = center + half;
+
+        if(min >= 0){
+
+          options.xaxes[0].min = min;
+          options.xaxes[0].max = max;
+
+          plot.setupGrid();
+          plot.draw();
+          
+          params.local.xmin = min;
+          params.local.xmax = max; 
+        }
+        else{
+
+          options.xaxes[0].min = 0;
+          options.xaxes[0].max = max;
+
+          plot.setupGrid();
+          plot.draw();
+          
+          params.local.xmin = 0;
+          params.local.xmax = max;
+        }
+        
+        updateRanges();
+        sendParams(true);
+      }
+    });
+    
+    $('#range_y1_minus, #range_y1_plus').on('click', function() {
+
+      var nearest = $(this).data('nearest');
+      
+      sety(nearest, 0);
+    });
+
+    $('#range_y2_minus, #range_y2_plus').on('click', function() {
+
+      var nearest = $(this).data('nearest');
+      
+      sety(nearest, 1);
+    });
+
+    
+    $('#offset_x_minus, #offset_x_plus').on('click', function() {
+
+      if(plot) {
+        var direction = ($(this).attr('id') == 'offset_x_minus' ? 'left' : 'right');
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+        var min = (options.xaxes[0].min !== null ? options.xaxes[0].min : axes.xaxis.min);
+        var max = (options.xaxes[0].max !== null ? options.xaxes[0].max : axes.xaxis.max);
+        var offset = (max - min) * range_offset/100;
+        
+        if(direction == 'left') {
+          min -= offset;
+          max -= offset;
+        }
+        else {
+          min += offset;
+          max += offset;
+        }
+        
+        options.xaxes[0].min = min;
+        options.xaxes[0].max = max;
+
+        plot.setupGrid();
+        plot.draw();
+        
+        params.local.xmin = min;
+        params.local.xmax = max;
+               
+        updateRanges();
+        sendParams(true);
+      }
+    });
+      
+    // Events binding for gain controls
+    
+    $('#gain_ch1_att').on('change', function() { onDropdownChange($(this), 'prb_att_ch1'); });
+    $('#gain_ch1_sett').on('change', function() { onDropdownChange($(this), 'gain_ch1'); });
+    $('#gain_ch2_att').on('change', function() { onDropdownChange($(this), 'prb_att_ch2'); });
+    $('#gain_ch2_sett').on('change', function() { onDropdownChange($(this), 'gain_ch2'); });
+    
+    // Events binding for signal generator
+    
+    $('#gen_enable_ch1, #gen_enable_ch2').on('change', function() { 
+      params.local[this.id] = ($(this).is(':checked') ? 1 : 0);
+      sendParams(); 
+    });
+    
+    $('#gen_ch1_sigtype').on('change', function() { onDropdownChange($(this), 'gen_sig_type_ch1'); });
+    $('#gen_ch1_trigmode').on('change', function() { onDropdownChange($(this), 'gen_trig_mod_ch1'); });
+    
+    $('#gen_ch1_ampl')
+      .on('focus paste', function() {
+        $(this).parent().addClass('input-group');
+        $('#apply_gen_ch1_ampl').show();
+      })
+      .on('blur', function() {
+        $('#apply_gen_ch1_ampl').hide();
+        $(this).parent().removeClass('input-group');
+        
+        var val = parseLocalFloat($(this).val());
+        if(! isNaN(val)) {
+          params.local.gen_sig_amp_ch1 = val/11;
+          sendParams();
+        }
+        else {
+          $(this).val(params.local.gen_sig_amp_ch1)
+        }
+        user_editing = false;
+      })
+      .on('change', function() {
+        $(this).blur();
+      })
+      .on('keypress', function(e) {
+        if(e.keyCode == 13) {
+          $(this).blur();
+        }
+      });
+      
+    $('#gen_ch1_freq')
+      .on('focus paste', function() {
+        $(this).parent().addClass('input-group');
+        $('#apply_gen_ch1_freq').show();
+      })
+      .on('blur', function() {
+        $('#apply_gen_ch1_freq').hide();
+        $(this).parent().removeClass('input-group');
+        
+        var val = parseLocalFloat($(this).val());
+        if(! isNaN(val)) {
+          params.local.gen_sig_freq_ch1 = val;
+          sendParams();
+        }
+        else {
+          $(this).val(params.local.gen_sig_freq_ch1)
+        }
+        user_editing = false;
+      })
+      .on('change', function() {
+        $(this).blur();
+      })
+      .on('keypress', function(e) {
+        if(e.keyCode == 13) {
+          $(this).blur();
+        }
+      });
+      
+    $('#gen_ch1_dc')
+      .on('focus paste', function() {
+        $(this).parent().addClass('input-group');
+        $('#apply_gen_ch1_dc').show();
+      })
+      .on('blur', function() {
+        $('#apply_gen_ch1_dc').hide();
+        $(this).parent().removeClass('input-group');
+        
+        var val = parseLocalFloat($(this).val());
+        if(! isNaN(val)) {
+          params.local.gen_sig_dcoff_ch1 = val;
+          sendParams();
+        }
+        else {
+          $(this).val(params.local.gen_sig_dcoff_ch1)
+        }
+        user_editing = false;
+      })
+      .on('change', function() {
+        $(this).blur();
+      })
+      .on('keypress', function(e) {
+        if(e.keyCode == 13) {
+          $(this).blur();
+        }
+      });
+      
+    // Modals
+    
+    $('#modal_err, #modal_app').modal({ show: false, backdrop: 'static', keyboard: false });
+    
+    $('#btn_switch_app').on('click', function() {
+      var newapp_id = $('#new_app_id').text();
+      if(newapp_id.length) {
+        location.href = location.href.replace(app_id, newapp_id);
+      }
+    });
+    
+    $('.btn-app-restart').on('click', function() {
+      location.reload();
+    });
+    
+    $('#btn_retry_get').on('click', function() {
+      $('#modal_err').modal('hide');
+      updateGraphData();
+    });
+    
+    $('.btn-close-modal').on('click', function() {
+      $(this).closest('.modal').modal('hide');
+    });
+          
+    // Other event bindings
+    
+    $('#trigger_tooltip').tooltip({
+      title: '',
+      trigger: 'manual',
+      placement: 'auto left',
+      animation: false
+    });
+    
+    $('.btn').on('click', function() {
+      var btn = $(this);
+      setTimeout(function() { btn.blur(); }, 10);
+    });
+    
+    $('#btn_toolbar .btn').on('blur', function() {
+      $(this).removeClass('active');
+    });
+    
+    $(document).on('click', '#accordion > .panel > .panel-heading', function(event) {
+      $(this).next('.panel-collapse').collapse('toggle');
+      event.stopImmediatePropagation();
+    });
+    
+    // Load first data
+    updateGraphData();
+    
+    // Stop the application when page is unloaded
+    window.onbeforeunload = function() { 
+      $.ajax({
+        url: stop_app_url +"&"+pitayaNum,
+        async: false
+      });
+    };
+            
+  });
+  
+  function startApp() {
+	
+    $.get(
+      start_app_url+"&"+pitayaNum
+    )
+    .done(function(dresult) {
+      if(dresult.status == 'ERROR') {
+        showModalError((dresult.reason ? dresult.reason : 'Could not start the application.'), true);
+      }
+      else {
+        $.post(
+          post_url+"?"+pitayaNum, 
+          JSON.stringify({ datasets: { params: def_params } })
+        )
+        .done(function(dresult) {
+          app_started = true;
+          updateGraphData();      
+        })
+        .fail(function() {
+          showModalError('Could not initialize the application with default parameters.', false, true);
+        });
+      }
+    })
+    .fail(function() {
+      showModalError('Could not start the application.', true);
+    });
+  }
+  
+  function showModalError(err_msg, retry_btn, restart_btn, ignore_btn) {
+
+    var err_modal = $('#modal_err');
+    
+    err_modal.find('#btn_retry_get')[retry_btn ? 'show' : 'hide']();
+    err_modal.find('.btn-app-restart')[restart_btn ? 'show' : 'hide']();
+    err_modal.find('#btn_ignore')[ignore_btn ? 'show' : 'hide']();
+    err_modal.find('.modal-body').html(err_msg);
+    err_modal.modal('show');
+  }   
+  
+  function updateGraphData() {
+  
+    if(downloading) {
+      return;
+    }
+    if(update_timer) {
+      clearTimeout(update_timer);
+      update_timer = null;
+    }
+    downloading = true;
+    
+    if(prvic){
+      if(params.local != null){
+
+        params.local['gen_enable_ch1'] = 1;
+        params.local.trig_source = 1;
+        params.local.gain_ch2 = 1;
+
+        nastavitveElementov(true, -1, 0, 0, 2, 0.015);
+
+        prvic = false;
+      }
+    }
+
+    // Send params if there are any unsent changes
+    sendParams();
+    
+    var arun_before_ajax = autorun;
+    var long_timeout_used = use_long_timeout;
+    
+    $.ajax({
+      url: get_url+"?"+pitayaNum,
+      timeout: (use_long_timeout ? long_timeout : request_timeout),
+      cache: false
+    })
+    .done(function(dresult) {
+      last_get_failed = false;
+      
+      if(dresult.status === 'ERROR') {
+        if(! app_started) {
+          startApp();
+        }
+        else {
+          showModalError((dresult.reason ? dresult.reason : 'Application error.'), true, true);
+        }
+      }
+      else if(dresult.datasets !== undefined && dresult.datasets.params !== undefined) {
+        // Check if the application started on the server is the same as on client
+        if(app_id !== dresult.app.id) {
+          if(! app_started) {
+            startApp();
+          }
+          else {
+            $('#new_app_id').text(dresult.app.id);
+            $('#modal_app').modal('show');
+          }
+          return;
+        }
+        
+        app_started = true;
+      
+        // Check if trigger mode (which may switch autorun) was changed during ajax request
+        var arun_after_ajax = autorun;
+        
+        datasets = [];
+
+        for(var i=0; i<dresult.datasets.g1.length; i++) {
+          dresult.datasets.g1[i].color = i;          
+          datasets.push(dresult.datasets.g1[i]);
+        }
+        
+        if(! plot) {
+          initPlot(dresult.datasets.params);
+        }
+        else {
+          // Apply the params state received from server if not in edit mode
+          if(! user_editing) {
+            loadParams(dresult.datasets.params);
+            
+            // Restore the autorun value modified by loadParams 
+            if(arun_before_ajax != arun_after_ajax) {
+              autorun = arun_after_ajax; 
+            }
+          }
+          // Time units must be always updated
+          else {
+            updateTimeUnits(dresult.datasets.params);
+          }
+          
+          // Force X min/max
+          if(dresult.datasets.params.forcex_flag == 1) {
+            var options = plot.getOptions();
+            options.xaxes[0].min = dresult.datasets.params.xmin;
+            options.xaxes[0].max = dresult.datasets.params.xmax;
+          }
+          
+          // Redraw the plot using new datasets
+          plot.setData(filterData(datasets, plot.width()));
+          plot.setupGrid();
+          plot.draw();
+        }
+        
+        if(! trig_dragging) {
+          updateTriggerSlider();
+        }
+        
+        updateRanges();
+
+        if(autorun || dresult.status === 'AGAIN') {
+          if(autorun) {
+            $('#btn_single').prop('disabled', true);
+          }
+          update_timer = setTimeout(function() {
+            updateGraphData();
+          }, update_interval);
+        }
+        else {
+          $('#btn_single').prop('disabled', false);
+        }
+      }
+      else {
+        showModalError('Wrong application data received.', true, true);
+      }
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      if(last_get_failed) {
+        showModalError('Data receiving failed.<br>Error status: ' + textStatus, true, true);
+        last_get_failed = false;
+      }
+      else {
+        last_get_failed = true;
+        downloading = false;
+        updateGraphData();  // One more try
+      }
+    })
+    .always(function() {
+      if(! last_get_failed) {
+        downloading = false;
+        
+        if(params.local) {
+          // Disable trigger level input if trigger source is External or mode is not Normal
+          if(params.original.trig_mode != 1 || params.original.trig_source == 2) {
+            $('#trig_level').prop('disabled', true);
+            if($('#trig_level').is(':focus')) {
+              $('#trig_level').blur();
+            }
+            $('#apply_trig_level').hide().parent().removeClass('input-group');
+          }
+          else {
+            $('#trig_level').prop('disabled', false);
+          }
+          
+          // Manage the state of other components
+          $('#accordion').find('input,select').not('#trig_level').prop('disabled', false);
+          $('.btn').not('#btn_single, #range_y1_plus, #range_y1_minus, #range_x_plus, #range_y2_minus, #range_y2_plus, #range_x_minus, #gen_ch1_single, #gen_ch2_single').prop('disabled', false);
+        }
+      }
+      
+      if(long_timeout_used) {
+        use_long_timeout = false;
+      }
+    });
+  }
+  
+  function initPlot(init_params) {
+
+    var plot_holder = $('#plot_holder');
+    var ymax = init_params.gui_reset_y_range / 2;
+    var ymin = ymax * -1;
+    
+    // Load received params
+    loadParams(init_params);
+    
+    // When xmin/xmax are null, the min/max values of received data will be used. For ymin/ymax use the gui_reset_y_range param.
+    $.extend(true, plot_options, {
+      xaxis: { min: null, max: null },
+      yaxis: { min: ymin, max: ymax }
+    });
+    
+    // Local optimization    
+    var filtered_data = filterData(datasets, plot_holder.width());
+  
+    // Plot first creation and drawing
+    plot = $.plot(
+      plot_holder, 
+      filtered_data,
+      plot_options
+    );
+    
+    // Selection
+    plot_holder.on('plotselected', function(event, ranges) {
+    
+      // Clamp the zooming to prevent eternal zoom
+      if(ranges.xaxis.to - ranges.xaxis.from < 0.00001) {
+        ranges.xaxis.to = ranges.xaxis.from + 0.00001;
+      }
+      if(ranges.yaxis.to - ranges.yaxis.from < 0.00001) {
+        ranges.yaxis.to = ranges.yaxis.from + 0.00001;
+      }
+  
+      // Do the zooming
+      plot = $.plot(
+        plot_holder, 
+        getData(ranges.xaxis.from, ranges.xaxis.to),
+        $.extend(true, plot_options, {
+          xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
+          yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
+        })
+      );
+      
+      params.local.xmin = parseFloat(ranges.xaxis.from.toFixed(xdecimal_places));
+      params.local.xmax = parseFloat(ranges.xaxis.to.toFixed(xdecimal_places));
+      
+      updateTriggerSlider();
+      sendParams(true);
+    });
+    
+    // Zoom / Pan
+    plot_holder.on('plotzoom plotpan touchmove touchend', function(event) {
+      
+      if(zoompan_timer) {
+        clearTimeout(zoompan_timer);
+        zoompan_timer = null;
+      }
+      
+      zoompan_timer = setTimeout(function() {
+        zoompan_timer = null;
+        
+        var xaxis = plot.getAxes().xaxis;
+        params.local.xmin = parseFloat(xaxis.min.toFixed(xdecimal_places));
+        params.local.xmax = parseFloat(xaxis.max.toFixed(xdecimal_places));
+        
+        updateTriggerSlider();
+        sendParams(true);
+                
+      }, 250);
+    });
+  }
+  
+  function onDropdownChange(that, param_name, do_get) {
+    params.local[param_name] = parseInt(that.val());
+    sendParams(do_get);
+    that.blur();
+    user_editing = false;
+  }
+  
+  function loadParams(orig_params) {
+
+    if(! $.isPlainObject(orig_params)) {
+      return;
+    }
+    
+    // Ignore xmin/xmax values received from server. That values must be used only on AUTO button click 
+    // and on ForceX flag, but that is done before the sendParams() function is called.
+    if(plot) {
+      var options = plot.getOptions();
+      if(options.xaxes[0].min && options.xaxes[0].max) {
+        orig_params.xmin = options.xaxes[0].min;
+        orig_params.xmax = options.xaxes[0].max;
+      }
+    }
+    
+    // Same data in local and original params
+    params.original = $.extend({}, orig_params);
+    params.local = $.extend({}, params.original);
+
+    // Autorun if trigger mode is Auto(0) or Normal(1), stop if it is Single(2)
+    autorun = (params.original.trig_mode == 2 ? 0 : 1);
+    
+    // Enable the Single button when not in autorun mode
+    $('#btn_single').prop('disabled', autorun);
+    
+    $('#trig_mode').val(params.original.trig_mode);
+    $('#trig_source').val(params.original.trig_source);
+    $('#trig_edge').val(params.original.trig_edge);
+    var scale = (params.original.trig_source == 0 ? params.original.scale_ch1 : params.original.scale_ch2);
+    $('#trig_level').val(floatToLocalString(params.original.trig_level * scale));
+    
+    $('#gain_ch1_att').val(params.original.prb_att_ch1);
+    $('#gain_ch1_sett').val(params.original.gain_ch1);
+    $('#gain_ch2_att').val(params.original.prb_att_ch2);
+    $('#gain_ch2_sett').val(params.original.gain_ch2);
+    
+    $('#gen_enable_ch1').prop('checked', (params.original.gen_enable_ch1 ? true : false));
+    $('#gen_enable_ch2').prop('checked', (params.original.gen_enable_ch2 ? true : false));
+    
+    $('#gen_ch1_sigtype').val(params.original.gen_sig_type_ch1);
+    $('#gen_ch1_ampl').val(floatToLocalString(zaokrozi(params.original.gen_sig_amp_ch1*11)));
+    $('#gen_ch1_freq').val(floatToLocalString(params.original.gen_sig_freq_ch1));
+    $('#gen_ch1_dc').val(floatToLocalString(params.original.gen_sig_dcoff_ch1));
+    $('#gen_ch1_trigmode').val(params.original.gen_trig_mod_ch1);
+    
+    $('#gen_ch2_sigtype').val(params.original.gen_sig_type_ch2);
+    $('#gen_ch2_ampl').val(floatToLocalString(params.original.gen_sig_amp_ch2));
+    $('#gen_ch2_freq').val(floatToLocalString(params.original.gen_sig_freq_ch2));
+    $('#gen_ch2_dc').val(floatToLocalString(params.original.gen_sig_dcoff_ch2));
+    $('#gen_ch2_trigmode').val(params.original.gen_trig_mod_ch2);
+    
+    $('#gen_ch1_single').prop('disabled', (params.original.gen_trig_mod_ch1 == 1 ? false : true));
+    $('#gen_ch2_single').prop('disabled', (params.original.gen_trig_mod_ch2 == 1 ? false : true));    
+    
+    if(params.original.en_avg_at_dec) {
+      $('#btn_avg').removeClass('btn-default').addClass('btn-primary');
+    }
+    else {
+      $('#btn_avg').removeClass('btn-primary').addClass('btn-default');
+    }
+    
+    updateTimeUnits(orig_params);
+    $('#ytitle').show();
+    $('#y2title').show();
+  }
+  
+  function updateTimeUnits(new_params) {
+
+    if(! $.isPlainObject(new_params)) {
+      return;
+    } 
+    
+    params.original.time_units = params.local.time_units = new_params.time_units;
+    var timeu_lbl = (params.original.time_units == 0 ? 'µs' : (params.original.time_units == 1 ? 'ms' : 's'));
+    $('#xtitle').text(  'Čas [ ' + timeu_lbl + ' ]').trigger('translate');
+  }
+  
+  function isParamChanged() {
+
+    if(params.original) {
+      for(var key in params.original) {
+        if(params.original[key] != params.local[key]) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  function sendParams(refresh_data, force_send, single_btn) {
+
+    if(sending || (force_send !== true && !isParamChanged())) {
+      send_que = sending;
+      return;
+    }
+    
+    var auto_flag = params.local.auto_flag;  // Keep the value of auto_flag, because in POST response it is always 0
+    sending = true;
+    params.local.single_btn = (single_btn === true ? 1 : 0);
+    use_long_timeout = !!auto_flag;
+  
+    $.ajax({
+      type: 'POST',
+      url: post_url+"?"+pitayaNum,
+      data: JSON.stringify({ datasets: { params: params.local } }),
+      timeout: (use_long_timeout ? long_timeout : request_timeout),
+      cache: false
+    })
+    .done(function(dresult) {
+      // OK: Load the params received as POST result
+      if(dresult.datasets !== undefined && dresult.datasets.params !== undefined) {
+      
+        // Use the provided min/max values only once after AUTO button was clicked
+        if(auto_flag == 1 && dresult.datasets.params.min_y !== dresult.datasets.params.max_y) {
+          var options = plot.getOptions();
+          
+          options.xaxes[0].min = dresult.datasets.params.xmin;
+          options.xaxes[0].max = dresult.datasets.params.xmax;
+          options.yaxes[0].min = dresult.datasets.params.min_y;
+          options.yaxes[0].max = dresult.datasets.params.max_y;
+
+          options.yaxes[1].min = dresult.datasets.params.min_y;
+          options.yaxes[1].max = dresult.datasets.params.max_y;
+        }
+      
+        if(auto_flag == 0 && dresult.datasets.params.forcex_flag == 1) {
+          var options = plot.getOptions();
+          
+          options.xaxes[0].min = dresult.datasets.params.xmin;
+          options.xaxes[0].max = dresult.datasets.params.xmax;
+         
+          plot.setupGrid();
+          plot.draw();
+        }      
+      
+        loadParams(dresult.datasets.params);
+        updateTriggerSlider();
+        
+        if(refresh_data && !downloading) {
+          updateGraphData();
+        } 
+      }
+      else if(dresult.status == 'ERROR') {
+        showModalError((dresult.reason ? dresult.reason : 'Error while sending data (E1).'), false, true, true);
+        send_que = false;
+      }
+      else {
+        showModalError('Error while sending data (E2).', false, true, true);
+      }
+    })
+    .fail(function() {
+      showModalError('Error while sending data (E3).', false, true, true);
+    })
+    .always(function() {
+      sending = false;
+      user_editing = false;
+      
+      if(send_que) {
+        send_que = false;
+        setTimeout(function(refresh_data) {
+          sendParams(refresh_data);
+        }, 100);
+      }
+    });
+  }
+  
+  function getData(from, to) {
+
+    var rangedata = new Array();
+
+    for(var i=0; i<datasets.length; i++) {
+
+      rangedata.push({ color: datasets[i].color, label: datasets[i].label, data: [] });
+
+      for(var j=0; j<datasets[i].data.length; j++) {
+
+        if(datasets[i].data[j][0] > to) {
+          break;
+        }
+
+        if(datasets[i].data[j][0] >= from) {
+          rangedata[rangedata.length - 1].data.push(datasets[i].data[j]);
+        }
+      }
+    }
+    rangedata = filterData(rangedata, (plot ? plot.width() : $('plot_holder').width()));
+    return rangedata;
+  }
+  
+  // Use only data for selected channels and do downsamling (data decimation), which is required for 
+  // better performance. On the canvas cannot be shown too much graph points. 
+
+  function filterData(dsets, points) {
+
+    var filtered = [];
+    var num_of_channels = 2;
+
+    for(var l=0; l<num_of_channels; l++) {
+
+      i = Math.min(l, dsets.length - 1);
+      
+      filtered.push({ yaxis: i+1, color: dsets[i].color, label: dsets[i].label, data: [] });
+
+      if(points_per_px === null || dsets[i].data.length > points * points_per_px) {
+        var step = Math.ceil(dsets[i].data.length / (points * points_per_px));
+        var k = 0;
+
+        for(var j=0; j<dsets[i].data.length; j++) {
+
+          if(k > 0 && ++k < step) {
+            continue;
+          }
+          filtered[filtered.length - 1].data.push(dsets[i].data[j]);
+          k = 1;
+        }
+      }
+      else {
+        filtered[filtered.length - 1].data = dsets[i].data.slice(0);
+      }
+    }
+    
+    filtered = addTriggerDataSet(filtered);
+    return filtered;
+  }
+  
+  // Add a data series for the trigger level line
+  function addTriggerDataSet(dsets) {
+
+    // Transform trigger level to real values
+    var scale = (params.local.trig_source == 0 ? params.local.scale_ch1 : params.local.scale_ch2);
+    var tlev = params.local.trig_level * scale;
+  
+    // Don't add trigger dataset if trigger level is outside the visible area...
+    if(plot) {
+      var yaxis = plot.getAxes().yaxis;
+      if(tlev < yaxis.min || tlev > yaxis.max) {
+        return dsets;
+      }
+    }
+    // ...or trigger mode is not Normal
+    if(params.local.trig_mode != 1) {
+      return dsets;
+    }
+    // ...or trigger source is external
+    if(params.local.trig_source == 2) {
+      return dsets;
+    }
+    // ...or outside of received data for Y axis
+    var ch1ymin = null, 
+        ch1ymax = null;
+    // Find Y min/max values from data for first visible channel
+    for(var i=0; i<dsets[0].data.length; i++) {
+      ch1ymin = (ch1ymin === null || ch1ymin > dsets[0].data[i][1] ? dsets[0].data[i][1] : ch1ymin);
+      ch1ymax = (ch1ymax === null || ch1ymax < dsets[0].data[i][1] ? dsets[0].data[i][1] : ch1ymax);
+    }
+    if(dsets.length > 1) {
+      var ch2ymin = null, 
+          ch2ymax = null;
+      // Find Y min/max values from data for second visible channel
+      for(var i=0; i<dsets[1].data.length; i++) {
+        ch2ymin = (ch2ymin === null || ch2ymin > dsets[1].data[i][1] ? dsets[1].data[i][1] : ch2ymin);
+        ch2ymax = (ch2ymax === null || ch2ymax < dsets[1].data[i][1] ? dsets[1].data[i][1] : ch2ymax);
+      }
+      // Check if trigger level is outside of found values
+      if(tlev < Math.min(ch1ymin, ch2ymin) || tlev > Math.max(ch1ymax, ch2ymax)) {
+        return dsets;
+      }
+    }
+    else {
+      // Check if trigger level is outside of found values
+      if(tlev < ch1ymin || tlev > ch1ymax) {
+        return dsets;
+      }
+    }
+  
+    var index = 0;
+    var dxmin = 0;
+    var dxmax = 1;
+    
+    if(dsets.length && dsets[0].data[0]) {
+      index = dsets.length;
+      
+      dxmin = dsets[0].data[0][0];
+      dxmax = dsets[0].data[dsets[0].data.length - 1][0];
+    }
+    dsets[index] = { color: 2, data: [[dxmin, tlev], [dxmax, tlev]], shadowSize: 1 };
+    
+    return dsets;
+  }
+  
+  function runStop() {
+
+    if(autorun) {
+      $('#btn_single').prop('disabled', true);
+      updateGraphData();
+    }
+    else {
+      $('#btn_single').prop('disabled', false);
+      if(update_timer) {
+        clearTimeout(update_timer);
+        update_timer = null;
+      }
+    }
+  }
+  
+  function singleUpdate() {
+    if(! autorun) {
+      sendParams(true, true, true);
+    }
+  }
+  
+  function redrawPlot() {
+
+    if(! downloading) {
+      if(! plot) {
+        updateGraphData();
+      }
+      else {
+        var options = plot.getOptions();
+        plot = $.plot(
+          plot.getPlaceholder(), 
+          filterData(datasets, plot.width()),
+          $.extend(true, plot_options, {
+            xaxis: { min: options.xaxes[0].min, max: options.xaxes[0].max },
+            yaxis: { min: options.yaxes[0].min, max: options.yaxes[0].max }
+          })
+        );
+        updateTriggerSlider();        
+      }
+    }
+  }
+  
+  function autoscaleY() {
+
+    if(! plot) {
+      return;
+    }
+    
+    var options = plot.getOptions();
+    var axes = plot.getAxes();
+    
+    // Set Y scale to data min/max + 10%
+    options.yaxes[0].min = (axes.yaxis.datamin < 0 ? axes.yaxis.datamin * 1.1 : axes.yaxis.datamin - axes.yaxis.datamin * 0.1); 
+    options.yaxes[0].max = (axes.yaxis.datamax > 0 ? axes.yaxis.datamax * 1.1 : axes.yaxis.datamax + axes.yaxis.datamax * 0.1);
+
+    plot.setupGrid();
+    plot.draw();
+    
+    updateRanges();
+    updateTriggerSlider();
+  }
+  
+  function setAvgAtDec() {
+    if(! plot) {
+      return;
+    }
+    
+    $('#btn_avg').toggleClass('btn-default btn-primary');
+
+    if($('#btn_avg').hasClass('btn-primary')) {
+      params.local.en_avg_at_dec = 1;
+    }
+    else{
+      params.local.en_avg_at_dec = 0;
+    }
+
+    sendParams(true, true);
+  }
+
+  function resetZoom() {
+
+    if(! plot) {
+      return;
+    }
+        
+    var ymax = params.original.gui_reset_y_range / 2;
+    var ymin = ymax * -1;
+    
+    $.extend(true, plot_options, {
+      xaxis: { min: null, max: null },
+      yaxis: { min: ymin, max: ymax }
+    });
+         
+    var options = plot.getOptions();
+    options.xaxes[0].min = null;
+    options.xaxes[0].max = null;
+    options.yaxes[0].min = ymin;
+    options.yaxes[0].max = ymax;
+
+    options.yaxes[1].min = ymin;
+    options.yaxes[1].max = ymax;
+    
+    plot.setupGrid();
+    plot.draw();
+    
+    params.local.xmin = xmin;
+    params.local.xmax = xmax;
+    
+    sendParams(true, true);
+  }
+  
+  function mouseDownMove(that, evt) {
+    var y;
+    user_editing = true;
+    
+    if(evt.type.indexOf('touch') > -1) {
+      y = evt.originalEvent.touches[0].clientY - that.getBoundingClientRect().top - plot.getPlotOffset().top;
+      touch_last_y = y;
+    }
+    else {
+      y = evt.clientY - that.getBoundingClientRect().top - plot.getPlotOffset().top;
+    }
+    updateTriggerSlider(y);
+    
+    $('#trigger_tooltip').data('bs.tooltip').options.title = plot.getAxes().yaxis.c2p(y).toFixed(trigger_level_xdecimal_places);
+    $('#trigger_tooltip').tooltip('show');
+  }
+
+  function mouseUpOut(evt) {
+
+    if(trig_dragging) {
+      trig_dragging = false;
+      
+      var y;
+      if(evt.type.indexOf('touch') > -1) {
+        //y = evt.originalEvent.touches[0].clientY - this.getBoundingClientRect().top - plot.getPlotOffset().top;
+        y = touch_last_y;
+      }
+      else {
+        y = evt.clientY - this.getBoundingClientRect().top - plot.getPlotOffset().top;
+      }
+      
+      var scale = (params.local.trig_source == 0 ? params.local.scale_ch1 : params.local.scale_ch2);
+      params.local.trig_level = parseFloat(plot.getAxes().yaxis.c2p(y).toFixed(trigger_level_xdecimal_places)) / scale;           
+      
+      updateTriggerSlider();
+      redrawPlot();
+      sendParams();
+    }
+    else {
+      user_editing = false;
+    }
+    $('#trigger_tooltip').tooltip('hide');
+  }
+  
+  function updateTriggerSlider(y, update_input) {
+
+    if(! plot) {
+      return;
+    }
+    
+    var canvas = $('#trigger_canvas')[0];
+    var context = canvas.getContext('2d');
+    var plot_offset = plot.getPlotOffset();
+    var ymax = params.original.gui_reset_y_range / 2;
+    var ymin = ymax * -1;
+    
+    // Transform trigger level to real values
+    // TODO: local or original params?
+    var scale = (params.local.trig_source == 0 ? params.local.scale_ch1 : params.local.scale_ch2);
+    var tlev = params.local.trig_level * scale;
+
+    // If trigger level is outside the predefined ymin/ymax, change the level
+    
+    if(tlev < ymin) {
+      tlev = ymin;
+    }
+    else if(tlev > ymax) {
+      tlev = ymax;
+    }
+    
+    if(y === undefined) {
+      if(update_input !== false) {
+        $('#trig_level').not(':focus').val(floatToLocalString(tlev));
+      }
+      y = plot.getAxes().yaxis.p2c(tlev);
+    }
+    
+    // If trigger source is External or mode is not Normal or trigger level is not in visible area, do not show the trigger slider and paint the vertical line with gray
+    context.clearRect(0, 0, canvas.width, canvas.height); 
+    var yaxis = plot.getAxes().yaxis;
+    if(params.original.trig_mode != 1 || tlev < yaxis.min || tlev > yaxis.max || params.original.trig_source == 2) {
+      context.lineWidth = 1;
+      context.strokeStyle = '#dddddd';
+      context.stroke();
+      context.beginPath();
+      context.moveTo(10, plot_offset.top);
+      context.lineTo(10, canvas.height - plot_offset.bottom + 1);
+      context.stroke();
+    }
+    else {
+      context.beginPath();
+      context.arc(10, y + plot_offset.top, 8, 0, 2 * Math.PI, false);
+      context.fillStyle = '#009900';
+      context.fill();
+      context.lineWidth = 1;
+      context.strokeStyle = '#007700';
+      context.stroke();
+      context.beginPath();
+      context.moveTo(10, plot_offset.top);
+      context.lineTo(10, canvas.height - plot_offset.bottom + 1);
+      context.stroke();
+    }
+    $('#trigger_tooltip').css({ top: y + plot_offset.top });  
+  }
+  
+  function updateRanges() {
+
+    var xunit = (params.local.time_units == 0 ? 'µs' : (params.local.time_units == 1 ? 'ms' : 's'));
+    var axes = plot.getAxes();
+
+    var xrange = axes.xaxis.max - axes.xaxis.min;
+    var y1range = axes.yaxis.max - axes.yaxis.min;
+    var y2range = axes.y2axis.max - axes.y2axis.min;
+
+    var y1minrange = 5e-3;  // Volts
+    var y2minrange = 5e-5;
+
+    var ymaxrange = params.original.gui_reset_y_range;
+
+    var xminrange = 20e-9; // seconds
+    var xmaxrange = 10.0;  // seconds
+
+    var seconds = (xunit == 'ns' ? 1e-9 : ( xunit == 'µs' ? 1e-6 : (xunit == 'ms' ? 1e-3 : 1)));
+
+    var nearest_x = getNearestRanges(xrange);
+    var nearest_y1 = getNearestRanges(y1range);
+    var nearest_y2 = gety2NearestRanges(y2range);
+
+    // X limitations 
+    if(nearest_x.next * seconds > xmaxrange) {
+      nearest_x.next = null;
+      $('#range_x_plus').prop('disabled', true);
+    }
+    else {
+      $('#range_x_plus').prop('disabled', false);
+    }
+    if(nearest_x.prev * seconds < xminrange) {
+      nearest_x.prev = null;
+      $('#range_x_minus').prop('disabled', true);
+    }
+    else {
+      $('#range_x_minus').prop('disabled', false);
+    }
+    
+    $('#range_x_minus').data({ nearest: nearest_x.prev, unit: xunit });
+    $('#range_x_plus').data({ nearest: nearest_x.next, unit: xunit });
+      
+    // Y limitations
+    if(6 < y1range) {
+      nearest_y1.next = null;
+      $('#range_y1_plus').prop('disabled', true);
+    }
+    else {
+      $('#range_y1_plus').prop('disabled', false);
+    }
+
+    if(2 < y2range) {
+      nearest_y2.next = null;
+      $('#range_y2_plus').prop('disabled', true);
+    }
+    else {
+      $('#range_y2_plus').prop('disabled', false);
+    }
+
+    if(nearest_y1.prev < y1minrange) {
+      nearest_y1.prev = null;
+      $('#range_y1_minus').prop('disabled', true);
+    }
+    else {
+      $('#range_y1_minus').prop('disabled', false);
+    }
+
+    if(nearest_y2.prev < y2minrange) {
+      nearest_y2.prev = null;
+      $('#range_y2_minus').prop('disabled', true);
+    }
+    else {
+      $('#range_y2_minus').prop('disabled', false);
+    }
+    
+    $('#range_y1_minus').data({ nearest: nearest_y1.prev, unit: "V" });
+    $('#range_y1_plus').data({ nearest: nearest_y1.next, unit: "V" });
+
+    $('#range_y2_minus').data({ nearest: nearest_y2.prev, unit: "A" });
+    $('#range_y2_plus').data({ nearest: nearest_y2.next, unit: "A" });
+  }
+  
+  function getNearestRanges(number) {
+
+    var log10 = Math.floor(Math.log(number) / Math.LN10); 
+    var normalized = number / Math.pow(10, log10);    
+    var i = 0;
+    var prev = null;
+    var next = null;
+    
+    while(i < range_steps.length - 1) {
+
+      var ratio = range_steps[i+1] / normalized;
+      if(ratio > 0.99 && ratio < 1.01) {
+        prev = range_steps[i];
+        next = range_steps[i+2];
+        break;
+      }
+      if(range_steps[i] < normalized && normalized < range_steps[i+1]) {
+        prev = range_steps[i];
+        next = range_steps[i+1];
+        break;
+      }
+      i++;
+    }
+
+    return { 
+      prev: prev * Math.pow(10, log10), 
+      next: next * Math.pow(10, log10) 
+    };
+  }
+
+  function gety2NearestRanges(number) {
+
+    var log10 = Math.floor(Math.log(number) / Math.LN10); 
+    var normalized = number / Math.pow(10, log10);    
+    var i = 0;
+    var prev = null;
+    var next = null;
+    
+    while(i < rangey2_steps.length - 1) {
+      
+      var ratio = rangey2_steps[i+1] / normalized;
+
+      if(ratio > 0.99 && ratio < 1.01) {
+        prev = rangey2_steps[i];
+        next = rangey2_steps[i+2];
+        break;
+      }
+      if(rangey2_steps[i] < normalized && normalized < rangey2_steps[i+1]) {
+        prev = rangey2_steps[i];
+        next = rangey2_steps[i+1];
+        break;
+      }
+      i++;
+    }
+
+    return { 
+      prev: prev * Math.pow(10, log10), 
+      next: next * Math.pow(10, log10) 
+    };
+  }
+
+  
+  function serverAutoScale() {
+    params.local.auto_flag = 1;
+    sendParams(true);
+  }
+  
+  function postGenSingle(channel) {
+    if(params.local['gen_trig_mod_ch' + channel] == 1) {
+      params.local['gen_single_ch' + channel] = 1;
+      sendParams();
+    }
+    else {
+      $('#gen_ch' + channel + '_single').prop('disabled', true);
+    }
+    return false;
+  }
+  
+  function getLocalDecimalSeparator() {
+    var n = 1.1;
+    return n.toLocaleString().substring(1,2);
+  }
+  
+  function parseLocalFloat(num) {
+    return +(num.replace(getLocalDecimalSeparator(), '.'));
+  }
+  
+  function floatToLocalString(num) {
+    // Workaround for a bug in Safari 6 (reference: https://github.com/mleibman/SlickGrid/pull/472)
+    //return num.toString().replace('.', getLocalDecimalSeparator());
+    return (num + '').replace('.', getLocalDecimalSeparator());
+  }
+  
+  function shortenFloat(value) {
+    return value.toFixed(Math.abs(value) >= 10 ? 1 : 3);
+  }
+  
+  function convertSec(value) {
+
+    var unit = '';
+    var decsep = getLocalDecimalSeparator();
+    
+    if(value < 1e-6) {
+      value *= 1e9;
+      unit = '<span class="unit">ns</span>';
+    }
+    else if(value < 1e-3) {
+      value *= 1e6;
+      unit = '<span class="unit">µs</span>';
+    }
+    else if(value < 1) {
+      value *= 1e3
+      unit = '<span class="unit">ms</span>';
+    }
+    else {
+      unit = '<span class="unit">s</span>';
+    }
+
+    // Fix to 4 decimal digits in total regardless of the decimal point placement
+    var eps = 1e-2;
+
+    if (value >= 100 - eps) {
+      value = value.toFixed(1);
+    }
+    else if  (value >= 10 - eps) {
+      value = value.toFixed(2);
+    }
+    else {
+      value = value.toFixed(3);
+    }
+    
+    value = (value == 0 ? '---' + decsep + '-' : floatToLocalString(value));
+    return value + unit;
+  }
+  
+  function nastavitveElementov(send, el, amp, defF, y1, y2){    
+      
+      params.local.gen_sig_freq_ch1 = defF;   
+      $('#gen_ch1_freq')[0].value = defF;   
+      if(send){   
+        params.local.read_element = el;   
+      }   
+      params.local.gen_sig_amp_ch1 = amp;
+
+      sety(y1*2, 0);
+      sety(y2*2, 1);   
+
+      if(send){   
+        sendParams();
+      }   
+    }
+
+    function zaokrozi(a){ 
+
+      var s = a.toString();   
+      var n;    
+      var i = s.indexOf(".");
+
+      if(i != -1){    
+        if(i > 2){    
+            n = Math.round(a);    
+        }   
+        else{   
+          n = a.toPrecision(3);   
+        }   
+      }   
+      else{   
+          var j = s.indexOf(",");
+
+          if(j != -1){    
+            if(i > 2){    
+              n = Math.round(a);    
+            }   
+            else{   
+              n = a.toPrecision(3);   
+            }       
+          }   
+          else{   
+            n = a;    
+          }   
+      }   
+      return n;   
+    }
+
+    function sety(nearest, indeks){
+
+      if(nearest && plot) {
+
+        var options = plot.getOptions();
+        var axes = plot.getAxes();
+        var min = (options.yaxes[indeks].min !== null ? options.yaxes[0].min : axes.yaxis.min);
+        var max = (options.yaxes[indeks].max !== null ? options.yaxes[0].max : axes.yaxis.max);
+        
+        var center = (min + max) / 2;
+        var half = nearest / 2;
+        min = center - half;
+        max = center + half;
+        
+        options.yaxes[indeks].min = min;
+        options.yaxes[indeks].max = max;
+
+        plot.setupGrid();
+        plot.draw();
+               
+        updateRanges();
+        //$(this).tooltip($(this).prop('disabled') === true ? 'hide' : 'show');
+        updateTriggerSlider();
+      }
+    }
+  
+  </script>
+  <script src="../assets/redpitaya.custom.js"></script>
+</head>
+<body>
+  <div class="header">
+    <div class="container">
+      <a id="btn_exit" class="pull-left" href="/index.html"><span class="glyphicon glyphicon-chevron-left" title="Exit" alt="Exit"></span></a>
+      <img class="logo pull-left" src="../assets/images/eEksperimenti_logo.png" style="margin-right: 5em;">
+      <h2 class="page-title"> eElementi </h2>
     </div>
-    <div class="bazaar-link">
+  </div>
+	<!-- <a href='#sl' class='translate' style ="float: right"">sl</a>
+	<a href='#en' class='translate' style ="float: right">en</a> -->
+  
+  <div class="container">
+    <div class="row">   
+      <select id="izberiElement" class="input-sm">   
+        <option selected="selected">    
+          Izberite element    
+        </option>   
+        <option>    
+          Upor    
+        </option>   
+        <option>    
+          Tuljava   
+        </option>   
+        <option>    
+          Kondenzator   
+        </option>   
+        <option>    
+          Dioda   
+        </option>   
+      </select>   
     </div>
-    <div class="pagewrapper">
-      <div class="appdescredpitaya container" id="linki">
-        <div class="row">
-          <div class="col-md-12 text-center">
-            <h3> Izberite način izvajanja: </h3>
+    <div class="row">
+      <div class="col-xs-12 col-md-8" style="padding: 1em 2em 2em 2em;">
+        <div class="btn-group zoomYaxis leftZoom">
+            <button id="range_y1_minus" type="button" class="btn range-btn-left modro_ozadje belo">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+            <button id="range_y1_plus" type="button" class="btn range-btn-right modro_ozadje belo">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+        </div>
+        <div class="btn-group zoomYaxis rightZoom">
+          <button id="range_y2_minus" type="button" class="btn range-btn-left rdece_ozadje belo">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+          <button id="range_y2_plus" type="button" class="btn range-btn-right rdece_ozadje belo">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+        </div>
+        <div class="graph-holder well well-small">
+          <div id="ytitle" class="modro">Napetost [ V ]</div>
+          <div id="trigger_cnv_holder">
+            <canvas id="trigger_canvas" width="25" height="460"></canvas>
+            <div id="trigger_tooltip"></div>
+          </div>
+          <div id="plot_holder"></div>
+          <div id="xtitle"></div>
+          <div id="y2title" class="rdece" style="display: block;">Tok [ A ]</div>
+        </div>
+        <div class="col-xs-5 text-center" style="margin-top: -10px;left:50px">
+          <div>
+            <span> časovni interval </span>
+          </div>
+          <div class="btn-group" style="margin-bottom: -3px;">
+            <button id="range_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+            <button id="range_x_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
           </div>
         </div>
-        <div class="row" style="padding: 2em 0;">
-          <div class='col-md-4 text-center'> 
-            <a href="app.html#sl/#lahko"  style='color: white;' id="lahko"> 
-              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ENOSTAVEN NAČIN </button> 
-            </a>
-          </div> 
-          <div class='col-md-4 text-center'>
-            <a href="app.html#sl/#pametno"  style='color: white;' id="tezko"> 
-              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> ZAHTEVNEJŠI NAČIN </button> 
-            </a>
+        <div class="col-xs-5 text-center" style="margin-top: -10px;left:50px">
+          <div>
+            <span> časovni zamik </span>
           </div>
-          <div class='col-md-4 text-center'>
-            <a href="app.html#sl/#ugani"  style='color: white;' id="ugani"> 
-              <button style= 'height: 4em; background: #A5D3D8; border-radius:5%; border:none;'> UGANI ELEMENT </button> 
-            </a>
+          <div class="btn-group" style="margin-bottom: -3px;">
+            <button id="offset_x_minus" type="button" class="btn btn-primary btn-lg range-btn-left">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+            <button id="offset_x_plus" type="button" class="btn btn-primary btn-lg range-btn-right">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-group col-xs-12 col-md-4" id="accordion" style="margin-top: 3.5em; padding: 0 0 0 2em;">
+		<div class="panel panel-default" style="display: none;">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#autoscale">
+                Samodejna nastavitev merilnih območij
+              </a>
+            </h4>
+          </div>
+          <div  id="autoscale"  class="panel-collapse collapse in"> 
+            <div class="container">
+				<div class="row" style="margin: 4px">
+					<button id="btn_autoscale_y" class="btn btn-primary btn-block"  onclick="serverAutoScale()">
+						<span class="glyphicon glyphicon-move"></span> Napetostnega in časovnega
+					</button>
+				</div>
+				<div class="row" style="margin: 4px">
+					<button id="btn_auto" class="btn btn-primary btn-block"  onclick="autoscaleY()">
+						<span class="glyphicon glyphicon-resize-vertical"></span> Napetostnega
+					</button>
+				</div>
+				<div class="row" style="margin: 4px">
+					<button id="btn_resetZoom" class="btn btn-primary btn-block" onclick="resetZoom()">
+						<span class="glyphicon glyphicon-retweet"></span> Ponastavi
+					</button>  
+				</div>  
+			</div>
+          </div>
+        </div>
+		<div class="panel panel-default" style="display: none;">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#trigger">
+                Proženje
+              </a>
+            </h4>
+          </div>
+          <div id="trigger" class="panel-collapse collapse">
+            <div class="panel-body">
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="trig_source" class="col-xs-4 control-label">Izvor prožilnega signala:</label>
+                  <div class="col-xs-8">
+                    <select id="trig_source" class="form-control">
+                      <option value="0">Kanal 1</option>
+                      <option value="1">Kanal 2</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="trig_mode" class="col-xs-4 control-label">Način proženja:</label>
+                  <div class="col-xs-8">
+                    <select id="trig_mode" class="form-control">
+                      <option value="0">Samodejno</option>
+                      <option value="1">Normal</option>
+                      <option value="2">Enkratno</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="trig_edge" class="col-xs-4 control-label">Prehod signala za proženje:</label>
+                  <div class="col-xs-8">
+                    <select id="trig_edge" class="form-control">
+                      <option value="0">Pozitiven prehod</option>
+                      <option value="1">Negativen prehod</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="trig_level" class="col-xs-4 control-label">Prag proženja:</label>
+                  <div class="col-xs-5">
+                    <input type="text" id="trig_level" value="0" class="form-control" autocomplete="off">
+                    <span id="apply_trig_level" class="input-group-btn" style="display: none;">
+                      <button class="btn btn-primary btn-lg" type="button"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div id="trig_lev_units" class="col-xs-3" style="padding: 7px 0 0;">V</div>
+                </div>
+              </form>
+              <div class="row">
+                <div class="col-xs-4"> </div>
+                <div class="col-xs-5">
+                  <button id="btn_single" class="btn btn-primary" onclick="singleUpdate()" disabled>
+                    <span class="glyphicon glyphicon-step-forward"></span> Enkratno proženje
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+		
+        <div class="panel panel-default" style="display: none;">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#gain">
+                Merilni sondi
+              </a>
+            </h4>
+          </div>
+          <div id="gain" class="panel-collapse collapse">
+            <div class="panel-body">
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="group-label" style="padding-bottom: 10px;">Kanal 1 </div>
+                <div class="form-group">
+                  <label for="gain_ch1_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <select class="form-control" id="gain_ch1_att">
+                      <option value="0">1x</option>
+                      <option value="1">10x</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="gain_ch1_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <select class="form-control" id="gain_ch1_sett">
+                      <option value="0">LV</option>
+                      <option value="1">HV</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="group-label" style="padding: 10px 0;">Kanal 2</div>
+                <div class="form-group">
+                  <label for="gain_ch2_att" class="col-xs-4 col-sm-6 control-label">Faktor slabljenja:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <select class="form-control" id="gain_ch2_att">
+                      <option value="0">1x</option>
+                      <option value="1">10x</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="gain_ch2_sett" class="col-xs-4 col-sm-6 control-label">Nastavitev ojačanja:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <select class="form-control" id="gain_ch2_sett">
+                      <option value="0">LV</option>
+                      <option value="1">HV</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#generator">
+                Signalni generator
+              </a>
+            </h4>
+          </div>
+          <div id="generator" class="panel-collapse collapse">
+            <div class="panel-body">
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
+                <div class="checkbox" style="padding-bottom: 12px;">
+                  <label class="group-label">
+                    <input type="checkbox" id="gen_enable_ch1" checked> Kanal 1
+                  </label>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_sigtype" class="col-xs-4 control-label">Oblika izhodnega signala:</label>
+                  <div class="col-xs-4 col-sm-7">
+                    <select class="form-control" id="gen_ch1_sigtype">
+                      <option value="0">Sinusna</option>
+                      <option value="1">Pravokotna</option>
+                      <option value="2">Trikotna</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_ampl" class="col-xs-4 control-label"> Vršna napetost:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_ampl">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_ampl">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_ampl_units">Vpp</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_freq" class="col-xs-4 control-label"> Frekvenca:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_freq">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_freq">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_freq_units">Hz</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;" style="display: none;">
+                <div class="form-group">
+                  <label for="gen_ch1_dc" class="col-xs-4 control-label">Enosmerna komponenta:</label>
+                  <div class="col-xs-4 col-sm-5">
+                    <input type="text" autocomplete="off" class="form-control" value="0" id="gen_ch1_dc">
+                    <span style="display: none;" class="input-group-btn" id="apply_gen_ch1_dc">
+                      <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
+                    </span>
+                  </div>
+                  <div style="padding: 7px 0 0;" class="col-xs-2" id="gen_ch1_dc_units">V</div>
+                </div>
+              </form>
+              <form class="form-horizontal" role="form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="gen_ch1_trigmode" class="col-xs-4 control-label" style="white-space: nowrap;">Način proženja:</label>
+                  <div class="col-xs-4 col-sm-7">
+                    <select class="form-control" id="gen_ch1_trigmode">
+                      <option value="0">Ponavljajoče</option>
+                      <option value="1">Enkratno</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </body>
-  <script type="text/javascript">
-
-    var url = window.location.href.toString();
-
-    if(url.indexOf("?") != -1){
-
-      var index1 = url.indexOf("index");
-      var index2 = url.indexOf("?");
-    
-
-      var l = $("#linki").find(".col-md-4").find("a");
-
-      for(var i = 0; i < l.length; i++){
-
-        l[i].href = url.substring(0, index1) + l[i].getAttribute("href") + url.substring(index2, url.length);
-      }
-    }
-
-    function shuffle(array){
-      var currentIndex = array.length, temporaryValue, randomIndex;
-
-      // While there remain elements to shuffle...
-      while (0 !== currentIndex) {
-
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-
-        // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-      }
-
-      return array;
-    }
-
-    localStorage.clear();
-    localStorage.setItem("i_vprasanje", 0);
-
-    $("#ugani").on("click", function(){
-
-      var elementi = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
-      shuffle(elementi);
-
-      for(var i = 1; i <= elementi.length; i++){
-        localStorage.setItem(i, elementi[i - 1]);
-      }
-    });
-
-    $("#tezko").on("click", function(){
-
-      var elementi = [1, 2, 3, 4];
-
-      shuffle(elementi);
-
-      for(var i = 1; i <= elementi.length; i++){
-        localStorage.setItem(i, elementi[i - 1]);
-      }
-    });
-
-  </script>
+  </div>
+  <div id="modal_err" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_err_label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal_err_label">Application error</h4>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default btn-close-modal" id="btn_ignore">Ignore</button>
+          <button type="button" class="btn btn-default" id="btn_retry_get">Retry</button>
+          <button type="button" class="btn btn-primary btn-app-restart">Restart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="modal_app" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal_app_label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal_app_label">Application stopped</h4>
+        </div>
+        <div class="modal-body">
+          The <strong><span class="app-id"></span></strong> application was stopped. The current started application is <strong><span id="new_app_id"></span></strong>.<br />
+          Do you want to switch to newly started application or to restart <strong><span class="app-id"></span></strong>?
+        </div>
+        <div class="modal-footer">
+          <a href="/index.html" class="btn btn-danger pull-left">Exit app</a>
+          <button type="button" class="btn btn-default" id="btn_switch_app">Switch</button>
+          <button type="button" class="btn btn-primary btn-app-restart">Restart</button>
+        </div>
+      </div>
+    </div>
+  </div> 
+</body>
 </html>
