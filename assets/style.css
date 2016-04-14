@@ -361,3 +361,27 @@ ul li .dropdown-toggle{
     -webkit-transform: rotate(-90deg);
     transform: rotate(-90deg);
 }
+
+.rdece{
+  color: rgb(197, 29, 34);
+}
+
+.modro{
+  color: rgb(40, 97, 161);
+}
+
+.belo{
+  color: white;
+}
+
+.rdece_ozadje{
+  background-color: rgb(197, 29, 34);
+}
+
+.modro_ozadje{
+  background-color: rgb(40, 97, 161);
+}
+
+.belo_ozadje{
+  background-color: white;
+}
